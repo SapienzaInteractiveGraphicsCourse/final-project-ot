@@ -1,32 +1,36 @@
-var OFFSET = 1;
-var MAX_COORD = 2;
+var DELTA_MOVEMENT = 1;
+var MAX_COORD = 10;
 
 class ObjectPosition {
     
-    constructor(x, y) {
-        this.x = x;
-        this.y = y;
+    constructor(x, y, max) {
+        if (x > max) this.x = max;
+        else this.x = x;
+        if (y > max) this.y = max;
+        else this.y = y;
+        
+        this.max = max;
     }
 
     // update coords
     increase_x(){
-        if(this.x + OFFSET > MAX_COORD) this.x = MAX_COORD
-        else this.x += OFFSET
+        if(this.x + DELTA_MOVEMENT > this.max) this.x = this.max;
+        else this.x += DELTA_MOVEMENT;
     }
 
     decrease_x(){
-        if(this.x - OFFSET < -MAX_COORD) this.x = -MAX_COORD
-        else this.x -= OFFSET
+        if(this.x - DELTA_MOVEMENT < 0) this.x = 0;
+        else this.x -= DELTA_MOVEMENT;
     }
 
     increase_y(){
-        if(this.y + OFFSET > MAX_COORD) this.y = MAX_COORD
-        else this.y += OFFSET
+        if(this.y + DELTA_MOVEMENT > this.max) this.y = this.max;
+        else this.y += DELTA_MOVEMENT;
     }
 
     decrease_y(){
-        if(this.y - OFFSET < -MAX_COORD) this.y = -MAX_COORD
-        else this.y -= OFFSET
+        if(this.y - DELTA_MOVEMENT < 0) this.y = 0;
+        else this.y -= DELTA_MOVEMENT;
     }
 
 }
@@ -99,7 +103,7 @@ class KeyboardController {
 
 
 
-let objectPosition = new ObjectPosition(0,0);
+let objectPosition = new ObjectPosition(0,0, MAX_COORD);
 
 let keyboardController = new KeyboardController();
 
