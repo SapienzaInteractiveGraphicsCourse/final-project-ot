@@ -4,8 +4,11 @@ import {Camera} from "./content/Camera.js";
 
 
 import {resizeCanvas} from "./content/utils.js";
-import {Snake} from "./content/Snake.js";
+import {EventHandler, Snake} from "./content/Snake.js";
+import {TWEEN} from "./resources/three.js-r129/examples/jsm/libs/tween.module.min.js";
 
+//TODO migliorare
+let snake;
 
 function main() {
     /*----- Enviroment -----*/
@@ -16,7 +19,7 @@ function main() {
     /*------ Data ------*/
     const camera = new THREE.PerspectiveCamera(80, 2, 0.1, 2000);
     const light = new THREE.DirectionalLight(0xFFFFFF, 1);
-    const snake = new Snake();
+    snake = new Snake();
 
 
 
@@ -34,10 +37,23 @@ function main() {
     snake.addNode();
     snake.addNode();
     snake.addNode();
+    snake.addNode();
+    snake.addNode();
+    snake.addNode();
+    snake.addNode();
 
+    dummyController();
+    //snake._moveToTarget(-3.2,0,0);
+    //snake.goDown()
+    //snake.start();
     function render(time) {
+        //time *= 0.001;
+
         resizeCanvas(renderer,camera);
 
+
+
+        TWEEN.update(time);
 
         renderer.render(scene, camera);
         requestAnimationFrame(render);
@@ -45,4 +61,55 @@ function main() {
 
     requestAnimationFrame(render);
 }
+
+
+
+/*---- Tests ----*/
+let count = 0
+export function dummyController() {
+    console.log(count);
+    if (count++ < 2) {
+        snake.goLeft();
+        EventHandler.startNextEvent();
+        return;
+    }
+    if (count < 6) {
+        snake.goDown();
+        EventHandler.startNextEvent();
+        return;
+    }
+    if (count < 9) {
+        snake.goRight();
+        EventHandler.startNextEvent();
+        return;
+    }
+    if (count < 10) {
+        snake.goUp();
+        EventHandler.startNextEvent();
+        return;
+    }
+    if (count < 13) {
+        snake.goRight();
+        EventHandler.startNextEvent();
+        return;
+    }
+    if (count < 16) {
+        snake.goUp();
+        EventHandler.startNextEvent();
+        return;
+    }
+    if (count < 18) {
+        snake.goRight();
+        EventHandler.startNextEvent();
+        return;
+    }
+    if (count < 21) {
+        snake.goUp();
+        EventHandler.startNextEvent();
+        return;
+    }
+
+}
+
+
 main()
