@@ -62,3 +62,13 @@ export function makeAxisGridDebug(node, label, size = 1, units = 10) {
     gui.add(handler, 'gridVisible').name(label + ' Grid');
 
 }
+
+
+
+/*------- Other utilities -----*/
+export function toRadians(angle) {
+    return angle * (Math.PI / 180);
+}
+export function toDegrees(angle) {
+    return angle * (180 / Math.PI);
+}
