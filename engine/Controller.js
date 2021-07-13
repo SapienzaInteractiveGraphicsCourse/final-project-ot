@@ -2,58 +2,192 @@ var DELTA_MOVEMENT = 1;
 var MAX_COORD = 10;
 
 import {Configuration} from "./Configuration.js";
+import {EventHandler} from "./../content/Snake.js";
+
+class ReferenceSystem{
+    
+    constructor(max_x, max_y, max_z){
+        this.max_x = max_x;
+        this.max_y = max_y;
+        this.max_z = max_z;
+        this.max_f = 6;
+
+        // matrix position
+        // 0 = left - 1 = right - 2 = up - 3 = down
+        // | 0 |   [4, 1, 2, 3]
+        // | 1 |   [0, 5, 2, 3]
+        // | 2 |   [4, 1, 5, 0]
+        // | 3 |   [4, 1, 5, 0]
+        // | 4 |   [5, 0, 2, 3]
+        // | 5 |   [1, 4, 2, 3]
+
+        var matrix_reference = [];
+        matrix_reference.push([4, 1, 2, 3]); 
+        matrix_reference.push([0, 5, 2, 3]); 
+        matrix_reference.push([4, 1, 5, 0]); 
+        matrix_reference.push([1, 4, 5, 0]); 
+        matrix_reference.push([5, 0, 2, 3]); 
+        matrix_reference.push([1, 4, 2, 3]); 
+        
+        this.mrs = matrix_reference;
+
+    }
+}
 
 class ObjectPosition {
     
-    constructor(x, y, z, max) {
-        if (x > max) this.x = max;
-        else this.x = x;
-        if (y > max) this.y = max;
-        else this.y = y;
-        if (z > 1) this.z = 1;
-        else this.z = z;
-        
-        this.max = max;
+    constructor(x, y, z, f, rs){
+        this.x = x; 
+        this.y = y;
+        this.z = z;
+        this.f = f;
+
+        this.rs = rs; // reference system
+
     }
 
-    // update coords
-    increase_x(){
-        if(this.x + DELTA_MOVEMENT > this.max) this.x = this.max;
-        else this.x += DELTA_MOVEMENT;
+    check_consistency(){
+
+        // face index
+        // sx = 0
+        // dx = 1
+        // up = 2
+        // down = 3
+        var face = this.f;
+
+
+        if(this.x > this.rs.max_x){
+          // from this face to right face 
+          this.x = 0;
+          this.f = this.rs.mrs[face][1];
+          
+        } else if (this.x < 0){
+          // from this face to left face
+          this.x = this.rs.max_x;
+          this.f = this.rs.mrs[face][0];
+        }
+
+        if(this.y > this.rs.max_y){
+          // from this face to down face  
+          this.y = 0;
+          this.f = this.rs.mrs[face][3];
+
+
+        } else if (this.y < 0){
+          // from this face to up face
+          this.y = this.rs.max_y;
+          this.f = this.rs.mrs[face][2];
+        }
+
+        if(this.z > this.rs.max_z) this.z = this.rs.max_z;
+        else if(this.z < 0) this.z = 0;
     }
 
-    decrease_x(){
-        if(this.x - DELTA_MOVEMENT < 0) this.x = 0;
-        else this.x -= DELTA_MOVEMENT;
+
+    decrease(x, y, z){
+        this.x -= x;
+        this.y -= y;
+        this.z -= z;
+
+        this.check_consistency();
     }
 
-    increase_y(){
-        if(this.y + DELTA_MOVEMENT > this.max) this.y = this.max;
-        else this.y += DELTA_MOVEMENT;
+    increase(x, y, z){
+        this.x += x;
+        this.y += y;
+        this.z += z;
+
+        this.check_consistency();
+
     }
 
-    decrease_y(){
-        if(this.y - DELTA_MOVEMENT < 0) this.y = 0;
-        else this.y -= DELTA_MOVEMENT;
+    
+}
+
+export class Controller{
+
+    constructor(object){
+        this.object = object
     }
 
 
-    increase_z(){
-        if(this.z + DELTA_MOVEMENT > 1) this.z = 1;
-        else this.z += DELTA_MOVEMENT;
+    left(){
+        this.object.goLeft();
+        // EventHandler.startNextEvent();
     }
 
-    decrease_z(){
-        if(this.z - DELTA_MOVEMENT < 0) this.z = 0;
-        else this.z -= DELTA_MOVEMENT;
+    right(){
+        this.object.goRight();
+        // EventHandler.startNextEvent();
+    }
+
+    up(){
+        this.object.goUp();
+        // EventHandler.startNextEvent();
+    }
+
+    down(){
+        this.object.goDown();
+        // EventHandler.startNextEvent();
     }
 
 }
 
 
-class KeyboardController {
+class Controller2D extends Controller{
+
+    constructor(object){
+        super(object);
+    }
+
+    left(){
+        super.left();
+    }
+
+    right(){
+        super.right();
+    }
+
+    up(){
+        super.up();
+    }
+
+    down(){
+        super.down();
+    }
+}
+
+
+
+class Controller3D extends Controller{
+
+    constructor(object){
+        super(object);
+    }
+
+    left(){
+        super.left();
+    }
+
+    right(){
+        super.right();
+    }
+
+    up(){
+        super.up();
+    }
+
+    down(){
+        super.down();
+    }
+}
+
+
+export class KeyboardHandler {
     
-    constructor(){
+    constructor(controller){
+
+        this.controller = controller;
 
         document.addEventListener('keydown', keyDownHandler, false);
         document.addEventListener('keyup', keyUpHandler, false);
@@ -72,28 +206,44 @@ class KeyboardController {
 
             if(event.keyCode == KeyboardHelper.right) {
                 rightPressed = true;
-                objectPosition.increase_x();
-                console.log("x: " + objectPosition.x + " y: " + objectPosition.y, "z: " + objectPosition.z);
+                console.log("Right: ", rightPressed);
+
+                controller.right();
+            
+                // objectPosition.increase(DELTA_MOVEMENT, 0, 0);
+                // console.log("face: " + objectPosition.f + " x: " + objectPosition.x + " y: " + objectPosition.y, "z: " + objectPosition.z);
             }
             else if(event.keyCode == KeyboardHelper.left) {
                 leftPressed = true;
-                objectPosition.decrease_x();
-                console.log("x: " + objectPosition.x + " y: " + objectPosition.y, "z: " + objectPosition.z);
+                console.log("Left: ", leftPressed);
+
+                controller.left();
+                
+                // objectPosition.decrease(DELTA_MOVEMENT, 0, 0);
+                // console.log("face: " + objectPosition.f + " x: " + objectPosition.x + " y: " + objectPosition.y, "z: " + objectPosition.z);
             }
             if(event.keyCode == KeyboardHelper.down) {
                 downPressed = true;
-                objectPosition.decrease_y();
-                console.log("x: " + objectPosition.x + " y: " + objectPosition.y, "z: " + objectPosition.z);
+                console.log("Down: ", downPressed);
+
+                controller.down();
+                // objectPosition.decrease(0, DELTA_MOVEMENT, 0);
+                // console.log("face: " + objectPosition.f + " x: " + objectPosition.x + " y: " + objectPosition.y, "z: " + objectPosition.z);
             }
             else if(event.keyCode == KeyboardHelper.up) {
                 upPressed = true;
-                objectPosition.increase_y();
-                console.log("x: " + objectPosition.x + " y: " + objectPosition.y, "z: " + objectPosition.z);
+                console.log("Up: ", upPressed);
+
+                controller.up();
+                // objectPosition.increase(0, DELTA_MOVEMENT, 0);
+                // console.log("face: " + objectPosition.f + " x: " + objectPosition.x + " y: " + objectPosition.y, "z: " + objectPosition.z);
             }
             else if(event.keyCode == KeyboardHelper.space){
                 spacePressed = true;
-                objectPosition.increase_z();
-                console.log("x: " + objectPosition.x + " y: " + objectPosition.y, "z: " + objectPosition.z);
+                console.log("Space: ", spacePressed);
+
+                // objectPosition.increase(0, 0, DELTA_MOVEMENT);
+                // console.log("face: " + objectPosition.f + " x: " + objectPosition.x + " y: " + objectPosition.y, "z: " + objectPosition.z);
             }
         }
 
@@ -101,25 +251,26 @@ class KeyboardController {
 
             if(event.keyCode == KeyboardHelper.right) {
                 rightPressed = false;
-                console.log(rightPressed);
+                console.log("Right: ", rightPressed);
             }
             else if(event.keyCode == KeyboardHelper.left) {
                 leftPressed = false;
-                console.log(leftPressed);
+                console.log("Left: ", leftPressed);
             }
             if(event.keyCode == KeyboardHelper.down) {
                 downPressed = false;
-                console.log(downPressed);
+                console.log("Down: ", downPressed);
             }
             else if(event.keyCode == KeyboardHelper.up) {
                 upPressed = false;
-                console.log(upPressed);
+                console.log("Up: ", upPressed);
             }
 
             else if(event.keyCode == KeyboardHelper.space) {
-                upPressed = false;
-                objectPosition.decrease_z();
-                console.log(upPressed);
+                spacePressed = false;
+                console.log("Space: ", spacePressed);
+                // objectPosition.decrease(0, 0, DELTA_MOVEMENT);
+
             }
         }
     }
@@ -127,9 +278,10 @@ class KeyboardController {
 
 }
 
+// let reference = new ReferenceSystem(10, 10, 2);
 
 
-let objectPosition = new ObjectPosition(0, 0, 0, MAX_COORD);
+// let objectPosition = new ObjectPosition(0, 0, 0, 0, reference);
 
-let keyboardController = new KeyboardController();
+// let keyboardController = new KeyboardHandler();
 

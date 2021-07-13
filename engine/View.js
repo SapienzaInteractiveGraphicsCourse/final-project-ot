@@ -3,7 +3,11 @@
 
 export class View{
     
-    view(){
-        // foo
+    draw(){
+        // generate mesh
+    }
+
+    delete(){
+        // generate animation
     }
 }
