@@ -607,6 +607,18 @@ export class RandomEnvironmentGenerator{
     }
 
 
+    vector_to_direction(vector) {
+        for (let i = 0; i < 3; i++) {
+            vector[i] = Math.round(vector[i])
+            if (vector[i] === 0) continue;
+            return {
+                axis: i,
+                sign: vector[i]
+            }
+        }
+    }
+
+    //TODO Remove
     set_up_direction(vector) {
         for (let i = 0; i < 3; i++) {
             vector[i] = Math.round(vector[i])
@@ -617,6 +629,7 @@ export class RandomEnvironmentGenerator{
 
         console.log("up", this.#up_direction);
     }
+    //TODO Remove
     set_right_direction(vector) {
         for (let i = 0; i < 3; i++) {
             vector[i] = Math.round(vector[i])
@@ -629,14 +642,6 @@ export class RandomEnvironmentGenerator{
     }
 
 
-    update_up_direction(axis, sign) {
-        this.#up_direction = {axis: axis, sign: sign};
-    }
-
-    update_right_direction(axis, sign) {
-        this.#right_direction = {axis: axis, sign: sign};
-    }
-
     /*------- Getters && Setters------*/
     get up_direction() {
         return {...this.#up_direction}
@@ -647,5 +652,9 @@ export class RandomEnvironmentGenerator{
 
     set up_direction(direction) {
         this.#up_direction = direction;
+    }
+
+    set right_direction(direction) {
+        this.#right_direction = direction;
     }
 }

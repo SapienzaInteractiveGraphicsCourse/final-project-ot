@@ -22,7 +22,7 @@ var renderer;
 var cube_environment;
 
 let game;
-let radius = 50;
+let radius = 25;
     
 
 

@@ -72,8 +72,13 @@ export class Controller{
         if (done)
             this.snake.add_movement(this.game.world_to_render(new_pos), direction);
         else {
-            this.#change_face(old_pos,new_pos);
-            //TODO auto-continue
+
+            const rotated_delta = this.#change_face(old_pos,new_pos);
+            new_pos[0] = Math.round(old_pos[0] + rotated_delta[0]);
+            new_pos[1] = Math.round(old_pos[1] + rotated_delta[1]);
+            new_pos[2] = Math.round(old_pos[2] + rotated_delta[2]);
+            direction = this.game.vector_to_direction(rotated_delta);
+            this.#schedule_movement(old_pos,new_pos, direction);
         }
 
 
@@ -112,9 +117,13 @@ export class Controller{
         const rotation_matrix = rotate(rotation_angle,rotation_vector);
         up_vector = mult(rotation_matrix, vec4(up_vector[0], up_vector[1], up_vector[2], 0));
         right_vector = mult(rotation_matrix,vec4(right_vector[0], right_vector[1], right_vector[2], 0));
+        delta_vector = mult(rotation_matrix, vec4(delta_vector[0], delta_vector[1], delta_vector[2], 0));
 
-        this.game.set_up_direction(up_vector);
-        this.game.set_right_direction(right_vector);
+
+        this.game.up_direction = this.game.vector_to_direction(up_vector);
+        this.game.right_direction = this.game.vector_to_direction(right_vector);
+
+        return delta_vector;
     }
 
 
