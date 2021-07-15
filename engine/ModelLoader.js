@@ -1,9 +1,11 @@
+//TODO REMOVE
+
 export class ModelLoader{
-    
+
     constructor(){
 
         this.loaded_models = [];
-        
+
         //  Manager
         const manager = new THREE.LoadingManager();
         manager.onStart = function ( url, itemsLoaded, itemsTotal ) {
@@ -31,13 +33,13 @@ export class ModelLoader{
         };
 
         this.loader = new THREE.GLTFLoader( manager );
-        
-            
-        
+
+
+
     }
 
 
-    
+
     load_resource(path){
 
         this.loader.load(

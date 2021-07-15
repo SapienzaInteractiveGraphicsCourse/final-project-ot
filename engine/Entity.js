@@ -36,7 +36,7 @@ export class Entity extends View {
 
         // view 
         this.mesh = null;
-        this.draw();
+        //this.draw();
 
 
     }
@@ -105,8 +105,9 @@ export class ObstaclePart extends Entity{
     
     constructor(x, y, z, drawable, movable, erasable){
         super(x, y, z, drawable, movable, erasable); // call the super class constructor and pass in the name parameter
-        
-        
+
+        this.mesh = null;
+        this.draw();
 
     }
 
@@ -173,11 +174,12 @@ export class ObstaclePart extends Entity{
 
 
 // Player object 
-export class Player extends Entity{
+export class SnakeEntity extends Entity{
 
     constructor(x, y, z, drawable, movable, erasable){
         super(x, y, z, drawable, movable, erasable); // call the super class constructor and pass in the name parameter
-    
+        this.mesh = null;
+        this.draw();
     }
 
     draw(){
@@ -210,7 +212,8 @@ export class Food extends Entity{
 
     constructor(x, y, z, drawable, movable, erasable){
         super(x, y, z, drawable, movable, erasable); // call the super class constructor and pass in the name parameter
-    
+        this.mesh = null;
+        this.draw();
     }
 
 
@@ -251,8 +254,9 @@ export class Bonus extends Entity{
 
     constructor(x, y, z, drawable, movable, erasable){
         super(x, y, z, drawable, movable, erasable); // call the super class constructor and pass in the name parameter
-    
-        // this.mesh = this.view();
+
+        this.mesh = null;
+        this.draw();
     }
 
 

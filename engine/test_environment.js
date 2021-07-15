@@ -9,6 +9,7 @@ import {TWEEN} from "../resources/three.js-r129/examples/jsm/libs/tween.module.m
 import * as THREE from '../resources/three.js-r129/build/three.module.js';
 import { OrbitControls } from '../resources/three.js-r129/examples/jsm/controls/OrbitControls.js';
 import { ObstaclePart, Food, Bonus, Obstacle } from "./Entity.js";
+import {Controller} from "./Controller.js";
 
 
 
@@ -57,11 +58,12 @@ function start_engine(){
 
     var env_dim = 10;
     var game_level = 0;
-    var face_depth = 5;
+    var face_depth = 1;
 
     let environment = new Environment(env_dim, env_dim, env_dim, face_depth);
 
     game = new RandomEnvironmentGenerator(game_level, environment);
+    Controller.init(game);
     cube_environment = game.environment.mesh;
 
 
@@ -83,13 +85,13 @@ function start_engine(){
         
             console.log("TIC: ", tic);
 
-            game.move_objects(3, false);
-           
-            game.destroy_objects(3, true);
+            //game.move_objects(3, false);
+
+            //game.destroy_objects(3, true);
            
             // game.spawn_objects(1, Food, true, true, true);
             // game.spawn_objects(1, Bonus, true, true, true);
-            game.spawn_objects(5, ObstaclePart, true, true, true, true);
+            //game.spawn_objects(5, ObstaclePart, true, true, true, true);
             
         }
 

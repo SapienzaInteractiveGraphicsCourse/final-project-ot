@@ -93,18 +93,44 @@ export function dummyController() {
         EventHandler.startNextEvent();
         return;
     }
+    if (count < 14) {
+        snake.goUp();
+        EventHandler.startNextEvent();
+        return;
+    }
+    if (count < 15) {
+        snake.goRight();
+        EventHandler.startNextEvent();
+        return;
+    }
     if (count < 16) {
         snake.goUp();
         EventHandler.startNextEvent();
         return;
     }
-    if (count < 18) {
+    if (count < 17) {
         snake.goRight();
         EventHandler.startNextEvent();
         return;
     }
-    if (count < 21) {
+    if (count < 18) {
         snake.goUp();
+        EventHandler.startNextEvent();
+        return;
+    }
+
+    if (count < 19) {
+        snake.goRight();
+        EventHandler.startNextEvent();
+        return;
+    }
+    if (count < 20) {
+        snake.goUp();
+        EventHandler.startNextEvent();
+        return;
+    }
+    if (count < 21) {
+        snake.goLeft();
         EventHandler.startNextEvent();
         return;
     }

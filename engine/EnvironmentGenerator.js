@@ -1,20 +1,33 @@
-import { ObstaclePart, Bonus, Player, Food, Entity, CubeCell, Obstacle, Particle} from "./Entity.js";
-
+import {ObstaclePart, Bonus, Food, Entity, CubeCell, Obstacle, Particle, SnakeEntity} from "./Entity.js";
 import * as THREE from '../resources/three.js-r129/build/three.module.js';
 import { TWEEN } from "../resources/three.js-r129/examples/jsm/libs/tween.module.min.js";
 import { CoordinateGenerator } from "./CoordinateGenerator.js";
+import {Snake} from "../content/Snake.js";
 
-
+export const DIRECTIONS = {AXES: {X:0, Y:1, Z:2}, SIGN: {POSITIVE: 1, NEGATIVE: -1}}
 
 
 // Level generator
 export class RandomEnvironmentGenerator{
+    #up_direction
+    #right_direction
 
     constructor(game_level, environment){
         
         this.game_level = game_level
         this.environment = environment;
         this.mesh = null;
+        this.snake = null;
+
+        this.#up_direction = {
+            axis: DIRECTIONS.AXES.Y,
+            sign: DIRECTIONS.SIGN.POSITIVE
+        };
+        this.#right_direction = {
+            axis: DIRECTIONS.AXES.X,
+            sign: DIRECTIONS.SIGN.POSITIVE
+        };
+
 
         this.obstacle_num = 0;
         this.food_num = 0;
@@ -28,6 +41,7 @@ export class RandomEnvironmentGenerator{
         this.object_to_destroy = [];
 
         this.generate_environment();
+        this.generate_snake();
 
     }
 
@@ -53,7 +67,7 @@ export class RandomEnvironmentGenerator{
 
         console.log("Created object: [ ", type.name, " ] at [ ", x," ", y," ", z, " ]");
 
-
+        return object;
     }
 
     // destroys the object in the environment at coordinates (x, y, z)
@@ -62,6 +76,7 @@ export class RandomEnvironmentGenerator{
         var object = this.environment.environment[x][y][z].content;
         if( object == null ) return;
         if( object.mesh == null ) return;
+        if( !object.erasable ) return;
         
         if(object instanceof ObstaclePart) this.obstacle_num--;
         else if(object instanceof Food) this.food_num--;
@@ -81,16 +96,15 @@ export class RandomEnvironmentGenerator{
 
     // moves the object in the environment at coordinates [fromx, fromy, fromz] to the location at coordinates [tox, toy, toz]
     move_object_structure(from_x, from_y, from_z, to_x, to_y, to_z){
-        
-        if(!this.check_consistency(from_x, from_y, from_z)) return; 
-        if(!this.check_consistency(to_x, to_y, to_z)) return;
+        if(!this.check_consistency(from_x, from_y, from_z)) return false;
+        if(!this.check_consistency(to_x, to_y, to_z)) return false;
 
         var to_cell = this.environment.environment[to_x][to_y][to_z];
-        if( to_cell.content != null) return; // not empty cell
+        if( to_cell.content != null) return false; // not empty cell
 
         var from_cell = this.environment.environment[from_x][from_y][from_z];
-        if( from_cell.content == null) return; // empty cell
-        if( !from_cell.content.movable) return; // object in cell not movable
+        if( from_cell.content == null) return false; // empty cell
+        if( !from_cell.content.movable) return false; // object in cell not movable
         
 
         from_cell.content.x = to_x;
@@ -100,7 +114,8 @@ export class RandomEnvironmentGenerator{
         to_cell.content = from_cell.content;
         from_cell.content = null;
 
-        this.object_to_move.push(to_cell.content);
+        if (!to_cell.content instanceof Snake)
+            this.object_to_move.push(to_cell.content);
 
         // update generator
         this.coord_generator.remove_available_coordinate(to_x, to_y, to_z);
@@ -108,6 +123,7 @@ export class RandomEnvironmentGenerator{
         
         console.log("Moved object [ ", to_cell.content.constructor.name," ] from [ ", from_x," ", from_y," ", from_z, " ] to [ ", to_x," ", to_y," ", to_z, " ]");
 
+        return true;
 
     }
 
@@ -477,6 +493,20 @@ export class RandomEnvironmentGenerator{
         
     }
 
+
+    generate_snake() {
+
+        const world_coordinates = this.coord_generator.get_random_available();
+        let x = this.environment.width / 2;//world_coordinates[0];
+        let y = this.environment.height / 2;
+        let z = this.environment.depth -1; //world_coordinates[2];
+
+        this.snake = this.create_object_structure(x, y, z, Snake, true, true, false);
+
+        this.create_object_view();
+    }
+
+
    
     // Moves {number} object in the envirnoment
     // if { random } the number of object is in the range { 0 , number}
@@ -561,4 +591,61 @@ export class RandomEnvironmentGenerator{
         
     }
 
+
+
+    world_to_render(coordinates_or_x,y,z){
+        let x = coordinates_or_x;
+        if (arguments.length === 1) {
+            z = coordinates_or_x[2];
+            y = coordinates_or_x[1];
+            x = coordinates_or_x[0];
+        }
+        var w = this.environment.width;
+        var h = this.environment.height;
+        var d = this.environment.depth;
+        return [x - w/2 + 0.5, y - h/2 + 0.5, z - d/2 + 0.5];
+    }
+
+
+    set_up_direction(vector) {
+        for (let i = 0; i < 3; i++) {
+            vector[i] = Math.round(vector[i])
+            if (vector[i] === 0) continue;
+            this.#up_direction.axis = i;
+            this.#up_direction.sign = vector[i];
+        }
+
+        console.log("up", this.#up_direction);
+    }
+    set_right_direction(vector) {
+        for (let i = 0; i < 3; i++) {
+            vector[i] = Math.round(vector[i])
+            if (vector[i] === 0) continue;
+            this.#right_direction.axis = i;
+            this.#right_direction.sign = vector[i];
+        }
+        console.log("right", this.#right_direction);
+
+    }
+
+
+    update_up_direction(axis, sign) {
+        this.#up_direction = {axis: axis, sign: sign};
+    }
+
+    update_right_direction(axis, sign) {
+        this.#right_direction = {axis: axis, sign: sign};
+    }
+
+    /*------- Getters && Setters------*/
+    get up_direction() {
+        return {...this.#up_direction}
+    }
+    get right_direction() {
+        return {...this.#right_direction}
+    }
+
+    set up_direction(direction) {
+        this.#up_direction = direction;
+    }
 }

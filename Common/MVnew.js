@@ -81,7 +81,7 @@ function vec2()
     return out;
 }
 
-function vec3()
+export function vec3()
 {
 //var result = _argumentsToArray( arguments );
 
@@ -113,7 +113,7 @@ function vec3()
     return out;
 }
 
-function vec4()
+export function vec4()
 {
     var out = new Array(4);
     out.type = 'vec4';
@@ -313,7 +313,7 @@ function mat4()
 //  Generic Mathematical Operations for Vectors and Matrices
 //
 
-function equal( u, v )
+export function equal( u, v )
 {
     if(!(isMatrix(u)&&isMatrix(v) || (isVector(u)&&isVector(v))))
       throw "equal: at least one input not a vec or mat";
@@ -361,7 +361,7 @@ function add( u, v )
 
 //----------------------------------------------------------------------------
 
-function subtract( u, v )
+export function subtract( u, v )
 {
 
   if ( u.type != v.type ) {
@@ -390,7 +390,7 @@ function subtract( u, v )
 
 //----------------------------------------------------------------------------
 
-function mult( u, v )
+export function mult( u, v )
 {
 
   if(typeof(u)=="number" && (isMatrix(v)||isVector(v))) {
@@ -497,7 +497,7 @@ function translate( x, y, z )
 
 //----------------------------------------------------------------------------
 
-function rotate( angle, axis )
+export function rotate( angle, axis )
 {
   if ( axis.length == 3 ) {
     axis = vec3(axis[0], axis[1], axis[2] );
