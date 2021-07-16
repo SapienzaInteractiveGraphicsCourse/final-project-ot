@@ -4,10 +4,12 @@ import {makeAxisGridDebug} from "./utils.js";
 import {TWEEN} from "../resources/three.js-r129/examples/jsm/libs/tween.module.min.js";
 import {Entity} from "../engine/Entity.js";
 import {Controller} from "../engine/Controller.js";
+import {Config} from "../engine/Config.js";
+import {Utilities} from "../engine/Utilities.js";
 //import {dummyController} from "../index.js";
 
 
-class SynchronousEvents {
+class SynchronousAnimations {
     #movement
     #rotations = []
     #direction
@@ -57,7 +59,7 @@ class SynchronousEvents {
 }
 
 // This class can be called as callback --> AVOID "THIS"!
-class EventHandler {
+class AnimationHandler {
     static eventQueue = []
     static currentEvents = null;
     //static lastEVents = null;
@@ -70,10 +72,10 @@ class EventHandler {
 
 
     static addMovement(tween, direction) {
-        let evnt = EventHandler.getNextEvent()
+        let evnt = AnimationHandler.getNextEvent()
         if (evnt === null) {
-            evnt = new SynchronousEvents(tween, direction);
-            EventHandler.eventQueue.push(evnt);
+            evnt = new SynchronousAnimations(tween, direction);
+            AnimationHandler.eventQueue.push(evnt);
         } else {
             evnt.addMovement(tween, direction);
         }
@@ -81,83 +83,120 @@ class EventHandler {
 
     static addRotation(events) {
         for (let i = 0; i < events.length; i++) {
-            if (i < EventHandler.eventQueue.length) {
+            if (i < AnimationHandler.eventQueue.length) {
                 // Merging events
-                EventHandler.eventQueue[i].merge(events[i]);
+                AnimationHandler.eventQueue[i].merge(events[i]);
             } else {
                 // There is no scheduled event
-                EventHandler.eventQueue.push(events[i]);
+                AnimationHandler.eventQueue.push(events[i]);
             }
         }
     }
 
     static getNextEvent() {
-        if (EventHandler.eventQueue.length === 0) return null;
-        return EventHandler.eventQueue[0];
+        if (AnimationHandler.eventQueue.length === 0) return null;
+        return AnimationHandler.eventQueue[0];
     }
 
 
     static startNextEvent() {
-        if (EventHandler.eventQueue.length === 0) return null;
-        EventHandler.currentEvents = EventHandler.eventQueue[0];
-        EventHandler.eventQueue[0].start()
-        EventHandler.eventQueue.shift()
+        if (AnimationHandler.eventQueue.length === 0) return null;
+        AnimationHandler.currentEvents = AnimationHandler.eventQueue[0];
+        AnimationHandler.eventQueue[0].start()
+        AnimationHandler.eventQueue.shift()
     }
 
     static getCurrentMovement() {
-        if (EventHandler.currentEvents === null) return null;
-        return EventHandler.currentEvents.movement;
+        if (AnimationHandler.currentEvents === null) return null;
+        return AnimationHandler.currentEvents.movement;
     }
 
     static getNextMovement() {
-        if (EventHandler.eventQueue.length === 0) return null;
-        return EventHandler.eventQueue[0].movement;
+        if (AnimationHandler.eventQueue.length === 0) return null;
+        return AnimationHandler.eventQueue[0].movement;
     }
 
     static getCurrentDirection() {
-        console.log(EventHandler.currentEvents)
-        if (EventHandler.currentEvents === null) return null;
-        return EventHandler.currentEvents.direction;
+        console.log(AnimationHandler.currentEvents)
+        if (AnimationHandler.currentEvents === null) return null;
+        return AnimationHandler.currentEvents.direction;
     }
 
     static getNextDirection() {
-        if (EventHandler.eventQueue.length === 0) return null;
-        return EventHandler.eventQueue[0].direction;
+        if (AnimationHandler.eventQueue.length === 0) return null;
+        return AnimationHandler.eventQueue[0].direction;
     }
 }
+
+class SnakeNode {
+    x;
+    y;
+    z;
+    container;
+    mesh;
+    direction;
+    constructor(x,y,z, direction, geometry, material) {
+        this.x = x;
+        this.y = y;
+        this.z = z;
+        this.direction = direction;
+
+        this.container = new THREE.Object3D();
+        this.mesh = new THREE.Mesh(geometry, material);
+        this.container.add(this.mesh);
+    }
+
+    get_position() {
+        const vector = [this.x, this.y, this.z];
+        return [...vector];
+    }
+
+
+    update_position(coordinates) {
+        this.x = coordinates[0];
+        this.y = coordinates[1];
+        this.z = coordinates[2];
+    }
+
+    update_direction(direction) {
+        this.direction = direction;
+    }
+
+
+
+
+
+}
+
 
 export class Snake extends Entity{
     #headRadius = 0.8;
     #headSegments = 30;
     #headColor = 0x44aa88;
 
-    #nodeRadius = .8;
+    #nodeRadius = .4;
     #nodeSegments = 30;
     #nodeColor = 0x23af11;
-    #nodeDistance = .2;
+
+    #nodeDistance = 1;
+    #nodeDimension = 0.8 * this.#nodeDistance ;
 
     #nodeGeometry;
     #nodeMaterial;
 
-    #events
+    #environment_direction
+
 
     movementTime = 0.8;
 
 
     head;
-    headPosition;
     nodes = [];
     nodesPositions = [];
 
     constructor(x=0,y=0,z=0, drawable, movable, erasable) {
         super(x, y, z, drawable, movable, erasable);
         /*----- Head -----*/
-        // const geometry = new THREE.BoxGeometry(1,1,1);//THREE.SphereGeometry(this.#headRadius, this.#headSegments, this.#headSegments);
-        // const material = new THREE.MeshPhongMaterial({color: this.#headColor});
-        // const head = new THREE.Mesh(geometry, material);
-        // const headPosition = new THREE.Object3D();
-        // headPosition.add(head);
-        //this.head = headPosition
 
         this.x = x;
         this.y = y;
@@ -167,12 +206,13 @@ export class Snake extends Entity{
 
         /*----- Nodes -----*/
         //this.#nodeGeometry = new THREE.SphereGeometry(this.#nodeRadius, this.#nodeSegments, this.#nodeSegments);
-        this.#nodeGeometry = new THREE.BoxGeometry(1,1,1);
+        const dim = this.#nodeDimension;
+        this.#nodeGeometry = new THREE.BoxGeometry(dim,dim,dim);
         this.#nodeMaterial = new THREE.MeshPhongMaterial({color: this.#nodeColor});
 
 
         /*---- Movement -----*/
-        //this.#events = new EventHandler();
+        //this.#events = new AnimationHandler();
         this.mesh = null;
         this.draw();
 
@@ -181,32 +221,45 @@ export class Snake extends Entity{
 
     draw() {
         if (this.drawable) {
-            const geometry = new THREE.BoxGeometry(1,1,1);//THREE.SphereGeometry(this.#headRadius, this.#headSegments, this.#headSegments);
+            const dim = this.#nodeDimension;
+            const geometry = new THREE.BoxGeometry(dim,dim,dim);
             const material = new THREE.MeshPhongMaterial({color: 0x44aa88});
-            const head = new THREE.Mesh(geometry, material);
-            const headPosition = new THREE.Object3D();
-            headPosition.add(head);
-            this.head = headPosition;
-            this.nodes[0] = headPosition;
-            this.mesh = headPosition;
 
-            makeAxisGridDebug(headPosition, 'Snake Head Position');
-            makeAxisGridDebug(head, 'Snake Head');
+            this.head = new SnakeNode(0,0,0,null,geometry,material);
+            this.nodes[0] = this.head;
+            this.mesh = this.head.container;
+
+            makeAxisGridDebug(this.head.container, 'Snake Head Position');
+            makeAxisGridDebug(this.head.mesh, 'Snake Head');
         }
     }
 
     addNode() {
-        const nodePosition = new THREE.Object3D();
-        const node = new THREE.Mesh(this.#nodeGeometry, this.#nodeMaterial);
-        nodePosition.add(node);
+        const tail = this.nodes[this.nodes.length -1];
+        console.log("tail", tail);
+        const pos = tail.get_position();
+        pos[tail.direction.axis] -= tail.direction.sign;
 
-        makeAxisGridDebug(nodePosition,"Snake Node Position#" + this.nodes.length);
-        makeAxisGridDebug(node,"Snake Node#" + this.nodes.length);
+        const node = new SnakeNode(pos[0],pos[1],pos[2],tail.direction,this.#nodeGeometry,this.#nodeMaterial);
 
-        nodePosition.position.x = 2 * this.#nodeRadius + this.#nodeDistance;
+        switch (tail.direction.axis) {
+            case Config.DIRECTIONS.AXES.X:
+                node.container.position.x -= tail.direction.sign * this.#nodeDistance;
+                break;
+            case Config.DIRECTIONS.AXES.Y:
+                node.container.position.y -= tail.direction.sign * this.#nodeDistance;
+                break;
+            case Config.DIRECTIONS.AXES.Z:
+                node.container.position.z -= tail.direction.sign * this.#nodeDistance;
+                break;
+        }
 
-        this.nodes[this.nodes.length -1].add(nodePosition);
-        this.nodes.push(nodePosition);
+        tail.container.add(node.container);
+        this.nodes.push(node);
+
+
+        makeAxisGridDebug(node.container,"Snake Node Position#" + this.nodes.length);
+        makeAxisGridDebug(node.mesh,"Snake Node#" + this.nodes.length);
     }
 
 
@@ -214,31 +267,70 @@ export class Snake extends Entity{
     /*----- Animation Handler ------*/
 
     move() {
-        const nextEvent = EventHandler.getNextEvent();
+        const nextEvent = AnimationHandler.getNextEvent();
         if (nextEvent !== null)
-            EventHandler.startNextEvent();
+            AnimationHandler.startNextEvent();
         else {
-            this._moveToTarget('+5','+0','+0')
+            console.log("ERROR: Null Snake movement");
         }
     }
 
     add_movement(coordinates, direction) {
-        const target = {x: coordinates[0], y: coordinates[1], z: coordinates[2]};
-        const tween = new TWEEN.Tween(this.head.position).to(target,this.movementTime * 1000);
+        if (this.head.direction !== null && (this.head.direction.axis !== direction.axis || this.head.direction.sign !== direction.sign))
+            this.rotate(this.head.direction, direction);
+
+
+        const render_coordinates = Utilities.world_to_render(coordinates);
+        const target = {x: render_coordinates[0], y: render_coordinates[1], z: render_coordinates[2]};
+
+        this.head.update_position(coordinates);
+        this.head.update_direction(direction);
+
+        const tween = new TWEEN.Tween(this.head.container.position).to(target,this.movementTime * 1000);
         tween.onComplete((twn) => {
             console.log(Controller.get_instance())
             Controller.get_instance().move_snake();
         });
-        EventHandler.addMovement(tween, direction);
+
+        AnimationHandler.addMovement(tween, direction);
     }
 
+    rotate(old_direction, new_direction) {
+
+        function int_to_string_signed(int) {
+            return int <= 0 ? "" + int : "+" + int;
+        }
+
+        const eventsList = [];
+        for (let i = 1; i < this.nodes.length; i++) {
+            const node_relative_pos = this.nodes[i].container.position;
+            const delta_pos = [0,0,0];
+
+            delta_pos[old_direction.axis] += old_direction.sign * this.#nodeDistance;
+            delta_pos[new_direction.axis] -= new_direction.sign * this.#nodeDistance;
+
+            const x = int_to_string_signed(delta_pos[0]);
+            const y = int_to_string_signed(delta_pos[1]);
+            const z = int_to_string_signed(delta_pos[2]);
+
+            const translation = new TWEEN.Tween(node_relative_pos).to({x: x, y: y, z: z}, this.movementTime * 1000);
+
+            const events = new SynchronousAnimations();
+            events.addRotation(translation);
+            eventsList.push(events);
+        }
+        AnimationHandler.addRotation(eventsList);
+    }
+
+    //TODO remove
     _moveToTarget(x, y, z, direction) {
         const target = {x: x, y: y, z: z};
         const tween = new TWEEN.Tween(this.head.position).to(target,this.movementTime * 1000);
         //tween.onComplete(dummyController);
-        EventHandler.addMovement(tween, direction);
+        AnimationHandler.addMovement(tween, direction);
     }
 
+    //TODO remove
     _rotate(x, y, z) {
         const eventsList = [];
         for (let i = 0; i < this.nodes.length - 1; i++) {
@@ -246,18 +338,18 @@ export class Snake extends Entity{
             const translation = new TWEEN.Tween(this.nodes[i+1].position).to({x: x, y: y, z: z}, this.movementTime * 1000);
             //const rotation = new TWEEN.Tween(this.nodes[i].children[0].rotation).to({x: '+0', y: '+2', z: +'+0'}, this.movementTime * 1000);
 
-            const events = new SynchronousEvents();
+            const events = new SynchronousAnimations();
             events.addRotation(translation);
             //events.addRotation(rotation);
 
             eventsList.push(events);
         }
-        EventHandler.addRotation(eventsList);
+        AnimationHandler.addRotation(eventsList);
     }
 
     goDown() {
-        const direction = EventHandler.getCurrentDirection();
-        if (direction === EventHandler.UP){
+        const direction = AnimationHandler.getCurrentDirection();
+        if (direction === AnimationHandler.UP){
             console.log("Direction forbidden: skipping command");
             return;
         }
@@ -265,15 +357,15 @@ export class Snake extends Entity{
         let x = '+0';
         let y = '+0';
         let z = '+' + (2*this.#nodeRadius + this.#nodeDistance);
-        this._moveToTarget(x,y,z, EventHandler.DOWN);
+        this._moveToTarget(x,y,z, AnimationHandler.DOWN);
 
-        if (direction === EventHandler.LEFT) {
+        if (direction === AnimationHandler.LEFT) {
             x = '-' + (2*this.#nodeRadius + this.#nodeDistance);
             y = '+0';
             z = '-' + (2*this.#nodeRadius + this.#nodeDistance);
             this._rotate(x,y,z);
         }
-        if (direction === EventHandler.RIGHT) {
+        if (direction === AnimationHandler.RIGHT) {
             x = '+' + (2*this.#nodeRadius + this.#nodeDistance);
             y = '+0';
             z = '-' + (2*this.#nodeRadius + this.#nodeDistance);
@@ -282,23 +374,23 @@ export class Snake extends Entity{
     }
 
     goUp() {
-        const direction = EventHandler.getCurrentDirection();
-        if (direction === EventHandler.DOWN){
+        const direction = AnimationHandler.getCurrentDirection();
+        if (direction === AnimationHandler.DOWN){
             console.log("Direction forbidden: skipping command");
             return;
         }
         let x = '+0';
         let y = '+0';
         let z = '-' + (2*this.#nodeRadius + this.#nodeDistance);
-        this._moveToTarget(x,y,z, EventHandler.UP);
+        this._moveToTarget(x,y,z, AnimationHandler.UP);
 
-        if (direction === EventHandler.LEFT) {
+        if (direction === AnimationHandler.LEFT) {
             x = '-' + (2*this.#nodeRadius + this.#nodeDistance);
             y = '+0';
             z = '+' + (2*this.#nodeRadius + this.#nodeDistance);
             this._rotate(x,y,z);
         }
-        if (direction === EventHandler.RIGHT) {
+        if (direction === AnimationHandler.RIGHT) {
             x = '+' + (2*this.#nodeRadius + this.#nodeDistance);
             y = '+0';
             z = '+' + (2*this.#nodeRadius + this.#nodeDistance);
@@ -307,8 +399,8 @@ export class Snake extends Entity{
     }
 
     goLeft() {
-        const direction = EventHandler.getCurrentDirection();
-        if (direction === EventHandler.RIGHT){
+        const direction = AnimationHandler.getCurrentDirection();
+        if (direction === AnimationHandler.RIGHT){
             console.log("Direction forbidden: skipping command");
             return;
         }
@@ -316,15 +408,15 @@ export class Snake extends Entity{
         let x = '-' + (2*this.#nodeRadius + this.#nodeDistance);
         let y = '+0';
         let z = '+0';
-        this._moveToTarget(x,y,z, EventHandler.LEFT);
+        this._moveToTarget(x,y,z, AnimationHandler.LEFT);
 
-        if (direction === EventHandler.UP) {
+        if (direction === AnimationHandler.UP) {
             x = '+' + (2*this.#nodeRadius + this.#nodeDistance);
             y = '+0';
             z = '-' + (2*this.#nodeRadius + this.#nodeDistance);
             this._rotate(x,y,z);
         }
-        if (direction === EventHandler.DOWN) {
+        if (direction === AnimationHandler.DOWN) {
             x = '+' + (2*this.#nodeRadius + this.#nodeDistance);
             y = '+0';
             z = '+' + (2*this.#nodeRadius + this.#nodeDistance);
@@ -333,8 +425,8 @@ export class Snake extends Entity{
     }
 
     goRight() {
-        const direction = EventHandler.getCurrentDirection();
-        if (direction === EventHandler.LEFT){
+        const direction = AnimationHandler.getCurrentDirection();
+        if (direction === AnimationHandler.LEFT){
             console.log("Direction forbidden: skipping command");
             return;
         }
@@ -342,15 +434,15 @@ export class Snake extends Entity{
         let x = '+' + (2*this.#nodeRadius + this.#nodeDistance);
         let y = '+0';
         let z = '+0';
-        this._moveToTarget(x,y,z, EventHandler.RIGHT);
+        this._moveToTarget(x,y,z, AnimationHandler.RIGHT);
 
-        if (direction === EventHandler.UP) {
+        if (direction === AnimationHandler.UP) {
             x = '-' + (2*this.#nodeRadius + this.#nodeDistance);
             y = '+0';
             z = '-' + (2*this.#nodeRadius + this.#nodeDistance);
             this._rotate(x,y,z);
         }
-        if (direction === EventHandler.DOWN) {
+        if (direction === AnimationHandler.DOWN) {
             x = '-' + (2*this.#nodeRadius + this.#nodeDistance);
             y = '+0';
             z = '+' + (2*this.#nodeRadius + this.#nodeDistance);
@@ -360,16 +452,16 @@ export class Snake extends Entity{
 
     /*----- Utils -----*/
     get_current_movement() {
-        return EventHandler.getNextMovement();
+        return AnimationHandler.getNextMovement();
     }
     get_current_direction() {
-        return EventHandler.getCurrentDirection();
+        return AnimationHandler.getCurrentDirection();
     }
     get_next_movement() {
-        return EventHandler.getNextMovement();
+        return AnimationHandler.getNextMovement();
     }
     get_next_direction() {
-        return EventHandler.getNextDirection();
+        return AnimationHandler.getNextDirection();
     }
 
 }

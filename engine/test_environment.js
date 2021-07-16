@@ -73,6 +73,15 @@ function start_engine(){
     scene.add( light );
     scene.add(cube_environment);
 
+    Controller.get_instance().right();
+    Controller.get_instance().move_snake();
+    game.snake.addNode();
+    game.snake.addNode();
+    game.snake.addNode();
+    game.snake.addNode();
+
+
+
     
 
 

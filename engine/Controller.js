@@ -70,7 +70,7 @@ export class Controller{
     #schedule_movement(old_pos, new_pos, direction) {
         const done = this.game.move_object_structure(old_pos[0],old_pos[1],old_pos[2],new_pos[0],new_pos[1],new_pos[2]);
         if (done)
-            this.snake.add_movement(this.game.world_to_render(new_pos), direction);
+            this.snake.add_movement(new_pos, direction);
         else {
 
             const rotated_delta = this.#change_face(old_pos,new_pos);
@@ -80,8 +80,6 @@ export class Controller{
             direction = this.game.vector_to_direction(rotated_delta);
             this.#schedule_movement(old_pos,new_pos, direction);
         }
-
-
     }
 
 

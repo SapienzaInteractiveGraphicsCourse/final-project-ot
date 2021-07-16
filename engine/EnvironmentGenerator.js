@@ -3,8 +3,7 @@ import * as THREE from '../resources/three.js-r129/build/three.module.js';
 import { TWEEN } from "../resources/three.js-r129/examples/jsm/libs/tween.module.min.js";
 import { CoordinateGenerator } from "./CoordinateGenerator.js";
 import {Snake} from "../content/Snake.js";
-
-export const DIRECTIONS = {AXES: {X:0, Y:1, Z:2}, SIGN: {POSITIVE: 1, NEGATIVE: -1}}
+import {Config} from "./Config.js";
 
 
 // Level generator
@@ -20,12 +19,12 @@ export class RandomEnvironmentGenerator{
         this.snake = null;
 
         this.#up_direction = {
-            axis: DIRECTIONS.AXES.Y,
-            sign: DIRECTIONS.SIGN.POSITIVE
+            axis: Config.DIRECTIONS.AXES.Y,
+            sign: Config.DIRECTIONS.SIGN.POSITIVE
         };
         this.#right_direction = {
-            axis: DIRECTIONS.AXES.X,
-            sign: DIRECTIONS.SIGN.POSITIVE
+            axis: Config.DIRECTIONS.AXES.X,
+            sign: Config.DIRECTIONS.SIGN.POSITIVE
         };
 
 

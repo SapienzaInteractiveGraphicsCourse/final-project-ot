@@ -1,3 +1,5 @@
+import {Config} from "./Config.js";
+
 export class Utilities {
     static world_to_render(coordinates_or_x,y,z){
         let x = coordinates_or_x;
@@ -11,6 +13,7 @@ export class Utilities {
         var d = Config.world_depth;
         return [x - w/2 + 0.5, y - h/2 + 0.5, z - d/2 + 0.5];
     }
+
 
 
 }
