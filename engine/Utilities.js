@@ -12,6 +12,5 @@ export class Utilities {
         return [x - w/2 + 0.5, y - h/2 + 0.5, z - d/2 + 0.5];
     }
 
-    static get_
 
 }
