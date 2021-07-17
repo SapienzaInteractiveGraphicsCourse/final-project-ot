@@ -334,7 +334,7 @@ export function equal( u, v )
 
 //----------------------------------------------------------------------------
 
-function add( u, v )
+export function add( u, v )
 {
 
   if ( u.type != v.type ) {
@@ -755,7 +755,7 @@ function negate( u )
 
 //----------------------------------------------------------------------------
 
-function cross( u, v )
+export function cross( u, v )
 {
     if ( u.type == 'vec3' && v.type == 'vec3') {
       var result = vec3(

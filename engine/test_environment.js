@@ -10,54 +10,39 @@ import * as THREE from '../resources/three.js-r129/build/three.module.js';
 import { OrbitControls } from '../resources/three.js-r129/examples/jsm/controls/OrbitControls.js';
 import { ObstaclePart, Food, Bonus, Obstacle } from "./Entity.js";
 import {Controller} from "./Controller.js";
+import {Camera} from "./Camera.js";
+import {Utilities} from "./Utilities.js";
 
 
 
 
 
 var controls;
-var scene;
-var camera;
-var renderer;
 var cube_environment;
 
 let game;
-let radius = 25;
     
 
 
 
 function start_engine(){
 
-    
-    
-    
-    renderer = new THREE.WebGLRenderer();
-    renderer.setSize( window.innerWidth, window.innerHeight );
-    document.body.appendChild( renderer.domElement );
-
+    /*----- Enviroment -----*/
+    const canvas = document.getElementById("canvas");
+    const renderer = new THREE.WebGLRenderer({canvas});
+    const scene = new THREE.Scene();
     const light = new THREE.AmbientLight( 0x404040, 5.0); // soft white light
-    
-    camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 10000 );
+    const camera_obj = new Camera(0,0,25);
 
-    // const left = -window.innerWidth / window.innerHeight;
-    // const right = window.innerWidth / window.innerHeight;
-    // const top = window.innerWidth / window.innerHeight;
-    // const bottom = -window.innerWidth / window.innerHeight;
-    // const near = 5;
-    // const far = 50;
-    // const camera = new THREE.OrthographicCamera(left, right, top, bottom, near, far);
-    // camera.zoom = 0.2;
-    
-    controls = new OrbitControls( camera, renderer.domElement );
+
+    controls = new OrbitControls( camera_obj.camera, renderer.domElement );
     controls.target.set(0, 0, 0);
-    
-    camera.position.set(0, 0, radius);
+
     
 
 
     var env_dim = 10;
-    var game_level = 0;
+    var game_level = 5;
     var face_depth = 1;
 
     let environment = new Environment(env_dim, env_dim, env_dim, face_depth);
@@ -66,19 +51,15 @@ function start_engine(){
     Controller.init(game);
     cube_environment = game.environment.mesh;
 
-
-
-    scene = new THREE.Scene();
-
     scene.add( light );
     scene.add(cube_environment);
 
     Controller.get_instance().right();
     Controller.get_instance().move_snake();
-    game.snake.addNode();
-    game.snake.addNode();
-    game.snake.addNode();
-    game.snake.addNode();
+    game.snake.add_node();
+    game.snake.add_node();
+    game.snake.add_node();
+    game.snake.add_node();
 
 
 
@@ -103,13 +84,19 @@ function start_engine(){
             //game.spawn_objects(5, ObstaclePart, true, true, true, true);
             
         }
+        if (game.world_directions_updated){
+            camera_obj.update_position(game.up_direction, game.right_direction);
+            game.world_directions_updated = false;
+        }
 
+
+        Utilities.resizeCanvas(renderer,camera_obj.camera);
 
         TWEEN.update(time);
 
         controls.update();
 
-        renderer.render(scene, camera);
+        renderer.render(scene, camera_obj.camera);
 
         requestAnimationFrame(render);
     }
@@ -123,74 +110,74 @@ function start_engine(){
 start_engine();
 
 
-document.getElementById('up').onclick = function(e){
-        
-    console.log("rotate up");
-    console.log("current face ", current_face);
-    console.log("previous face ", previous_face);
-    
-    let available_direction = get_available_direction();
-
-    console.log("available_direction ", available_direction);
-    
-    let dir = available_direction['up'];
-    previous_face = current_face;
-    current_face = dir;
-    rotate_to_face(dir);
-
-
-}
-
-
-document.getElementById('down').onclick = function(e){
-    
-    console.log("rotate down");
-    console.log("current face ", current_face);
-    console.log("previous face ", previous_face);
-    
-    let available_direction = get_available_direction();
-
-    console.log("available_direction ", available_direction);
-    
-    let dir = available_direction['down'];
-    previous_face = current_face;
-    current_face = dir;
-    rotate_to_face(dir);
-}
-
-
-document.getElementById('left').onclick = function(e){
-    
-    console.log("rotate left");
-    console.log("current face ", current_face);
-    console.log("previous face ", previous_face);
-    
-    let available_direction = get_available_direction();
-
-    console.log("available_direction ", available_direction);
-    
-    let dir = available_direction['left'];
-    previous_face = current_face;
-    current_face = dir;
-    rotate_to_face(dir);
-}
-
-
-document.getElementById('right').onclick = function(e){
-    
-    console.log("rotate right");
-    console.log("current face ", current_face);
-    console.log("previous face ", previous_face);
-    
-    let available_direction = get_available_direction();
-
-    console.log("available_direction ", available_direction);
-    
-    let dir = available_direction['right'];
-    previous_face = current_face;
-    current_face = dir;
-    rotate_to_face(dir);
-}
+// document.getElementById('up').onclick = function(e){
+//
+//     console.log("rotate up");
+//     console.log("current face ", current_face);
+//     console.log("previous face ", previous_face);
+//
+//     let available_direction = get_available_direction();
+//
+//     console.log("available_direction ", available_direction);
+//
+//     let dir = available_direction['up'];
+//     previous_face = current_face;
+//     current_face = dir;
+//     rotate_to_face(dir);
+//
+//
+// }
+//
+//
+// document.getElementById('down').onclick = function(e){
+//
+//     console.log("rotate down");
+//     console.log("current face ", current_face);
+//     console.log("previous face ", previous_face);
+//
+//     let available_direction = get_available_direction();
+//
+//     console.log("available_direction ", available_direction);
+//
+//     let dir = available_direction['down'];
+//     previous_face = current_face;
+//     current_face = dir;
+//     rotate_to_face(dir);
+// }
+//
+//
+// document.getElementById('left').onclick = function(e){
+//
+//     console.log("rotate left");
+//     console.log("current face ", current_face);
+//     console.log("previous face ", previous_face);
+//
+//     let available_direction = get_available_direction();
+//
+//     console.log("available_direction ", available_direction);
+//
+//     let dir = available_direction['left'];
+//     previous_face = current_face;
+//     current_face = dir;
+//     rotate_to_face(dir);
+// }
+//
+//
+// document.getElementById('right').onclick = function(e){
+//
+//     console.log("rotate right");
+//     console.log("current face ", current_face);
+//     console.log("previous face ", previous_face);
+//
+//     let available_direction = get_available_direction();
+//
+//     console.log("available_direction ", available_direction);
+//
+//     let dir = available_direction['right'];
+//     previous_face = current_face;
+//     current_face = dir;
+//     rotate_to_face(dir);
+// }
 
 // 1 : [ 0  0  1 ]
 // 2 : [ 1  0  0 ]

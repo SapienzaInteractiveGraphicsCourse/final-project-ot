@@ -1,6 +1,6 @@
 "use strict"
 import * as THREE from './resources/three.js-r129/build/three.module.js';
-import {Camera} from "./content/Camera.js";
+import {Camera} from "./engine/Camera.js";
 
 
 import {resizeCanvas} from "./content/utils.js";
@@ -34,13 +34,13 @@ function main() {
     scene.add(light);
     scene.add(snake.head);
 
-    snake.addNode();
-    snake.addNode();
-    snake.addNode();
-    snake.addNode();
-    snake.addNode();
-    snake.addNode();
-    snake.addNode();
+    snake.add_node();
+    snake.add_node();
+    snake.add_node();
+    snake.add_node();
+    snake.add_node();
+    snake.add_node();
+    snake.add_node();
 
     dummyController();
     //snake._moveToTarget(-3.2,0,0);

@@ -27,13 +27,13 @@ scene.add( light );
 camera.position.z = 10;
 
 let snake = new Snake();
-snake.addNode();
-snake.addNode();
-snake.addNode();
-snake.addNode();
-snake.addNode();
-snake.addNode();
-snake.addNode();
+snake.add_node();
+snake.add_node();
+snake.add_node();
+snake.add_node();
+snake.add_node();
+snake.add_node();
+snake.add_node();
 
 
 scene.add(snake.head);

@@ -93,6 +93,10 @@ class AnimationHandler {
         }
     }
 
+    static addEvents(events) {
+        AnimationHandler.addRotation(events);
+    }
+
     static getNextEvent() {
         if (AnimationHandler.eventQueue.length === 0) return null;
         return AnimationHandler.eventQueue[0];
@@ -128,7 +132,7 @@ class AnimationHandler {
     }
 }
 
-class SnakeNode {
+export class SnakeNode {
     x;
     y;
     z;
@@ -234,9 +238,8 @@ export class Snake extends Entity{
         }
     }
 
-    addNode() {
+    add_node() {
         const tail = this.nodes[this.nodes.length -1];
-        console.log("tail", tail);
         const pos = tail.get_position();
         pos[tail.direction.axis] -= tail.direction.sign;
 

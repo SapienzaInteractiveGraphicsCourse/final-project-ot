@@ -26,6 +26,7 @@ export class RandomEnvironmentGenerator{
             axis: Config.DIRECTIONS.AXES.X,
             sign: Config.DIRECTIONS.SIGN.POSITIVE
         };
+        this.world_directions_updated = false;
 
 
         this.obstacle_num = 0;
@@ -605,7 +606,7 @@ export class RandomEnvironmentGenerator{
         return [x - w/2 + 0.5, y - h/2 + 0.5, z - d/2 + 0.5];
     }
 
-
+    //TODO Remove
     vector_to_direction(vector) {
         for (let i = 0; i < 3; i++) {
             vector[i] = Math.round(vector[i])

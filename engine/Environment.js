@@ -82,9 +82,17 @@ export class Environment extends View{
 
         this.mesh = cube_mesh;
 
+    }
 
+    get_cubeCell(position) {
+        const x = position[0];
+        const y = position[1];
+        const z = position[2];
+        return this.environment[x][y][z];
+    }
 
-
+    get_content(position) {
+        return this.get_cubeCell(position).content;
     }
 
 

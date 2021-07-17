@@ -1,4 +1,7 @@
-import {equal, mult, subtract, vec3, rotate, vec4} from "../Common/MVnew.js";
+import {equal, mult, subtract, vec3, rotate, vec4, add} from "../Common/MVnew.js";
+import {Utilities} from "./Utilities.js";
+import {Bonus, Food, ObstaclePart} from "./Entity.js";
+import {SnakeNode} from "../content/Snake.js";
 
 
 export class Controller{
@@ -27,7 +30,10 @@ export class Controller{
         this.#init_keyboard();
     }
 
-    /*----- Movement schedulers -----*/
+
+    /*-------------------------- Movements ------------------------------*/
+
+    /*----- Movement: schedulers -----*/
     up() {
         const pos = [this.snake.x, this.snake.y, this.snake.z];
         const new_pos = [...pos];
@@ -72,37 +78,76 @@ export class Controller{
         if (done)
             this.snake.add_movement(new_pos, direction);
         else {
+            this.#collision_handler(old_pos, new_pos, direction);
 
-            const rotated_delta = this.#change_face(old_pos,new_pos);
-            new_pos[0] = Math.round(old_pos[0] + rotated_delta[0]);
-            new_pos[1] = Math.round(old_pos[1] + rotated_delta[1]);
-            new_pos[2] = Math.round(old_pos[2] + rotated_delta[2]);
-            direction = this.game.vector_to_direction(rotated_delta);
-            this.#schedule_movement(old_pos,new_pos, direction);
+            // const rotated_delta = this.#change_face(old_pos,new_pos);
+            // new_pos[0] = Math.round(old_pos[0] + rotated_delta[0]);
+            // new_pos[1] = Math.round(old_pos[1] + rotated_delta[1]);
+            // new_pos[2] = Math.round(old_pos[2] + rotated_delta[2]);
+            // direction = Utilities.vector_to_direction(rotated_delta);
+            // this.#schedule_movement(old_pos,new_pos, direction);
         }
     }
 
 
+
+    /*----------- Movement: Collision ---------*/
+
+    #collision_handler(old_pos, new_pos, direction) {
+
+        // End of plane: rotating
+        if(!this.game.check_consistency(new_pos[0], new_pos[1], new_pos[2])) {
+            const rotated_delta = this.#change_face(old_pos,new_pos);
+            new_pos[0] = Math.round(old_pos[0] + rotated_delta[0]);
+            new_pos[1] = Math.round(old_pos[1] + rotated_delta[1]);
+            new_pos[2] = Math.round(old_pos[2] + rotated_delta[2]);
+            direction = Utilities.vector_to_direction(rotated_delta);
+            this.#schedule_movement(old_pos,new_pos, direction);
+            return;
+        }
+
+        const front_content = this.game.environment.get_content(new_pos);
+
+        // Element ahead: obstacle or snake
+        if (front_content instanceof ObstaclePart || front_content instanceof SnakeNode) {
+            // TODO END GAME
+            alert("HAI PIERSO");
+        }
+
+        // Element ahead: food
+        if (front_content instanceof Food) {
+            // TODO EAT
+            this.game.destroy_object_structure(new_pos[0], new_pos[1], new_pos[2]);
+            this.game.destroy_object_view();
+            this.snake.add_node();
+            this.#schedule_movement(old_pos,new_pos, direction);
+        }
+
+        // Element ahead: Bonus
+        if (front_content instanceof Bonus) {
+            // TODO Bonus handle
+        }
+    }
+
+
+
     #change_face(old_pos, new_pos) {
-        old_pos = vec4(old_pos);
-        new_pos = vec4(new_pos);
+        old_pos = vec3(old_pos[0], old_pos[1], old_pos[2]);
+        new_pos = vec3(new_pos[0], new_pos[1], new_pos[2]);
 
         // Calculating the direction axis
         let delta_vector = subtract(new_pos, old_pos);
-        delta_vector = vec3(delta_vector[0],delta_vector[1],delta_vector[2]);
-
         const current_up_direction = this.game.up_direction;
         const current_right_direction = this.game.right_direction;
-        let up_vector = vec3();
-        let right_vector = vec3();
-        let rotation_vector;
-        let rotation_angle;
 
         // Unitary norm vector indicating up and right w.r.t the viewer
-        up_vector[current_up_direction.axis] = current_up_direction.sign;
-        right_vector[current_right_direction.axis] = current_right_direction.sign;
+        let up_vector = Utilities.direction_to_vector(current_up_direction);
+        let right_vector = Utilities.direction_to_vector(current_right_direction);
+
 
         // Calculating the rotation axis
+        let rotation_vector;
+        let rotation_angle;
         if (equal(delta_vector,right_vector) || equal(mult(-1,delta_vector),right_vector)) {
             rotation_vector = up_vector;
             equal(delta_vector,right_vector) ? rotation_angle = -90 : rotation_angle = 90;
@@ -111,22 +156,26 @@ export class Controller{
             equal(delta_vector,up_vector) ? rotation_angle = 90 : rotation_angle = -90;
         }
 
-        // Computing the rotation around the rotation axis
+        // Computing the rotation matrix around the rotation axis
         const rotation_matrix = rotate(rotation_angle,rotation_vector);
+
+        // Computing the new rotated vectors
         up_vector = mult(rotation_matrix, vec4(up_vector[0], up_vector[1], up_vector[2], 0));
         right_vector = mult(rotation_matrix,vec4(right_vector[0], right_vector[1], right_vector[2], 0));
         delta_vector = mult(rotation_matrix, vec4(delta_vector[0], delta_vector[1], delta_vector[2], 0));
 
-
-        this.game.up_direction = this.game.vector_to_direction(up_vector);
-        this.game.right_direction = this.game.vector_to_direction(right_vector);
+        // Updating data structure
+        this.game.up_direction = Utilities.vector_to_direction(up_vector);
+        this.game.right_direction = Utilities.vector_to_direction(right_vector);
+        this.game.world_directions_updated = true;
 
         return delta_vector;
     }
 
 
 
-    /*-------- Movement runner -----*/
+    /*-------- Movement: runner -----*/
+
     move_snake() {
         const next_movement = this.snake.get_next_movement();
         if (next_movement === null) {
@@ -141,6 +190,9 @@ export class Controller{
     }
 
 
+
+
+    /* ----- Others ------*/
     #init_keyboard() {
         const controller = this;
         document.addEventListener('keydown', keyDownHandler, false);
