@@ -26,6 +26,9 @@ class SynchronousAnimations {
     addRotation(tween) {
         this.#rotations.push(tween);
     }
+    addEvents(tween) {
+        this.#rotations.push(tween);
+    }
 
     start() {
         this.#movement.start();
@@ -82,6 +85,10 @@ class AnimationHandler {
     }
 
     static addRotation(events) {
+        AnimationHandler.addEvents(events);
+    }
+
+    static addEvents(events) {
         for (let i = 0; i < events.length; i++) {
             if (i < AnimationHandler.eventQueue.length) {
                 // Merging events
@@ -93,9 +100,6 @@ class AnimationHandler {
         }
     }
 
-    static addEvents(events) {
-        AnimationHandler.addRotation(events);
-    }
 
     static getNextEvent() {
         if (AnimationHandler.eventQueue.length === 0) return null;
@@ -190,8 +194,8 @@ export class Snake extends Entity{
 
     #environment_direction
 
-
-    movementTime = 0.8;
+    speed;
+    movementTime = 1; //TODO Remove
 
 
     head;
@@ -200,6 +204,11 @@ export class Snake extends Entity{
 
     constructor(x=0,y=0,z=0, drawable, movable, erasable) {
         super(x, y, z, drawable, movable, erasable);
+
+        /*---- Configuration -----*/
+        this.speed = Config.snake_speed;
+
+
         /*----- Head -----*/
 
         this.x = x;
@@ -239,6 +248,22 @@ export class Snake extends Entity{
     }
 
     add_node() {
+        const eventsList = [];
+        for (let i = 1; i < this.nodes.length - 1; i++) {
+            const old_scale = this.nodes[i].mesh.scale;
+            const new_scale = 1.5 * scale;
+
+            const upscale = new TWEEN.Tween(old_scale).to(new_scale, this.speed / 2);
+            const downscale = new TWEEN.Tween(new_scale).to(old_scale, this.speed / 2);
+
+            const events = new SynchronousAnimations();
+            events.addRotation(translation);
+            eventsList.push(events);
+        }
+        AnimationHandler.addRotation(eventsList);
+    }
+
+    add_node_old() {
         const tail = this.nodes[this.nodes.length -1];
         const pos = tail.get_position();
         pos[tail.direction.axis] -= tail.direction.sign;

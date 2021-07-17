@@ -43,7 +43,7 @@ function start_engine(){
 
     let w_width = 10, w_height = 10, w_depth = 10;
     var game_level = 5;
-    var face_depth = 3;
+    var face_depth = 1;
 
     let environment = new Environment(w_width, w_height, w_depth, face_depth);
 

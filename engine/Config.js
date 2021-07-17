@@ -21,4 +21,9 @@ export class Config {
 
 
 
+    /*------ Snake settings ------*/
+    static snake_speed = 1000;
+
+
+
 }

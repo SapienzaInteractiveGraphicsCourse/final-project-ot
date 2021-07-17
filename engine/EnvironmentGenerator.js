@@ -443,7 +443,7 @@ export class RandomEnvironmentGenerator{
 
         const world_coordinates = this.coord_generator.get_random_available();
         let x = this.environment.width / 2;//world_coordinates[0];
-        let y = this.environment.height / 2;
+        let y = this.environment.height / 2 ;
         let z = this.environment.depth -1; //world_coordinates[2];
 
         this.snake = this.create_object_structure(x, y, z, Snake, true, true, false);
