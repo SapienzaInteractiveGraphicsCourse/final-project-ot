@@ -47,4 +47,16 @@ export class Utilities {
 
 
 
+
+    static degrees_to_radians(degrees)
+    {
+        return degrees * (Math.PI/180);
+    }
+
+    static radians_to_degrees(radians)
+    {
+        return radians * (180/Math.PI);
+    }
+
+
 }

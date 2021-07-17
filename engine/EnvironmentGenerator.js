@@ -73,7 +73,7 @@ export class RandomEnvironmentGenerator{
     // destroys the object in the environment at coordinates (x, y, z)
     destroy_object_structure(x, y, z){
         if(!this.check_consistency(x, y, z)) return;
-        var object = this.environment.environment[x][y][z].content;
+        const object = this.environment.environment[x][y][z].content;
         if( object == null ) return;
         if( object.mesh == null ) return;
         if( !object.erasable ) return;
@@ -99,10 +99,10 @@ export class RandomEnvironmentGenerator{
         if(!this.check_consistency(from_x, from_y, from_z)) return false;
         if(!this.check_consistency(to_x, to_y, to_z)) return false;
 
-        var to_cell = this.environment.environment[to_x][to_y][to_z];
+        const to_cell = this.environment.environment[to_x][to_y][to_z];
         if( to_cell.content != null) return false; // not empty cell
 
-        var from_cell = this.environment.environment[from_x][from_y][from_z];
+        const from_cell = this.environment.environment[from_x][from_y][from_z];
         if( from_cell.content == null) return false; // empty cell
         if( !from_cell.content.movable) return false; // object in cell not movable
         
@@ -134,16 +134,12 @@ export class RandomEnvironmentGenerator{
 
     // draw an object in the object_to_draw queue
     create_object_view(){
-        
-        var w = this.environment.width;
-        var h = this.environment.height;
-        var d = this.environment.depth;
-    
-        for(var i = 0; i < this.object_to_draw.length; i++){
 
-            var object = this.object_to_draw[i];
-            if(!object.drawable) continue;
-            object.mesh.position.set(object.x - w/2 + 0.5, object.y - h/2 + 0.5, object.z - d/2 + 0.5);
+        for(let i = 0; i < this.object_to_draw.length; i++){
+
+            const object = this.object_to_draw[i];
+            if( !object.drawable ) continue;
+            // object.mesh.position.set(object.x - w/2 + 0.5, object.y - h/2 + 0.5, object.z - d/2 + 0.5);
             this.environment.mesh.add(object.mesh);
 
 
@@ -156,22 +152,22 @@ export class RandomEnvironmentGenerator{
     // destroy an object in the object_to_destroy queue
     destroy_object_view(){
 
-        var environment_mesh = this.environment.mesh;
+        const environment_mesh = this.environment.mesh;
 
 
-        var w = this.environment.width;
-        var h = this.environment.height;
-        var d = this.environment.depth;
-        
+        let w = this.environment.width;
+        const h = this.environment.height;
+        const d = this.environment.depth;
+
         // explosion particles
-        var particles = [];
-        var explosion = [];
+        const particles = [];
+        let explosion = [];
 
-        var j, i;
+        let j, i;
         console.log("Removed ", this.object_to_destroy.length, " object.");
         for(i = 0; i < this.object_to_destroy.length; i++){
 
-            var object = this.object_to_destroy[i];
+            const object = this.object_to_destroy[i];
 
             explosion = this.create_object_explosion_animation(object.x, object.y, object.z);
             particles.push(explosion);
@@ -194,8 +190,8 @@ export class RandomEnvironmentGenerator{
                 const dummy_animation = new TWEEN.Tween().delay(1000)
                 .onComplete( 
                     function(obj){
-                        for(var y = 0; y < particles.length; y++){
-                            for(var w = 0; w < particles[y].length; w++){
+                        for(let y = 0; y < particles.length; y++){
+                            for(let w = 0; w < particles[y].length; w++){
                                     environment_mesh.remove(particles[y][w].mesh);       
                             }
                         }
@@ -213,57 +209,6 @@ export class RandomEnvironmentGenerator{
         }
 
 
-        // var environment_mesh = this.environment.mesh;
-
-        // for(var i = 0; i < particles.length; i++){
-        //     for(var j = 0; j < particles[i].length; j++){
-        //         this.environment.mesh.add(particles[i][j].mesh); // add particles
-        //     }
-        // } 
-
-
-        // const animation = new TWEEN.Tween(particles[i][j].mesh.position).to( { x : "+1", y: "-2" }, 1000 )
-        // .onComplete( function(obj){
-        //     console.log(particles[i]);
-        //     // var p = particles[i][j];
-        //     // console.log(p);
-
-        //     // environment_mesh.remove(p.mesh);
-                    
-        // });
-
-        // animation.start();
-
-             
-        // for(var j = 0; j < explosion.length; j++){
-
-        //     new TWEEN.Tween(explosion[j].mesh.position).to( { x : "+1", y: "-2" }, 1000 )
-        //     .onComplete( function(obj){
-        //         for(var i = 0; i < particles.length; i++){
-        //             for(var j = 0; j < particles[i].length; j){
-        //                 var p = particles[i][j];
-        //                 environment_mesh.remove(p.mesh);
-
-        //             }                         
-
-        //         }
-    
-        //     }).start();
-
-        // }
-
-
-
-        // setTimeout(
-        //     function(){ 
-        //         for(var i = 0; i < particles.length; i++){
-        //             var p = particles[i];
-        //             env_mesh.remove(p.mesh);
-        //         }
-    
-        //     }, 1000);
-            
-
         this.object_to_destroy = [];
     }   
 
@@ -271,43 +216,43 @@ export class RandomEnvironmentGenerator{
     create_object_explosion_animation(x, y, z){
 
 
-        var w = this.environment.width;
-        var h = this.environment.height;
-        var d = this.environment.depth;
-        
+        const w = this.environment.width;
+        const h = this.environment.height;
+        const d = this.environment.depth;
 
-        var particles = [];
-        
+
+        const particles = [];
+
         // generate a number between 50 and 150
-        var particles_num = Math.floor((Math.random() * 100));
+        const particles_num = Math.floor((Math.random() * 100));
         // var particles_num = 5;
-        var cell_offset = 0.5;
+        const cell_offset = 0.5;
 
-        for(var i = 0; i < particles_num; i++){
+        for(let i = 0; i < particles_num; i++){
 
-            var x_pos = (Math.random() * cell_offset * 2) - cell_offset;
-            var y_pos = (Math.random() * cell_offset * 2) - cell_offset;
-            var z_pos = (Math.random() * cell_offset * 2) - cell_offset;
+            const x_pos = (Math.random() * cell_offset * 2) - cell_offset;
+            const y_pos = (Math.random() * cell_offset * 2) - cell_offset;
+            const z_pos = (Math.random() * cell_offset * 2) - cell_offset;
 
             let delta_movement = 0.25;
-            var x_dir = (Math.random() * delta_movement * 2) - delta_movement;
+            let x_dir = (Math.random() * delta_movement * 2) - delta_movement;
             if(x_dir > 0) x_dir = "+" + String(x_dir);
             else x_dir = String(x_dir);
-            
-            var y_dir = (Math.random() * delta_movement * 2) - delta_movement;
+
+            let y_dir = (Math.random() * delta_movement * 2) - delta_movement;
             if(y_dir > 0) y_dir = "+" + String(y_dir);
             else y_dir = String(y_dir);
-            
-            var z_dir = (Math.random() * delta_movement * 2) - delta_movement;
+
+            let z_dir = (Math.random() * delta_movement * 2) - delta_movement;
             if(z_dir > 0) z_dir = "+" + String(z_dir);
             else z_dir = String(z_dir);
-            
-            var radius = Math.random() * 0.1;
 
-            var life = Math.floor((Math.random() * 500) + 1);
-            
+            const radius = Math.random() * 0.1;
+
+            const life = Math.floor((Math.random() * 500) + 1);
+
             // var particle = new Particle(x + x_pos , y + y_pos, z + z_pos, radius, THREE.DodecahedronGeometry, life, x_dir, y_dir, z_dir);
-            var particle = new Particle(x + x_pos , y + y_pos, z + z_pos, radius, THREE.TetrahedronGeometry, life, x_dir, y_dir, z_dir);
+            const particle = new Particle(x + x_pos, y + y_pos, z + z_pos, radius, THREE.TetrahedronGeometry, life, x_dir, y_dir, z_dir);
             // var particle = new Particle(x + x_pos , y + y_pos, z + z_pos, radius, THREE.SphereGeometry, life, x_dir, y_dir, z_dir);
             particle.mesh.position.set(
                 particle.x - w/2 + cell_offset, 
@@ -327,14 +272,14 @@ export class RandomEnvironmentGenerator{
     // move an object in the object_to_move queue
     move_object_view(){
 
-        var width = this.environment.width;
-        var height = this.environment.height;
-        var depth = this.environment.depth;
+        const width = this.environment.width;
+        const height = this.environment.height;
+        const depth = this.environment.depth;
 
         console.log("Moved ", this.object_to_move.length, " object.");
-        for(var i = 0; i < this.object_to_move.length; i++){
-            
-            var object = this.object_to_move[i];            
+        for(let i = 0; i < this.object_to_move.length; i++){
+
+            const object = this.object_to_move[i];
 
             // ANIMATION
 
@@ -367,9 +312,9 @@ export class RandomEnvironmentGenerator{
     // return true if the coordinates are inside the environment
     // return false otherwise 
     check_consistency(x, y, z){
-        var w = this.environment.width;
-        var h = this.environment.height;
-        var d = this.environment.depth;
+        const w = this.environment.width;
+        const h = this.environment.height;
+        const d = this.environment.depth;
 
         if( x >= 0 && x < w && y >= 0 && y < h && z >= 0 && z < d) return true;
         else return false;
@@ -380,8 +325,8 @@ export class RandomEnvironmentGenerator{
         
         // 6 direction 
         // forward, backward, up, down, left, right 
-        var rnd_direction = Math.floor((Math.random() * 6)); // from 0 to 3
-        var x, y, z;
+        const rnd_direction = Math.floor((Math.random() * 6)); // from 0 to 3
+        let x, y, z;
         switch (rnd_direction) {
                 
             case 0:   
@@ -433,18 +378,18 @@ export class RandomEnvironmentGenerator{
     // - bonus is generated (randomly)
     generate_environment(){
 
-        var space = this.environment.face_depth;
+        const space = this.environment.face_depth;
 
-        var width = this.environment.width;
-        var height = this.environment.height;
-        var depth = this.environment.depth;
+        const width = this.environment.width;
+        const height = this.environment.height;
+        const depth = this.environment.depth;
 
-        var rnd_value, rnd_x, rnd_y, rnd_z;
+        let rnd_value, rnd_x, rnd_y, rnd_z;
 
         // generate core obstacles
-        for(var i = space; i < width - space; i++){
-            for(var j = space; j < height - space; j++){
-                for(var k = space; k < depth - space; k++){
+        for(let i = space; i < width - space; i++){
+            for(let j = space; j < height - space; j++){
+                for(let k = space; k < depth - space; k++){
                     
                     this.create_object_structure(i, j, k, ObstaclePart, false, false, false);
                    
@@ -454,7 +399,7 @@ export class RandomEnvironmentGenerator{
 
 
         // generate random obstacle
-        var obs_num = Math.floor(Math.random() * this.game_level);
+        const obs_num = Math.floor(Math.random() * this.game_level);
         for(var i = 0; i < obs_num; i++){
 
             // get random coord from generator
@@ -516,11 +461,11 @@ export class RandomEnvironmentGenerator{
 
         let from_x, from_y, from_z;
         let to_x, to_y, to_z;
-        for(var i = 0; i < number; i++){
-            
-            var coord = this.coord_generator.get_random_unavailable();
+        for(let i = 0; i < number; i++){
+
+            const coord = this.coord_generator.get_random_unavailable();
             if(coord == null) continue;
-            var relative_movement = this.random_movement(1, false);
+            const relative_movement = this.random_movement(1, false);
 
             from_x = coord[0];
             from_y = coord[1];
@@ -544,9 +489,9 @@ export class RandomEnvironmentGenerator{
     destroy_objects(number, random){
         if(random) number = Math.floor(Math.random() * number);
 
-        for(var i = 0; i < number; i++){
-            
-            var coord = this.coord_generator.get_random_unavailable();
+        for(let i = 0; i < number; i++){
+
+            const coord = this.coord_generator.get_random_unavailable();
             if(coord == null) continue;
             this.destroy_object_structure(coord[0], coord[1], coord[2]);
             
@@ -600,9 +545,9 @@ export class RandomEnvironmentGenerator{
             y = coordinates_or_x[1];
             x = coordinates_or_x[0];
         }
-        var w = this.environment.width;
-        var h = this.environment.height;
-        var d = this.environment.depth;
+        const w = this.environment.width;
+        const h = this.environment.height;
+        const d = this.environment.depth;
         return [x - w/2 + 0.5, y - h/2 + 0.5, z - d/2 + 0.5];
     }
 

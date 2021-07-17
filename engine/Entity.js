@@ -1,6 +1,8 @@
 import { View } from "./View.js";
-import { degrees_to_radians } from "./Utility.js";
 import * as THREE from '../resources/three.js-r129/build/three.module.js';
+import {TWEEN} from "../resources/three.js-r129/examples/jsm/libs/tween.module.min.js";
+import {Config} from "./Config.js";
+import {Utilities} from "./Utilities.js";
 
 
 
@@ -18,8 +20,7 @@ export class Entity extends View {
     // z = matrix columns {0, ..., depth - 1}
     constructor(x, y, z, drawable, movable, erasable){
         super();
-        
-        
+
         // common 
         this.id = 0;
         this.name = "";
@@ -29,12 +30,19 @@ export class Entity extends View {
         this.y = y;
         this.z = z;
 
-
         this.drawable = drawable;
         this.erasable = erasable;
         this.movable = movable;
 
-        // view 
+        // view
+        this.pos = {
+            x: this.x - Config.world_width/2 + Config.cell_cube_dim/2,
+            y: this.y - Config.world_height/2 + Config.cell_cube_dim/2,
+            z: this.z - Config.world_depth/2 + Config.cell_cube_dim/2
+        }
+
+        this.rot = { x: 0, y: 0, z: 0 }
+
         this.mesh = null;
         //this.draw();
 
@@ -50,32 +58,16 @@ export class Entity extends View {
             // const obj_material = new THREE.MeshBasicMaterial( {color: 0xaaaf00} );
             const food_geometry = new THREE.SphereGeometry( 0.5, 32, 32 );
             const sphere = new THREE.Mesh( food_geometry, obj_material );
+
+            sphere.position.set(this.pos.x, this.pos.y, this.pos.z);
+            sphere.rotation.set(this.rot.x, this.rot.y, this.pos.z);
             this.mesh = sphere;
-    
+
         }else this.mesh = null;
     }
 
-    motion_animation(){
-
-        if(this.movable){
-
-        }
-    }
-
-    destruction_animation(){
-
-        if(this.erasable){
-
-        }
-
-    }
-
-
-
 
 }
-
-
 
 export class CubeCell extends Entity{
 
@@ -86,10 +78,6 @@ export class CubeCell extends Entity{
     }
 
 }
-
-
-    
-
 
 export class Obstacle {
 
@@ -114,12 +102,17 @@ export class ObstaclePart extends Entity{
 
     draw(){
         if(this.drawable){
-            var obstacle_material = new THREE.MeshNormalMaterial();
+            const obstacle_material = new THREE.MeshNormalMaterial();
             obstacle_material.transparent = true;
             obstacle_material.opacity = 0.8;
 
-            var obstacle_geometry = new THREE.BoxGeometry(1, 1 ,1); 
-            this.mesh =  new THREE.Mesh( obstacle_geometry, obstacle_material );
+            const obstacle_geometry = new THREE.BoxGeometry(1, 1 ,1);
+            const box =  new THREE.Mesh( obstacle_geometry, obstacle_material );
+            box.position.set(this.pos.x, this.pos.y, this.pos.z);
+            box.rotation.set(this.rot.x, this.rot.y, this.pos.z);
+
+            this.mesh = box;
+
 
         } else{
             // avoid to draw each fixed obstacle part
@@ -130,48 +123,8 @@ export class ObstaclePart extends Entity{
 
     }
 
-    motion_animation(x, y, z){
 
-        if(this.movable){
-
-            createjs.Tween.get(this.mesh.position).to(
-                {
-                    x : x,
-                    y : y,
-                    z : z
-                }, 
-                1000,
-                createjs.Ease.linear()
-            );
-
-        }
-    }
-
-    destruction_animation(env){
-
-        if(this.erasable){
-
-            // createjs.Tween.get(this.mesh.material).to(
-            //     {
-            //         opacity : 0
-            //     }, 
-            //     1000,
-            //     createjs.Ease.linear()
-            // ).call(
-            //     function(){
-            //         // this.mesh.removeFromParent(); 
-            //         // env.mesh.remove(this.mesh);
-            //     }
-            // );
-
-        }
-
-        
-
-    }
-          
 }
-
 
 // Player object 
 export class SnakeEntity extends Entity{
@@ -189,20 +142,6 @@ export class SnakeEntity extends Entity{
     }
 
 
-    motion_animation(){
-
-        if(this.movable){
-
-        }
-    }
-
-    destruction_animation(){
-
-        if(this.erasable){
-            
-        }
-
-    }
 
     
 }
@@ -214,6 +153,7 @@ export class Food extends Entity{
         super(x, y, z, drawable, movable, erasable); // call the super class constructor and pass in the name parameter
         this.mesh = null;
         this.draw();
+        this.animate();
     }
 
 
@@ -223,30 +163,74 @@ export class Food extends Entity{
             const obj_material = new THREE.MeshBasicMaterial( {color: 0xCE1212} );
             const food_geometry = new THREE.SphereGeometry( 0.25, 8, 8 );
             const sphere = new THREE.Mesh( food_geometry, obj_material );
+            sphere.position.set(this.pos.x, this.pos.y, this.pos.z);
+            sphere.rotation.set(this.rot.x, this.rot.y, this.pos.z);
+
             this.mesh = sphere;
-    
+
         }else this.mesh = null;
     }
 
+    animate(){
+        if(this.drawable){
 
-    motion_animation(){
+            // const target_up = {
+            //     // x: pos.x + Config.cell_cube_dim/10,
+            //     // y: pos.y + Config.cell_cube_dim/10,
+            //     z: this.pos.z + Config.cell_cube_dim/10
+            // }
+            //
+            // const target_down = {
+            //     // x: pos.x - Config.cell_cube_dim/10,
+            //     // y: pos.y - Config.cell_cube_dim/10,
+            //     z: this.pos.z - Config.cell_cube_dim/10
+            // }
+            //
+            // const tweenUp = new TWEEN.Tween(this.mesh.position).to( target_up, 1000);
+            // const tweenDown = new TWEEN.Tween(this.mesh.position).to( target_down, 1000);
+            // tweenUp.chain(tweenDown);
+            // tweenDown.chain(tweenUp);
+            // tweenUp.start();
 
-        if(this.movable){
+
+            const target_coords = {
+                x: Utilities.degrees_to_radians(90),
+                y: Utilities.degrees_to_radians(90),
+                z: Utilities.degrees_to_radians(90)
+            };
+
+            const target_up = {
+                x: this.pos.x + Config.cell_cube_dim/10,
+                // y: this.pos.y + Config.cell_cube_dim/10,
+                // z: this.pos.z + Config.cell_cube_dim/10
+            }
+
+            const target_down = {
+                x: this.pos.x - Config.cell_cube_dim/10,
+                // y: this.pos.y - Config.cell_cube_dim/10,
+                // z: this.pos.z - Config.cell_cube_dim/10
+            }
+
+            // const tweenRot = new TWEEN.Tween(this.mesh.rotation).to(target_coords, 1000).repeat(Infinity);
+            const tweenUp = new TWEEN.Tween(this.mesh.position).to( target_up, 1000);
+            const tweenDown = new TWEEN.Tween(this.mesh.position).to( target_down, 1000);
+
+            // const loop1 = new TWEEN.Tween().end();
+            // loop1.chain(tweenRot, tweenUp);
+            //
+            // const loop2 = new TWEEN.Tween().end();
+            // loop2.chain(tweenRot, tweenDown);
+
+            tweenUp.chain(tweenDown);
+            tweenDown.chain(tweenUp);
+
+            tweenUp.start();
+            // tweenRot.start();
 
         }
     }
 
-    destruction_animation(){
-
-        if(this.erasable){
-            
-        }
-
-    }
-
-    
 }
-
 
 
 // Bonus object
@@ -257,6 +241,7 @@ export class Bonus extends Entity{
 
         this.mesh = null;
         this.draw();
+        this.animate();
     }
 
 
@@ -266,24 +251,28 @@ export class Bonus extends Entity{
             const geometry = new THREE.TorusGeometry( 0.3, 0.05, 10, 16);
             const material = new THREE.MeshBasicMaterial( { color: 0xE69900 } );
             const torus = new THREE.Mesh( geometry, material );
-            torus.rotation.set(0, degrees_to_radians(90), 0);
-        
+            torus.position.set(this.pos.x, this.pos.y, this.pos.z);
+            torus.rotation.set(this.rot.x, this.rot.y, this.pos.z);
+
             this.mesh = torus;
+
         }else this.mesh = null;
     }
 
+    animate(){
 
-    motion_animation(){
+        if (this.drawable){
 
-        if(this.movable){
+            const target_coords = {
+                x: Utilities.degrees_to_radians(360),
+                y: Utilities.degrees_to_radians(360),
+                z: Utilities.degrees_to_radians(360)
+            };
 
-        }
-    }
+            console.log("rotation ", target_coords);
+            const tween_start = new TWEEN.Tween(this.mesh.rotation).to(target_coords, 2500).repeat(Infinity);
+            tween_start.start();
 
-    destruction_animation(){
-
-        if(this.erasable){
-            
         }
 
     }

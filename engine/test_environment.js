@@ -41,13 +41,18 @@ function start_engine(){
     
 
 
-    var env_dim = 10;
+    let w_width = 10, w_height = 10, w_depth = 10;
     var game_level = 5;
-    var face_depth = 1;
+    var face_depth = 3;
 
-    let environment = new Environment(env_dim, env_dim, env_dim, face_depth);
+    let environment = new Environment(w_width, w_height, w_depth, face_depth);
 
     game = new RandomEnvironmentGenerator(game_level, environment);
+    game.spawn_objects(10, Food, true, true, true, false);
+    game.spawn_objects(2, Bonus, true, true, true, false);
+    // game.
+
+
     Controller.init(game);
     cube_environment = game.environment.mesh;
 
@@ -63,7 +68,7 @@ function start_engine(){
 
 
 
-    
+
 
 
     var tic = 0;
@@ -80,7 +85,7 @@ function start_engine(){
             //game.destroy_objects(3, true);
            
             // game.spawn_objects(1, Food, true, true, true);
-            // game.spawn_objects(1, Bonus, true, true, true);
+            // if(tic == 200) game.spawn_objects(1, Bonus, true, true, true, false);
             //game.spawn_objects(5, ObstaclePart, true, true, true, true);
             
         }
