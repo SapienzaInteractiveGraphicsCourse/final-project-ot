@@ -3,7 +3,7 @@ import * as THREE from '../resources/three.js-r129/build/three.module.js';
 import {TWEEN} from "../resources/three.js-r129/examples/jsm/libs/tween.module.min.js";
 import {Config} from "./Config.js";
 import {Utilities} from "./Utilities.js";
-import {cross, mult, vec3} from "../Common/MVnew.js";
+import {cross} from "../Common/MVnew.js";
 
 export class Camera {
 

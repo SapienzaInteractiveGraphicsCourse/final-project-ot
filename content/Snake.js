@@ -1,6 +1,5 @@
 "use strict"
 import * as THREE from '../resources/three.js-r129/build/three.module.js';
-import {makeAxisGridDebug} from "./utils.js";
 import {TWEEN} from "../resources/three.js-r129/examples/jsm/libs/tween.module.min.js";
 import {Entity} from "../engine/Entity.js";
 import {Controller} from "../engine/Controller.js";
@@ -242,8 +241,8 @@ export class Snake extends Entity{
             this.nodes[0] = this.head;
             this.mesh = this.head.container;
 
-            makeAxisGridDebug(this.head.container, 'Snake Head Position');
-            makeAxisGridDebug(this.head.mesh, 'Snake Head');
+            Utilities.makeAxisGridDebug(this.head.container, 'Snake Head Position');
+            Utilities.makeAxisGridDebug(this.head.mesh, 'Snake Head');
         }
     }
 
@@ -286,8 +285,8 @@ export class Snake extends Entity{
         this.nodes.push(node);
 
 
-        makeAxisGridDebug(node.container,"Snake Node Position#" + this.nodes.length);
-        makeAxisGridDebug(node.mesh,"Snake Node#" + this.nodes.length);
+        Utilities.makeAxisGridDebug(node.container,"Snake Node Position#" + this.nodes.length);
+        Utilities.makeAxisGridDebug(node.mesh,"Snake Node#" + this.nodes.length);
     }
 
 

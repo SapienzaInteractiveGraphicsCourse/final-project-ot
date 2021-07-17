@@ -1,5 +1,4 @@
 import { View }  from "./View.js";
-import { makeAxisGridDebug } from "./../content/utils.js";
 import { ObstaclePart, Bonus, Food, Entity, CubeCell, Obstacle} from "./Entity.js";
 
 import * as THREE from '../resources/three.js-r129/build/three.module.js';
@@ -187,7 +186,7 @@ export class Environment extends View{
 
         }
 
-        makeAxisGridDebug(cube_mesh, 'Environment');
+        Utilities.makeAxisGridDebug(cube_mesh, 'Environment');
 
         this.mesh = cube_mesh;
 

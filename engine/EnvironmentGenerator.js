@@ -139,7 +139,6 @@ export class RandomEnvironmentGenerator{
 
             const object = this.object_to_draw[i];
             if( !object.drawable ) continue;
-            // object.mesh.position.set(object.x - w/2 + 0.5, object.y - h/2 + 0.5, object.z - d/2 + 0.5);
             this.environment.mesh.add(object.mesh);
 
 
@@ -536,55 +535,6 @@ export class RandomEnvironmentGenerator{
         
     }
 
-
-
-    world_to_render(coordinates_or_x,y,z){
-        let x = coordinates_or_x;
-        if (arguments.length === 1) {
-            z = coordinates_or_x[2];
-            y = coordinates_or_x[1];
-            x = coordinates_or_x[0];
-        }
-        const w = this.environment.width;
-        const h = this.environment.height;
-        const d = this.environment.depth;
-        return [x - w/2 + 0.5, y - h/2 + 0.5, z - d/2 + 0.5];
-    }
-
-    //TODO Remove
-    vector_to_direction(vector) {
-        for (let i = 0; i < 3; i++) {
-            vector[i] = Math.round(vector[i])
-            if (vector[i] === 0) continue;
-            return {
-                axis: i,
-                sign: vector[i]
-            }
-        }
-    }
-
-    //TODO Remove
-    set_up_direction(vector) {
-        for (let i = 0; i < 3; i++) {
-            vector[i] = Math.round(vector[i])
-            if (vector[i] === 0) continue;
-            this.#up_direction.axis = i;
-            this.#up_direction.sign = vector[i];
-        }
-
-        console.log("up", this.#up_direction);
-    }
-    //TODO Remove
-    set_right_direction(vector) {
-        for (let i = 0; i < 3; i++) {
-            vector[i] = Math.round(vector[i])
-            if (vector[i] === 0) continue;
-            this.#right_direction.axis = i;
-            this.#right_direction.sign = vector[i];
-        }
-        console.log("right", this.#right_direction);
-
-    }
 
 
     /*------- Getters && Setters------*/

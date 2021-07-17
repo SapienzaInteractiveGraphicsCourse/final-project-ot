@@ -44,9 +44,6 @@ export class Entity extends View {
         this.rot = { x: 0, y: 0, z: 0 }
 
         this.mesh = null;
-        //this.draw();
-
-
     }
 
     draw(){
@@ -298,11 +295,11 @@ export class Particle{
         // const geometry = new THREE.TorusGeometry( 0.1, 0.025, 10, 16);
         var geometry;
     
-        if( type == THREE.DodecahedronGeometry ) 
+        if( type === THREE.DodecahedronGeometry )
             geometry = new THREE.DodecahedronGeometry(radius);
-        else if (type == THREE.TetrahedronGeometry)
+        else if (type === THREE.TetrahedronGeometry)
             geometry = new THREE.TetrahedronGeometry(radius);
-        else if (type == THREE.SphereGeometry)
+        else if (type === THREE.SphereGeometry)
             geometry = new THREE.SphereGeometry(radius, 8, 8);
            
         const material = new THREE.MeshBasicMaterial( { color: 0x999999, transparent: true} );

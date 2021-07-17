@@ -1,7 +1,12 @@
+import * as THREE from '../resources/three.js-r129/build/three.module.js';
+import {GUI} from "../resources/three.js-r129/examples/jsm/libs/dat.gui.module.js";
 import {Config} from "./Config.js";
 import {vec3} from "../Common/MVnew.js";
 
 export class Utilities {
+    static gui = new GUI({name: "Debug", width: 400});
+
+
     static world_to_render(coordinates_or_x,y,z){
         let x = coordinates_or_x;
         if (arguments.length === 1) {
@@ -32,6 +37,13 @@ export class Utilities {
         }
     }
 
+    static makeAxisGridDebug(node, label, size = 1, units = 10) {
+        const handler = new AxisGridHandler(node,size,units);
+        Utilities.gui.add(handler, 'axisVisible').name(label + ' Axis');
+        Utilities.gui.add(handler, 'gridVisible').name(label + ' Grid');
+
+    }
+
     /*---- Resize canvas to screen size ------*/
     static resizeCanvas(renderer, camera) {
         const canvas = renderer.domElement;
@@ -58,5 +70,42 @@ export class Utilities {
         return radians * (180/Math.PI);
     }
 
+}
 
+
+/*------ GUI for debugging ------*/
+class AxisGridHandler {
+    #axis
+    #grid
+
+    constructor(node, size = 1, units = 10) {
+        this.#axis = new THREE.AxesHelper(size);
+        this.#axis.material.depthTest = false;
+        this.#axis.renderOrder = 2;
+        this.#axis.visible = false;
+        node.add(this.#axis);
+
+        this.#grid = new THREE.GridHelper(units, units);
+        this.#grid.material.depthTest = false;
+        this.#grid.renderOrder = 1;
+        this.#grid.visible = false;
+        node.add(this.#grid);
+
+    }
+
+    // Getters
+    get axisVisible() {
+        return this.#axis.visible;
+    }
+    get gridVisible() {
+        return this.#grid.visible;
+    }
+
+    // Setters
+    set axisVisible(value) {
+        this.#axis.visible = value;
+    }
+    set gridVisible(value) {
+        this.#grid.visible = value;
+    }
 }
