@@ -1,11 +1,49 @@
 
-/* Canvas responsive*/
+/*!* Canvas responsive*!*/
 html, body {
     margin: 0;
     height: 100%;
 }
-#canvas {
+/*#canvas {*/
+/*    width: 100%;*/
+/*    height: 100%;*/
+/*    display: block;*/
+/*}*/
+
+/*#menu{*/
+/*    z-index: 100;*/
+/*    height: 500px;*/
+/*}*/
+
+
+#gamecontainer {
+
     width: 100%;
     height: 100%;
-    display: block;
+    position: relative;
+}
+
+canvas{
+    position: absolute;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+}
+
+#gamestartscreen {
+
+    width: 100%;
+    height: 100%;
+    position: absolute;
+
+    z-index: 2;
+}
+
+
+.setting_form{
+    background-color:#2fa1d6 ;
+    width: 70%;
+    height: 70%;
+
+
 }

@@ -106,7 +106,7 @@ export class ObstaclePart extends Entity{
             const obstacle_geometry = new THREE.BoxGeometry(1, 1 ,1);
             const box =  new THREE.Mesh( obstacle_geometry, obstacle_material );
             box.position.set(this.pos.x, this.pos.y, this.pos.z);
-            box.rotation.set(this.rot.x, this.rot.y, this.pos.z);
+            box.rotation.set(this.rot.x, this.rot.y, this.rot.z);
 
             this.mesh = box;
 
@@ -266,7 +266,7 @@ export class Bonus extends Entity{
                 z: Utilities.degrees_to_radians(360)
             };
 
-            console.log("rotation ", target_coords);
+            // console.log("rotation ", target_coords);
             const tween_start = new TWEEN.Tween(this.mesh.rotation).to(target_coords, 2500).repeat(Infinity);
             tween_start.start();
 
@@ -305,5 +305,13 @@ export class Particle{
         const material = new THREE.MeshBasicMaterial( { color: 0x999999, transparent: true} );
         const particle_mesh = new THREE.Mesh( geometry, material );
         this.mesh = particle_mesh;
+    }
+}
+
+export class EntityPosition{
+    constructor(x, y, z) {
+        this.x = x;
+        this.y = y;
+        this.z = z;
     }
 }

@@ -11,11 +11,10 @@ export class RandomEnvironmentGenerator{
     #up_direction
     #right_direction
 
-    constructor(game_level, environment){
+    constructor(environment){
         
-        this.game_level = game_level
         this.environment = environment;
-        this.mesh = null;
+        // this.mesh = null;
         this.snake = null;
 
         this.#up_direction = {
@@ -40,8 +39,8 @@ export class RandomEnvironmentGenerator{
         this.object_to_move = [];
         this.object_to_destroy = [];
 
-        this.generate_environment();
-        this.generate_snake();
+        this.init_environment();
+        // this.generate_snake();
 
     }
 
@@ -51,8 +50,8 @@ export class RandomEnvironmentGenerator{
 
     // creates an object of type (type) in the environment at coordinates (x, y, z)
     create_object_structure(x, y, z, type, drawable, movable, erasable){
-        if(!this.check_consistency(x, y, z)) return;
-        if(this.environment.environment[x][y][z].content != null) return;
+        if(!this.check_consistency(x, y, z)) return null;
+        if(this.environment.environment[x][y][z].content != null) return null;
         
         let object = new type(x, y, z, drawable, movable, erasable);
         this.environment.environment[x][y][z].content = object;
@@ -375,7 +374,7 @@ export class RandomEnvironmentGenerator{
     // - random obstacle are generated
     // - food is generated (always)
     // - bonus is generated (randomly)
-    generate_environment(){
+    init_environment(){
 
         const space = this.environment.face_depth;
 
@@ -383,7 +382,6 @@ export class RandomEnvironmentGenerator{
         const height = this.environment.height;
         const depth = this.environment.depth;
 
-        let rnd_value, rnd_x, rnd_y, rnd_z;
 
         // generate core obstacles
         for(let i = space; i < width - space; i++){
@@ -397,58 +395,35 @@ export class RandomEnvironmentGenerator{
         }
 
 
+        this.create_object_view();
+        
+    }
+
+    init_game(game_level){
+
         // generate random obstacle
-        const obs_num = Math.floor(Math.random() * this.game_level);
-        for(var i = 0; i < obs_num; i++){
+        const obstacles_num = Math.floor(Math.random() * game_level);
+        this.spawn_obstacles(obstacles_num, true, true, true);
+        this.spawn_foods(1, true, false, true);
+        const bonus_num = Math.round(Math.random());
+        this.spawn_bonus(bonus_num, true, false, false);
 
-            // get random coord from generator
-            rnd_value = this.coord_generator.get_random_available();
-            
-            rnd_x = rnd_value[0];
-            rnd_y = rnd_value[1];
-            rnd_z = rnd_value[2];
-
-            this.create_object_structure(rnd_x, rnd_y, rnd_z, ObstaclePart, true, true, true);
-        }
-
-        // get random coord from generator
-            
-        rnd_value = this.coord_generator.get_random_available();
-
-        rnd_x = rnd_value[0];
-        rnd_y = rnd_value[1];
-        rnd_z = rnd_value[2];
-
-        this.create_object_structure(rnd_x, rnd_y, rnd_z, Food, true, false, true);
-        
-        // generate bonus
-        if (Math.random() > 0.5){
-
-            rnd_value = this.coord_generator.get_random_available();
-
-            rnd_x = rnd_value[0];
-            rnd_y = rnd_value[1];
-            rnd_z = rnd_value[2];
-
-            this.create_object_structure(rnd_x, rnd_y, rnd_z, Bonus, true, false, false);
-        }
-
-        this.create_object_view();
-        
+        this.snake = this.spawn_snake(1, true, true, false)[0];
+        if(this.snake == null) console.log("SNAKE IS NULL", this.snake);
     }
 
-
-    generate_snake() {
-
-        const world_coordinates = this.coord_generator.get_random_available();
-        let x = this.environment.width / 2;//world_coordinates[0];
-        let y = this.environment.height / 2 ;
-        let z = this.environment.depth -1; //world_coordinates[2];
-
-        this.snake = this.create_object_structure(x, y, z, Snake, true, true, false);
-
-        this.create_object_view();
-    }
+    // [TODO] REMOVE replaced by init_game
+    // generate_snake() {
+    //
+    //     const world_coordinates = this.coord_generator.get_random_available();
+    //     let x = this.environment.width / 2;//world_coordinates[0];
+    //     let y = this.environment.height / 2 ;
+    //     let z = this.environment.depth -1; //world_coordinates[2];
+    //
+    //     this.snake = this.create_object_structure(x, y, z, Snake, true, true, false);
+    //
+    //     this.create_object_view();
+    // }
 
 
    
@@ -504,35 +479,42 @@ export class RandomEnvironmentGenerator{
 
     // Spawn {number} ObstaclePart object in the environment
     spawn_obstacles(number, drawable, movable, erasable){
-        this.spawn_objects(number, ObstaclePart, drawable, movable, erasable);
+        this.spawn_objects(number, ObstaclePart, drawable, movable, erasable, false);
     }
 
 
     // Spawn {number} Food object  in the environment
     spawn_foods(number, drawable, movable, erasable){
-        this.spawn_objects(number, Food, drawable, movable, erasable);
+        this.spawn_objects(number, Food, drawable, movable, erasable, false);
     }
 
 
     // Spawn {number} Bonus object in the environment
     spawn_bonus(number, drawable, movable, erasable){
-        this.spawn_objects(number, Bonus, drawable, movable, erasable);
+        this.spawn_objects(number, Bonus, drawable, movable, erasable, false);
+    }
+
+    // Spawn {number} Bonus object in the environment
+    spawn_snake(number, drawable, movable, erasable){
+        return this.spawn_objects(number, Snake, drawable, movable, erasable, false);
     }
 
     // Spawn {number} object of type {type} in the environment
     spawn_objects(number, type, drawable, movable, erasable, random){
         if(random) number = Math.floor(Math.random() * number);
 
+        let spawned_object = [];
+
         for(let i = 0; i < number; i++){
             let coord = this.coord_generator.get_random_available();
             if(coord == null) continue;
-            this.create_object_structure(coord[0], coord[1], coord[2], type, drawable, movable, erasable);
-            
+            let obj = this.create_object_structure(coord[0], coord[1], coord[2], type, drawable, movable, erasable);
+            spawned_object.push(obj);
         }
 
         this.create_object_view();
             
-        
+        return spawned_object;
     }
 
 

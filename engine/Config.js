@@ -1,4 +1,5 @@
 export class Config {
+
     static world_width = 10;
     static world_height = 10;
     static world_depth = 10;
@@ -20,6 +21,9 @@ export class Config {
     static camera_offset_right = 5;
 
 
+    //    game setting
+
+    static game_level = 0;
 
     /*------ Snake settings ------*/
     static snake_speed = 500;
