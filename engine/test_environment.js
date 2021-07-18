@@ -56,10 +56,14 @@ function start_engine(){
 
     Controller.get_instance().right();
     Controller.get_instance().move_snake();
-    game.snake.add_node();
-    game.snake.add_node();
-    game.snake.add_node();
-    game.snake.add_node();
+    // game.snake.add_node_old();
+    // game.snake.add_node_old();
+    // game.snake.add_node_old();
+    // game.snake.add_node_old();
+    // game.snake.add_node_old();
+    // game.snake.add_node_old();
+    // game.snake.add_node_old();
+    // game.snake.add_node_old();
 
 
 

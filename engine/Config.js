@@ -15,14 +15,16 @@ export class Config {
     static near = 0.1;
     static far = 2000;
     static camera_speed = 500;
-    static camera_radius = 25;
+    static camera_radius = 20;
     static camera_offset_up = 5;
     static camera_offset_right = 5;
 
 
 
     /*------ Snake settings ------*/
-    static snake_speed = 1000;
+    static snake_speed = 500;
+    static snake_nodes_distance = 1; //TODO parametric
+    static static_nodes_dimension = 0.8; // (0,1] * snake_nodes_distance
 
 
 

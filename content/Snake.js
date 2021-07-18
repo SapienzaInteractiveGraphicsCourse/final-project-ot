@@ -5,38 +5,68 @@ import {Entity} from "../engine/Entity.js";
 import {Controller} from "../engine/Controller.js";
 import {Config} from "../engine/Config.js";
 import {Utilities} from "../engine/Utilities.js";
-//import {dummyController} from "../index.js";
 
-
+/*
+ * An instance of this class contains all the animations (movement, rotations, and generic animations) that should be started together.
+ */
 class SynchronousAnimations {
-    #movement
-    #rotations = []
-    #direction
+    #movement;
+    #spawn = null;
+    #rotations = [];
+    #animations = [];
+    #direction;
 
     constructor(movement = null, direction = null) {
         this.#movement = movement;
         this.#direction = direction;
     }
 
+    /* Add snake translation */
     addMovement(tween, direction) {
         this.#movement = tween;
         this.#direction = direction;
     }
-    addRotation(tween) {
-        this.#rotations.push(tween);
-    }
-    addEvents(tween) {
-        this.#rotations.push(tween);
+
+    /* Add snake node spawn */
+    addSpawn(id, tween) {
+        this.#spawn = {id: id, tween: tween};
     }
 
+    /* Add snake node rotation */
+    addRotation(id, tween) {
+        this.#rotations.push({id: id, tween: tween});
+    }
+
+    /* Add snake node animation */
+    addAnimation(id, tween) {
+        this.#animations.push({id: id, tween: tween});
+    }
+
+    /* Start all the events: translation, rotations, animations */
     start() {
         this.#movement.start();
-        this.#rotations.forEach((event) => {
-            event.start();
+
+        let spawn_id = -1;
+        if (this.#spawn !== null){
+            spawn_id = this.#spawn.id;
+            this.#spawn.tween.start();
+        }
+        this.#rotations.forEach((rotation) => {
+            // Skip all the rotations of a spawning node
+            if (rotation !== null && rotation.id !== spawn_id)
+                rotation.tween.start();
+        })
+
+        this.#animations.forEach((animation) => {
+            if (animation !== null)
+                animation.tween.start();
         })
     }
 
+    /* Merge two synchronous events into a single one */
     merge(events) {
+        if (events.spawn !== null)
+            this.#spawn = events.spawn;
         events.rotations.forEach((event) => {
             this.#rotations.push(event);
         })
@@ -52,27 +82,28 @@ class SynchronousAnimations {
     get direction() {
         return this.#direction;
     }
-
-
+    get spawn() {
+        return this.#spawn;
+    }
     // Setters
     set direction(dir) {
         this.#direction = dir;
     }
 }
 
-// This class can be called as callback --> AVOID "THIS"!
+/*
+ *  It handles the animations queue. Each entry of the queue is an instance of SynchronousAnimations.
+ */
 class AnimationHandler {
     static eventQueue = []
     static currentEvents = null;
-    //static lastEVents = null;
 
-    //TODO REMOVE
-    static UP = 0;
-    static DOWN = 1;
-    static LEFT = 2;
-    static RIGHT = 3;
-
-
+    /*
+    * Add a translation to the next event in the queue.
+    * If the queue is empty create a new SynchronousAnimations
+    * Input: The tween animation and the direction of the movement.
+    * Output: -
+    */
     static addMovement(tween, direction) {
         let evnt = AnimationHandler.getNextEvent()
         if (evnt === null) {
@@ -83,34 +114,46 @@ class AnimationHandler {
         }
     }
 
-    static addRotation(events) {
-        AnimationHandler.addEvents(events);
-    }
 
+    /*
+    * Adds multiple SynchronousAnimations to the queue starting from the beginning.
+    * If the i-th position of the queue is occupied the old and new SynchronousAnimations are merged.
+    * Input: list[SynchronousAnimations]
+    * Output: -
+    */
     static addEvents(events) {
         for (let i = 0; i < events.length; i++) {
             if (i < AnimationHandler.eventQueue.length) {
                 // Merging events
                 AnimationHandler.eventQueue[i].merge(events[i]);
             } else {
-                // There is no scheduled event
+                // There is no scheduled event, adding to the end of the queue
                 AnimationHandler.eventQueue.push(events[i]);
             }
         }
     }
 
+    /* AddEvents wrapper */
+    static addRotation(events) {
+        AnimationHandler.addEvents(events);
+    }
+
+    /* Start the next event in the queue and pop it out. */
+    static startNextEvent() {
+        if (AnimationHandler.eventQueue.length === 0) return null;
+        AnimationHandler.currentEvents = AnimationHandler.eventQueue[0];
+        AnimationHandler.eventQueue[0].start()
+        AnimationHandler.eventQueue.shift()
+    }
 
     static getNextEvent() {
         if (AnimationHandler.eventQueue.length === 0) return null;
         return AnimationHandler.eventQueue[0];
     }
 
-
-    static startNextEvent() {
+    static getLastEvent() {
         if (AnimationHandler.eventQueue.length === 0) return null;
-        AnimationHandler.currentEvents = AnimationHandler.eventQueue[0];
-        AnimationHandler.eventQueue[0].start()
-        AnimationHandler.eventQueue.shift()
+        return AnimationHandler.eventQueue[AnimationHandler.eventQueue.length-1];
     }
 
     static getCurrentMovement() {
@@ -124,7 +167,6 @@ class AnimationHandler {
     }
 
     static getCurrentDirection() {
-        console.log(AnimationHandler.currentEvents)
         if (AnimationHandler.currentEvents === null) return null;
         return AnimationHandler.currentEvents.direction;
     }
@@ -135,14 +177,19 @@ class AnimationHandler {
     }
 }
 
+
+
 export class SnakeNode {
+    id;
     x;
     y;
     z;
     container;
     mesh;
     direction;
-    constructor(x,y,z, direction, geometry, material) {
+    spawned;
+    constructor(id, x,y,z, direction, geometry, material) {
+        this.id = id;
         this.x = x;
         this.y = y;
         this.z = z;
@@ -151,13 +198,13 @@ export class SnakeNode {
         this.container = new THREE.Object3D();
         this.mesh = new THREE.Mesh(geometry, material);
         this.container.add(this.mesh);
+        this.spawned = false;
     }
 
     get_position() {
         const vector = [this.x, this.y, this.z];
         return [...vector];
     }
-
 
     update_position(coordinates) {
         this.x = coordinates[0];
@@ -169,33 +216,21 @@ export class SnakeNode {
         this.direction = direction;
     }
 
-
-
-
-
 }
 
 
 export class Snake extends Entity{
-    #headRadius = 0.8;
-    #headSegments = 30;
-    #headColor = 0x44aa88;
-
-    #nodeRadius = .4;
-    #nodeSegments = 30;
     #nodeColor = 0x23af11;
 
-    #nodeDistance = 1;
-    #nodeDimension = 0.8 * this.#nodeDistance ;
+    // Distance between each node
+    #nodeDistance;
+    #nodeDimension;
 
+    // Every node (except the head) has the same geometry and material
     #nodeGeometry;
     #nodeMaterial;
 
-    #environment_direction
-
     speed;
-    movementTime = 1; //TODO Remove
-
 
     head;
     nodes = [];
@@ -206,38 +241,38 @@ export class Snake extends Entity{
 
         /*---- Configuration -----*/
         this.speed = Config.snake_speed;
+        this.#nodeDistance = Config.snake_nodes_distance;
+        this.#nodeDimension = Config.static_nodes_dimension * this.#nodeDistance;
 
 
-        /*----- Head -----*/
-
+        /*----- Position -----*/
         this.x = x;
         this.y = y;
         this.z = z;
 
 
-
         /*----- Nodes -----*/
-        //this.#nodeGeometry = new THREE.SphereGeometry(this.#nodeRadius, this.#nodeSegments, this.#nodeSegments);
         const dim = this.#nodeDimension;
         this.#nodeGeometry = new THREE.BoxGeometry(dim,dim,dim);
         this.#nodeMaterial = new THREE.MeshPhongMaterial({color: this.#nodeColor});
 
 
         /*---- Movement -----*/
-        //this.#events = new AnimationHandler();
         this.mesh = null;
         this.draw();
 
-        console.log(this);
     }
 
+    /* Draw the head */
     draw() {
         if (this.drawable) {
             const dim = this.#nodeDimension;
             const geometry = new THREE.BoxGeometry(dim,dim,dim);
             const material = new THREE.MeshPhongMaterial({color: 0x44aa88});
 
-            this.head = new SnakeNode(0,0,0,null,geometry,material);
+            // The position and orientation will be updated at the first movement
+            this.head = new SnakeNode(0,0,0,0,null,geometry,material);
+            this.head.spawned = true;
             this.nodes[0] = this.head;
             this.mesh = this.head.container;
 
@@ -248,20 +283,88 @@ export class Snake extends Entity{
 
     add_node() {
         const eventsList = [];
-        for (let i = 1; i < this.nodes.length - 1; i++) {
-            const old_scale = this.nodes[i].mesh.scale;
-            const new_scale = 1.5 * scale;
 
-            const upscale = new TWEEN.Tween(old_scale).to(new_scale, this.speed / 2);
-            const downscale = new TWEEN.Tween(new_scale).to(old_scale, this.speed / 2);
+        // Previous nodes animation
+        for (let i = 0; i < this.nodes.length; i++) {
+            const node = this.nodes[i];
+            if (!node.spawned) continue;
+
+            const node_mesh = node.mesh;
+            const small = new THREE.Vector3(1,1,1);
+            const big = new THREE.Vector3(1.5,1.5,1.5);
+
+            const upscale = new TWEEN.Tween(node_mesh.scale).to(big, this.speed / 2);
+            const downscale = new TWEEN.Tween(node_mesh.scale).to(small, this.speed / 2);
+            upscale.chain(downscale);
 
             const events = new SynchronousAnimations();
-            events.addRotation(translation);
+            events.addAnimation(node.id, upscale);
             eventsList.push(events);
         }
-        AnimationHandler.addRotation(eventsList);
+
+        /*----- Creating a new invisible node -----*/
+
+        const node_id = this.nodes.length;
+
+        // Setting the position behind the last node
+        const tail = this.nodes[this.nodes.length -1];
+        const pos = tail.get_position();
+        pos[tail.direction.axis] -= tail.direction.sign;
+        const node = new SnakeNode(node_id,pos[0],pos[1],pos[2],tail.direction,this.#nodeGeometry,this.#nodeMaterial);
+
+        // Setting scale to 0 and adding it to the hierarchical model and the nodes list.
+        node.mesh.scale.set(0,0,0);
+        tail.container.add(node.container);
+        this.nodes.push(node);
+
+
+        /*----- Scheduling repositioning and resizing -----*/
+        const nodes = this.nodes;
+        const tween = new TWEEN.Tween(node.mesh.scale).to({x: 1, y: 1, z: 1}, this.speed / 2).onStart((twn) => {
+            let tail;
+            for (let i = nodes.length - 1; i>=0; i--){
+                // The tail is the last SPAWNED node
+                if (nodes[i].spawned) {
+                    tail = nodes[i];
+                    break;
+                }
+            }
+
+            // Updating the position
+            // const pos = tail.get_position();
+            // pos[tail.direction.axis] -= tail.direction.sign;
+            // node.update_position(pos);
+            // node.update_direction(tail.direction);
+
+
+            // Moving the node behind the tail
+            node.container.position.set(0,0,0);
+            switch (tail.direction.axis) {
+                case Config.DIRECTIONS.AXES.X:
+                    node.container.position.x = -tail.direction.sign * this.#nodeDistance;
+                    break;
+                case Config.DIRECTIONS.AXES.Y:
+                    node.container.position.y = -tail.direction.sign * this.#nodeDistance;
+                    break;
+                case Config.DIRECTIONS.AXES.Z:
+                    node.container.position.z = -tail.direction.sign * this.#nodeDistance;
+                    break;
+            }
+
+            node.spawned = true;
+       });
+
+        const events = new SynchronousAnimations();
+        events.addSpawn(node.id, tween);
+        eventsList.push(events);
+        AnimationHandler.addEvents(eventsList);
+
+        Utilities.makeAxisGridDebug(node.container,"Snake Node Position#" + this.nodes.length);
+        Utilities.makeAxisGridDebug(node.mesh,"Snake Node#" + this.nodes.length);
     }
 
+
+    // TODO Remove
     add_node_old() {
         const tail = this.nodes[this.nodes.length -1];
         const pos = tail.get_position();
@@ -293,6 +396,7 @@ export class Snake extends Entity{
 
     /*----- Animation Handler ------*/
 
+    /* Start the next animations block */
     move() {
         const nextEvent = AnimationHandler.getNextEvent();
         if (nextEvent !== null)
@@ -302,26 +406,34 @@ export class Snake extends Entity{
         }
     }
 
+    /*
+    * Schedule a new translation.
+    * Input: new coordinates list[x,y,z], new direction{axis,sign}
+    * Output: -
+    */
     add_movement(coordinates, direction) {
+        // If the new direction and the current one are different -> perform a rotation
         if (this.head.direction !== null && (this.head.direction.axis !== direction.axis || this.head.direction.sign !== direction.sign))
             this.rotate(this.head.direction, direction);
 
-
-        const render_coordinates = Utilities.world_to_render(coordinates);
-        const target = {x: render_coordinates[0], y: render_coordinates[1], z: render_coordinates[2]};
-
+        //TODO Remove
         this.head.update_position(coordinates);
         this.head.update_direction(direction);
 
-        const tween = new TWEEN.Tween(this.head.container.position).to(target,this.movementTime * 1000);
-        tween.onComplete((twn) => {
-            console.log(Controller.get_instance())
-            Controller.get_instance().move_snake();
-        });
+        // Converting and setting the coordinates
+        const render_coordinates = Utilities.world_to_render(coordinates);
+        const target = {x: render_coordinates[0], y: render_coordinates[1], z: render_coordinates[2]};
+        const tween = new TWEEN.Tween(this.head.container.position).to(target,this.speed);
+
+        const snake = this;
+
+        tween.onStart((twn) => {snake.update_positions();});
+        tween.onComplete((twn) => {Controller.get_instance().move_snake();});
 
         AnimationHandler.addMovement(tween, direction);
     }
 
+    /* Perform a rotation for each node */
     rotate(old_direction, new_direction) {
 
         function int_to_string_signed(int) {
@@ -330,7 +442,9 @@ export class Snake extends Entity{
 
         const eventsList = [];
         for (let i = 1; i < this.nodes.length; i++) {
-            const node_relative_pos = this.nodes[i].container.position;
+            const node = this.nodes[i];
+
+            const node_relative_pos = node.container.position;
             const delta_pos = [0,0,0];
 
             delta_pos[old_direction.axis] += old_direction.sign * this.#nodeDistance;
@@ -340,142 +454,22 @@ export class Snake extends Entity{
             const y = int_to_string_signed(delta_pos[1]);
             const z = int_to_string_signed(delta_pos[2]);
 
-            const translation = new TWEEN.Tween(node_relative_pos).to({x: x, y: y, z: z}, this.movementTime * 1000);
+            const rotation = new TWEEN.Tween(node_relative_pos).to({x: x, y: y, z: z}, this.speed).onStart((twn) => {
+                node.update_direction(new_direction);
+            });
 
             const events = new SynchronousAnimations();
-            events.addRotation(translation);
+            events.addRotation(node.id,rotation);
             eventsList.push(events);
         }
         AnimationHandler.addRotation(eventsList);
     }
 
-    //TODO remove
-    _moveToTarget(x, y, z, direction) {
-        const target = {x: x, y: y, z: z};
-        const tween = new TWEEN.Tween(this.head.position).to(target,this.movementTime * 1000);
-        //tween.onComplete(dummyController);
-        AnimationHandler.addMovement(tween, direction);
+
+    update_positions() {
+
     }
 
-    //TODO remove
-    _rotate(x, y, z) {
-        const eventsList = [];
-        for (let i = 0; i < this.nodes.length - 1; i++) {
-
-            const translation = new TWEEN.Tween(this.nodes[i+1].position).to({x: x, y: y, z: z}, this.movementTime * 1000);
-            //const rotation = new TWEEN.Tween(this.nodes[i].children[0].rotation).to({x: '+0', y: '+2', z: +'+0'}, this.movementTime * 1000);
-
-            const events = new SynchronousAnimations();
-            events.addRotation(translation);
-            //events.addRotation(rotation);
-
-            eventsList.push(events);
-        }
-        AnimationHandler.addRotation(eventsList);
-    }
-
-    goDown() {
-        const direction = AnimationHandler.getCurrentDirection();
-        if (direction === AnimationHandler.UP){
-            console.log("Direction forbidden: skipping command");
-            return;
-        }
-
-        let x = '+0';
-        let y = '+0';
-        let z = '+' + (2*this.#nodeRadius + this.#nodeDistance);
-        this._moveToTarget(x,y,z, AnimationHandler.DOWN);
-
-        if (direction === AnimationHandler.LEFT) {
-            x = '-' + (2*this.#nodeRadius + this.#nodeDistance);
-            y = '+0';
-            z = '-' + (2*this.#nodeRadius + this.#nodeDistance);
-            this._rotate(x,y,z);
-        }
-        if (direction === AnimationHandler.RIGHT) {
-            x = '+' + (2*this.#nodeRadius + this.#nodeDistance);
-            y = '+0';
-            z = '-' + (2*this.#nodeRadius + this.#nodeDistance);
-            this._rotate(x,y,z);
-        }
-    }
-
-    goUp() {
-        const direction = AnimationHandler.getCurrentDirection();
-        if (direction === AnimationHandler.DOWN){
-            console.log("Direction forbidden: skipping command");
-            return;
-        }
-        let x = '+0';
-        let y = '+0';
-        let z = '-' + (2*this.#nodeRadius + this.#nodeDistance);
-        this._moveToTarget(x,y,z, AnimationHandler.UP);
-
-        if (direction === AnimationHandler.LEFT) {
-            x = '-' + (2*this.#nodeRadius + this.#nodeDistance);
-            y = '+0';
-            z = '+' + (2*this.#nodeRadius + this.#nodeDistance);
-            this._rotate(x,y,z);
-        }
-        if (direction === AnimationHandler.RIGHT) {
-            x = '+' + (2*this.#nodeRadius + this.#nodeDistance);
-            y = '+0';
-            z = '+' + (2*this.#nodeRadius + this.#nodeDistance);
-            this._rotate(x,y,z);
-        }
-    }
-
-    goLeft() {
-        const direction = AnimationHandler.getCurrentDirection();
-        if (direction === AnimationHandler.RIGHT){
-            console.log("Direction forbidden: skipping command");
-            return;
-        }
-
-        let x = '-' + (2*this.#nodeRadius + this.#nodeDistance);
-        let y = '+0';
-        let z = '+0';
-        this._moveToTarget(x,y,z, AnimationHandler.LEFT);
-
-        if (direction === AnimationHandler.UP) {
-            x = '+' + (2*this.#nodeRadius + this.#nodeDistance);
-            y = '+0';
-            z = '-' + (2*this.#nodeRadius + this.#nodeDistance);
-            this._rotate(x,y,z);
-        }
-        if (direction === AnimationHandler.DOWN) {
-            x = '+' + (2*this.#nodeRadius + this.#nodeDistance);
-            y = '+0';
-            z = '+' + (2*this.#nodeRadius + this.#nodeDistance);
-            this._rotate(x,y,z);
-        }
-    }
-
-    goRight() {
-        const direction = AnimationHandler.getCurrentDirection();
-        if (direction === AnimationHandler.LEFT){
-            console.log("Direction forbidden: skipping command");
-            return;
-        }
-
-        let x = '+' + (2*this.#nodeRadius + this.#nodeDistance);
-        let y = '+0';
-        let z = '+0';
-        this._moveToTarget(x,y,z, AnimationHandler.RIGHT);
-
-        if (direction === AnimationHandler.UP) {
-            x = '-' + (2*this.#nodeRadius + this.#nodeDistance);
-            y = '+0';
-            z = '-' + (2*this.#nodeRadius + this.#nodeDistance);
-            this._rotate(x,y,z);
-        }
-        if (direction === AnimationHandler.DOWN) {
-            x = '-' + (2*this.#nodeRadius + this.#nodeDistance);
-            y = '+0';
-            z = '+' + (2*this.#nodeRadius + this.#nodeDistance);
-            this._rotate(x,y,z);
-        }
-    }
 
     /*----- Utils -----*/
     get_current_movement() {
@@ -492,5 +486,3 @@ export class Snake extends Entity{
     }
 
 }
-
-//TESTS

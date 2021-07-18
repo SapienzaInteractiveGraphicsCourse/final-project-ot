@@ -74,6 +74,10 @@ export class Controller{
 
 
     #schedule_movement(old_pos, new_pos, direction) {
+        if (this.snake.get_next_movement() !== null){
+            console.log("Double hit suppression");
+            return;
+        }
         const done = this.game.move_object_structure(old_pos[0],old_pos[1],old_pos[2],new_pos[0],new_pos[1],new_pos[2]);
         if (done)
             this.snake.add_movement(new_pos, direction);
@@ -208,7 +212,7 @@ export class Controller{
                 controller.up();
             }
             else if(event.keyCode === KeyboardHelper.space){
-                controller.move_snake();
+                controller.snake.add_node();
             }
         }
     }
