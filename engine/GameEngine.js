@@ -9,7 +9,7 @@ import {Controller} from "./Controller.js";
 import {Camera} from "./Camera.js";
 import {Utilities} from "./Utilities.js";
 import {Config} from "./Config.js";
-import {SnakeNode} from "../content/Snake.js";
+import {SnakeNode} from "./Snake.js";
 
 class ScoreManger{
 
@@ -148,6 +148,7 @@ class GameEngine{
         this.environment_manager.destroy_object_structure(content.x, content.y, content.z);
         this.environment_manager.destroy_object_view();
 
+        this.environment_manager.snake.add_node();
         this.environment_manager.spawn_foods(1, true, true, true, false);
 
         this.score_manager.update_score(Food);
@@ -155,13 +156,14 @@ class GameEngine{
 
     obstacle_hit(){
         alert("Obstacle HIT");
+        //console.log("obstacle hit");
         this.score_manager.update_score(ObstaclePart);
 
     }
 
     snake_hit(){
 
-        alert("Obstacle HIT");
+        alert("Snake HIT");
         this.score_manager.update_score(SnakeNode);
 
     }

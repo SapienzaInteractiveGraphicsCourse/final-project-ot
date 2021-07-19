@@ -5,13 +5,12 @@ import {
     CubeCell,
     Obstacle,
     Particle,
-    SnakeEntity,
-    Bonus, LuckyBonus, ScoreBonus, FastBonus, InvincibilityBonus, InvisibilityBonus
+    Bonus, LuckyBonus, ScoreBonus, FastBonus, InvincibilityBonus, InvisibilityBonus, SnakeNodeEntity
 } from "./Entity.js";
 import * as THREE from '../resources/three.js-r129/build/three.module.js';
 import { TWEEN } from "../resources/three.js-r129/examples/jsm/libs/tween.module.min.js";
 import { CoordinateManager } from "./CoordinateManager.js";
-import {Snake} from "../content/Snake.js";
+import {Snake} from "./Snake.js";
 import {Config} from "./Config.js";
 
 
@@ -29,6 +28,7 @@ export class EnvironmentManager {
         this.obstacle_num = 0;
         this.food_num = 0;
         this.bonus_num = 0;
+        this.snake_nodes_num = 0;
 
         this.coord_generator = new CoordinateManager(environment.width, environment.height, environment.depth);
 
@@ -57,6 +57,8 @@ export class EnvironmentManager {
         if(object instanceof ObstaclePart) this.obstacle_num++;
         else if(object instanceof Food) this.food_num++;
         else if(object instanceof Bonus) this.bonus_num++;
+        else if(object instanceof Snake) this.snake_nodes_num++;
+        else if(object instanceof SnakeNodeEntity) this.snake_nodes_num++;
         
         this.object_to_draw.push(object); // add object to queue
 
@@ -423,7 +425,7 @@ export class EnvironmentManager {
         // generate random obstacle
         const obstacles_num = Math.floor(Math.random() * game_level);
         this.spawn_obstacles(obstacles_num, true, true, true);
-        this.spawn_foods(1, true, false, true);
+        this.spawn_foods(10, true, false, true);
         const bonus_num = Math.round(Math.random());
         this.spawn_bonus(bonus_num, true, false, true);
 
@@ -504,7 +506,12 @@ export class EnvironmentManager {
 
     // Spawn {number} Bonus object in the environment
     spawn_snake(number, drawable, movable, erasable, random){
+        //TODO not random.
         return this.spawn_objects(number, Snake, drawable, movable, erasable, random);
+    }
+
+    create_snake_node_structure(position){
+        this.create_object_structure(position[0], position[1], position[2], SnakeNodeEntity, false, true, false);
     }
 
     // Spawn {number} object of type {type} in the environment

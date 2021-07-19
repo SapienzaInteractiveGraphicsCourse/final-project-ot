@@ -1,7 +1,7 @@
 import {equal, mult, subtract, vec3, rotate, vec4, add} from "../Common/MVnew.js";
 import {Utilities} from "./Utilities.js";
 import {Food, ObstaclePart} from "./Entity.js";
-import {SnakeNode} from "../content/Snake.js";
+import {SnakeNode} from "./Snake.js";
 import {Config} from "./Config.js";
 
 
@@ -15,6 +15,7 @@ export class Controller{
     #up_direction;
     #right_direction;
 
+    environment_nodes = 1;
 
     /*------- SINGLETON Handle ------*/
     static init(engine) {
@@ -131,21 +132,40 @@ export class Controller{
             return;
         }
 
+        const snake_direction = snake.get_current_direction();
+        if (snake_direction !== null && snake_direction.axis === snake_target_direction.axis && snake_direction.sign !== snake_target_direction.sign) {
+            console.log("Forbidden direction");
+            return;
+        }
+
 
         const done = manager.move_object_structure(
             snake_position[0], snake_position[1], snake_position[2],
             snake_target_position[0],snake_target_position[1],snake_target_position[2]
         );
 
-        if (done) snake.add_movement(snake_target_position, snake_target_direction);
-        else {
+        if (done) {
+            const nodes_old_pos = snake.get_nodes_position();
+            snake.add_movement(snake_target_position, snake_target_direction);
+            const nodes_new_pos = snake.get_nodes_position();
 
+            for (let i = 1; i<nodes_new_pos.length; i++) {
+                const old_pos = nodes_old_pos[i];
+                const new_pos = nodes_new_pos[i];
+
+                if (i >= manager.snake_nodes_num) {
+                    manager.create_snake_node_structure(new_pos);
+                    continue;
+                }
+
+                manager.move_object_structure(old_pos[0], old_pos[1], old_pos[2],new_pos[0],new_pos[1],new_pos[2]);
+            }
+
+
+        } else {
             this.#rotate_view(snake_position, snake_target_position);
-
-            this.#collision_handler(snake_target_position);
-
-            this.schedule_movement(snake_position, snake_target_position, snake_target_direction);
-
+            const gameover = this.#collision_handler(snake_target_position);
+            if (!gameover) this.schedule_movement(snake_position, snake_target_position, snake_target_direction);
         }
 
 
@@ -244,7 +264,7 @@ export class Controller{
 
                 end_game = true;
                 break;
-            case 'SnakeNode':
+            case 'SnakeNodeEntity':
                 console.log("SnakeNode hit");
                 this.engine.snake_hit(cell_content);
 

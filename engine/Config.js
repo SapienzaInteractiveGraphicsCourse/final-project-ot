@@ -1,8 +1,8 @@
 export class Config {
 
-    static world_width = 8;
-    static world_height = 8;
-    static world_depth = 8;
+    static world_width = 10;
+    static world_height = 10;
+    static world_depth = 10;
     static world_face_depth = 1;
 
     static DIRECTIONS = {AXES: {X:0, Y:1, Z:2}, SIGN: {POSITIVE: 1, NEGATIVE: -1}}
@@ -23,21 +23,12 @@ export class Config {
 
     //    game setting
 
-    static game_level = 15;
+    static game_level = 5;
 
     /*------ Snake settings ------*/
     static snake_speed = 500;
     static snake_nodes_distance = 1; //TODO parametric
     static static_nodes_dimension = 0.8; // (0,1] * snake_nodes_distance
-
-
-    // Score settings
-    static initial_score = 0;
-    static score_multiplicator = 1;
-    static food_score =  1;
-    static bonus_score = 0;
-    static obstacle_score = 0;
-    static snakenode_score = 0;
 
 
 

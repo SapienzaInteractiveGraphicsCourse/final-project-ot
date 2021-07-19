@@ -1,10 +1,10 @@
 "use strict"
 import * as THREE from '../resources/three.js-r129/build/three.module.js';
 import {TWEEN} from "../resources/three.js-r129/examples/jsm/libs/tween.module.min.js";
-import {Entity} from "../engine/Entity.js";
-import {Controller} from "../engine/Controller.js";
-import {Config} from "../engine/Config.js";
-import {Utilities} from "../engine/Utilities.js";
+import {Entity} from "./Entity.js";
+import {Controller} from "./Controller.js";
+import {Config} from "./Config.js";
+import {Utilities} from "./Utilities.js";
 
 /*
  * An instance of this class contains all the animations (movement, rotations, and generic animations) that should be started together.
@@ -206,6 +206,10 @@ export class SnakeNode {
         return [...vector];
     }
 
+    get_direction() {
+        return {...this.direction};
+    }
+
     update_position(coordinates) {
         this.x = coordinates[0];
         this.y = coordinates[1];
@@ -330,11 +334,11 @@ export class Snake extends Entity{
                 }
             }
 
-            // Updating the position
-            // const pos = tail.get_position();
-            // pos[tail.direction.axis] -= tail.direction.sign;
-            // node.update_position(pos);
-            // node.update_direction(tail.direction);
+            // Updating position and orientation
+            const pos = tail.get_position();
+            pos[tail.direction.axis] -= tail.direction.sign;
+            node.update_position(pos);
+            node.update_direction(tail.direction);
 
 
             // Moving the node behind the tail
@@ -416,21 +420,22 @@ export class Snake extends Entity{
         if (this.head.direction !== null && (this.head.direction.axis !== direction.axis || this.head.direction.sign !== direction.sign))
             this.rotate(this.head.direction, direction);
 
-        //TODO Remove
-        this.head.update_position(coordinates);
-        this.head.update_direction(direction);
+        // Updating the position of each node
+        this.update_positions(coordinates, direction);
 
         // Converting and setting the coordinates
         const render_coordinates = Utilities.world_to_render(coordinates);
         const target = {x: render_coordinates[0], y: render_coordinates[1], z: render_coordinates[2]};
         const tween = new TWEEN.Tween(this.head.container.position).to(target,this.speed);
 
+        //TODO Remove
         const snake = this;
 
-        tween.onStart((twn) => {snake.update_positions();});
+        // Ask to the controller a new movement after the end
         tween.onComplete((twn) => {Controller.get_instance().move_snake();});
 
         AnimationHandler.addMovement(tween, direction);
+
     }
 
     /* Perform a rotation for each node */
@@ -466,17 +471,40 @@ export class Snake extends Entity{
     }
 
 
-    update_positions() {
+    update_positions(coordinates, direction) {
+        this.head.update_position(coordinates);
+        this.head.update_direction(direction);
 
+        //TODO remove
+        //console.log("head pos-dir", this.head.get_position(),this.head.get_direction());
+
+        for (let i = 1; i < this.nodes.length; i++){
+            const node = this.nodes[i];
+            const node_pos = node.get_position();
+            const node_dir = node.get_direction();
+            node_pos[node_dir.axis] += node_dir.sign;
+            node.update_position(node_pos);
+
+            //console.log("node pos-dir",i, node.get_position(),node.get_direction());
+        }
     }
 
 
     /*----- Utils -----*/
-    get_current_movement() {
-        return AnimationHandler.getNextMovement();
+    get_nodes_position(only_spawned = true) {
+        const pos = []
+        for (let i = 0; i<this.nodes.length; i++) {
+            if (only_spawned && !this.nodes[i].spawned)
+                continue;
+            pos.push(this.nodes[i].get_position());
+        }
+        return pos;
     }
     get_current_direction() {
-        return AnimationHandler.getCurrentDirection();
+        return this.head.direction;
+    }
+    get_current_movement() {
+        return AnimationHandler.getNextMovement();
     }
     get_next_movement() {
         return AnimationHandler.getNextMovement();
@@ -484,5 +512,6 @@ export class Snake extends Entity{
     get_next_direction() {
         return AnimationHandler.getNextDirection();
     }
+
 
 }

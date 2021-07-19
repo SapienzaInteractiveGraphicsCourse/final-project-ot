@@ -123,8 +123,8 @@ export class ObstaclePart extends Entity{
 
 }
 
-// Player object 
-export class SnakeEntity extends Entity{
+// Snake node data structure object
+export class SnakeNodeEntity extends Entity{
 
     constructor(x, y, z, drawable, movable, erasable){
         super(x, y, z, drawable, movable, erasable); // call the super class constructor and pass in the name parameter
@@ -133,14 +133,10 @@ export class SnakeEntity extends Entity{
     }
 
     draw(){
-
-        if(this.drawable) this.mesh = null;
-
+        if(this.drawable) {
+        } else this.mesh = null;
     }
 
-
-
-    
 }
 
 // Food object
