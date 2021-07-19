@@ -1,5 +1,5 @@
 import { View }  from "./View.js";
-import { ObstaclePart, Bonus, Food, Entity, CubeCell, Obstacle} from "./Entity.js";
+import { ObstaclePart, Food, Entity, CubeCell, Obstacle} from "./Entity.js";
 
 import * as THREE from '../resources/three.js-r129/build/three.module.js';
 import {Config} from "./Config.js";
@@ -192,15 +192,16 @@ export class Environment extends View{
 
     }
 
-    get_cubeCell(position) {
+    get_cube_cell(position) {
         const x = position[0];
         const y = position[1];
         const z = position[2];
+
         return this.environment[x][y][z];
     }
 
-    get_content(position) {
-        return this.get_cubeCell(position).content;
+    get_cube_cell_content(position) {
+        return this.get_cube_cell(position).content;
     }
 
 

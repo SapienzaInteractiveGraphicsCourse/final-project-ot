@@ -271,7 +271,7 @@ export class Snake extends Entity{
             const material = new THREE.MeshPhongMaterial({color: 0x44aa88});
 
             // The position and orientation will be updated at the first movement
-            this.head = new SnakeNode(0,0,0,0,null,geometry,material);
+            this.head = new SnakeNode(0,0,0,0,null, geometry, material);
             this.head.spawned = true;
             this.nodes[0] = this.head;
             this.mesh = this.head.container;

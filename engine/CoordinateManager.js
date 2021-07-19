@@ -1,4 +1,4 @@
-export class CoordinateGenerator{
+export class CoordinateManager {
     
     #available_coordinates;
     #unavailable_coordinates;

@@ -230,7 +230,7 @@ export class Food extends Entity{
 }
 
 
-// Bonus object
+// Generic bonus object
 export class Bonus extends Entity{
 
     constructor(x, y, z, drawable, movable, erasable){
@@ -274,7 +274,135 @@ export class Bonus extends Entity{
 
     }
 
-    
+
+}
+
+// the snake is lucky (a lot of bonus and food are spawned)
+export class LuckyBonus extends Bonus{
+
+    constructor(x, y, z, drawable, movable, erasable){
+        super(x, y, z, drawable, movable, erasable); // call the super class constructor and pass in the name parameter
+
+        this.mesh = null;
+        this.draw();
+        this.animate();
+    }
+
+    draw(){
+        if(this.drawable){
+
+            const geometry = new THREE.TorusGeometry( 0.3, 0.05, 10, 16);
+            const material = new THREE.MeshBasicMaterial( { color: 0x48A229 } );
+            const torus = new THREE.Mesh( geometry, material );
+            torus.position.set(this.pos.x, this.pos.y, this.pos.z);
+            torus.rotation.set(this.rot.x, this.rot.y, this.pos.z);
+
+            this.mesh = torus;
+
+        }else this.mesh = null;
+    }
+}
+// the snake gains more
+export class ScoreBonus extends Bonus{
+    constructor(x, y, z, drawable, movable, erasable){
+        super(x, y, z, drawable, movable, erasable); // call the super class constructor and pass in the name parameter
+
+        this.mesh = null;
+        this.draw();
+        this.animate();
+    }
+
+    draw(){
+        if(this.drawable){
+
+            const geometry = new THREE.TorusGeometry( 0.3, 0.05, 10, 16);
+            const material = new THREE.MeshBasicMaterial( { color: 0xFFC500 } );
+            const torus = new THREE.Mesh( geometry, material );
+            torus.position.set(this.pos.x, this.pos.y, this.pos.z);
+            torus.rotation.set(this.rot.x, this.rot.y, this.pos.z);
+
+            this.mesh = torus;
+
+        }else this.mesh = null;
+    }
+}
+
+// the snake is fast
+export class FastBonus extends Bonus{
+
+    constructor(x, y, z){
+        super(x, y, z, true, true, true); // call the super class constructor and pass in the name parameter
+
+        this.mesh = null;
+        this.draw();
+        this.animate();
+    }
+
+    draw(){
+        if(this.drawable){
+
+            const geometry = new THREE.TorusGeometry( 0.3, 0.05, 10, 16);
+            const material = new THREE.MeshBasicMaterial( { color: 0xFFFF92 } );
+            const torus = new THREE.Mesh( geometry, material );
+            torus.position.set(this.pos.x, this.pos.y, this.pos.z);
+            torus.rotation.set(this.rot.x, this.rot.y, this.pos.z);
+
+            this.mesh = torus;
+
+        }else this.mesh = null;
+    }
+}
+
+// the snake is invincible and destroys all type of obstacle
+export class InvincibilityBonus extends Bonus{
+
+    constructor(x, y, z){
+        super(x, y, z, true, true, true); // call the super class constructor and pass in the name parameter
+
+        this.mesh = null;
+        this.draw();
+        this.animate();
+    }
+
+    draw(){
+        if(this.drawable){
+
+            const geometry = new THREE.TorusGeometry( 0.3, 0.05, 10, 16);
+            const material = new THREE.MeshBasicMaterial( { color: 0x3A5FD6 } );
+            const torus = new THREE.Mesh( geometry, material );
+            torus.position.set(this.pos.x, this.pos.y, this.pos.z);
+            torus.rotation.set(this.rot.x, this.rot.y, this.pos.z);
+
+            this.mesh = torus;
+
+        }else this.mesh = null;
+    }
+}
+
+// the snake is invisible and cannot be cached by obstacles
+export class InvisibilityBonus extends Bonus{
+
+    constructor(x, y, z){
+        super(x, y, z, true, true, true); // call the super class constructor and pass in the name parameter
+
+        this.mesh = null;
+        this.draw();
+        this.animate();
+    }
+
+    draw(){
+        if(this.drawable){
+
+            const geometry = new THREE.TorusGeometry( 0.3, 0.05, 10, 16);
+            const material = new THREE.MeshBasicMaterial( { color: 0xBAC2DC } );
+            const torus = new THREE.Mesh( geometry, material );
+            torus.position.set(this.pos.x, this.pos.y, this.pos.z);
+            torus.rotation.set(this.rot.x, this.rot.y, this.pos.z);
+
+            this.mesh = torus;
+
+        }else this.mesh = null;
+    }
 }
 
 

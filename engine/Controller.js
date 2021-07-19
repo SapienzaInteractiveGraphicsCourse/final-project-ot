@@ -1,21 +1,28 @@
 import {equal, mult, subtract, vec3, rotate, vec4, add} from "../Common/MVnew.js";
 import {Utilities} from "./Utilities.js";
-import {Bonus, Food, ObstaclePart} from "./Entity.js";
+import {Food, ObstaclePart} from "./Entity.js";
 import {SnakeNode} from "../content/Snake.js";
+import {Config} from "./Config.js";
 
 
 export class Controller{
     static instance = null;
+
     game;
     snake;
+    snake_position;
+
+    #up_direction;
+    #right_direction;
+
 
     /*------- SINGLETON Handle ------*/
-    static init(game) {
+    static init(engine) {
         if (Controller.instance != null) {
             console.log("ERROR: Controller already initialized");
             return null;
         }
-        Controller.instance = new Controller(game);
+        Controller.instance = new Controller(engine);
     }
 
     static get_instance() {
@@ -24,109 +31,158 @@ export class Controller{
         console.log("ERROR: Controller not initialized");
     }
 
-    constructor(game) {
-        this.game = game;
-        this.snake = game.snake;
+    constructor(engine) {
+
+        this.engine = engine;
+        let manager = engine.environment_manager;
+        let snake = engine.environment_manager.snake;
+
+        // this.game = engine.environment_manager;
+        // this.snake = engine.environment_manager.snake;
+
+        this.snake_position = [snake.x, snake.y, snake.z];
+
+        this.#up_direction = {
+            axis: Config.DIRECTIONS.AXES.Y,
+            sign: Config.DIRECTIONS.SIGN.POSITIVE
+        };
+        this.#right_direction = {
+            axis: Config.DIRECTIONS.AXES.X,
+            sign: Config.DIRECTIONS.SIGN.POSITIVE
+        };
+        this.world_directions_updated = false;
+
         this.#init_keyboard();
     }
 
+
+    /*------- Getters && Setters------*/
+    get up_direction() {
+        return {...this.#up_direction}
+    }
+    get right_direction() {
+        return {...this.#right_direction}
+    }
+
+    set up_direction(direction) {
+        this.#up_direction = direction;
+    }
+
+    set right_direction(direction) {
+        this.#right_direction = direction;
+    }
 
     /*-------------------------- Movements ------------------------------*/
 
     /*----- Movement: schedulers -----*/
     up() {
-        const pos = [this.snake.x, this.snake.y, this.snake.z];
-        const new_pos = [...pos];
-        const direction = this.game.up_direction;
-        new_pos[direction.axis] += direction.sign;
+        const instance_position = this.snake_position;
+        const instance_target_position = [...instance_position];
+        const instance_direction = this.up_direction;
+        instance_target_position[instance_direction.axis] += instance_direction.sign;
 
-        this.#schedule_movement(pos,new_pos, direction);
+        this.schedule_movement(instance_position, instance_target_position, instance_direction);
+
     }
 
     down() {
-        const pos = [this.snake.x, this.snake.y, this.snake.z];
-        const new_pos = [...pos];
-        const direction = this.game.up_direction;
-        direction.sign *= -1;
-        new_pos[direction.axis] += direction.sign;
+        const instance_position = this.snake_position;
+        const instance_target_position = [...instance_position];
+        const instance_direction = this.up_direction;
+        instance_direction.sign *= -1;
+        instance_target_position[instance_direction.axis] += instance_direction.sign;
 
-        this.#schedule_movement(pos,new_pos, direction);
+        this.schedule_movement(instance_position, instance_target_position, instance_direction);
+
     }
 
-
     left() {
-        const pos = [this.snake.x, this.snake.y, this.snake.z];
-        const new_pos = [...pos];
-        const direction = this.game.right_direction;
-        direction.sign *= -1;
-        new_pos[direction.axis] += direction.sign;
-        this.#schedule_movement(pos,new_pos, direction);
+        const instance_position = this.snake_position;
+        const instance_target_position = [...instance_position];
+        const instance_direction = this.right_direction;
+        instance_direction.sign *= -1;
+        instance_target_position[instance_direction.axis] += instance_direction.sign;
+
+        this.schedule_movement(instance_position, instance_target_position, instance_direction);
 
     }
 
     right() {
-        const pos = [this.snake.x, this.snake.y, this.snake.z];
-        const new_pos = [...pos];
-        const direction = this.game.right_direction;
-        new_pos[direction.axis] += direction.sign;
-        this.#schedule_movement(pos,new_pos, direction);
+        const instance_position = this.snake_position;
+        const instance_target_position = [...instance_position];
+        const instance_direction = this.right_direction;
+        instance_target_position[instance_direction.axis] += instance_direction.sign;
+
+        this.schedule_movement(instance_position, instance_target_position, instance_direction);
     }
 
-
-    #schedule_movement(old_pos, new_pos, direction) {
-        if (this.snake.get_next_movement() !== null){
-            console.log("Double hit suppression");
-            return;
-        }
-        const done = this.game.move_object_structure(old_pos[0],old_pos[1],old_pos[2],new_pos[0],new_pos[1],new_pos[2]);
-        if (done)
-            this.snake.add_movement(new_pos, direction);
-        else {
-            this.#collision_handler(old_pos, new_pos, direction);
-        }
-    }
 
 
 
     /*----------- Movement: Collision ---------*/
 
-    #collision_handler(old_pos, new_pos, direction) {
+    schedule_movement(snake_position, snake_target_position, snake_target_direction){
 
-        // End of plane: rotating
-        if(!this.game.check_consistency(new_pos[0], new_pos[1], new_pos[2])) {
-            const rotated_delta = this.#change_face(old_pos,new_pos);
-            new_pos[0] = Math.round(old_pos[0] + rotated_delta[0]);
-            new_pos[1] = Math.round(old_pos[1] + rotated_delta[1]);
-            new_pos[2] = Math.round(old_pos[2] + rotated_delta[2]);
-            direction = Utilities.vector_to_direction(rotated_delta);
-            this.#schedule_movement(old_pos,new_pos, direction);
+        let manager = this.engine.environment_manager;
+        let snake = this.engine.environment_manager.snake;
+
+        if (snake.get_next_movement() !== null){
+            console.log("Double hit suppression");
             return;
         }
 
-        const front_content = this.game.environment.get_content(new_pos);
 
-        // Element ahead: obstacle or snake
-        if (front_content instanceof ObstaclePart || front_content instanceof SnakeNode) {
-            // TODO END GAME
-            alert("HAI PIERSO");
+        const done = manager.move_object_structure(
+            snake_position[0], snake_position[1], snake_position[2],
+            snake_target_position[0],snake_target_position[1],snake_target_position[2]
+        );
+
+        if (done) snake.add_movement(snake_target_position, snake_target_direction);
+        else {
+
+            this.#rotate_view(snake_position, snake_target_position);
+
+            this.#collision_handler(snake_target_position);
+
+            this.schedule_movement(snake_position, snake_target_position, snake_target_direction);
+
         }
 
-        // Element ahead: food
-        if (front_content instanceof Food) {
-            // TODO EAT
-            this.game.destroy_object_structure(new_pos[0], new_pos[1], new_pos[2]);
-            this.game.destroy_object_view();
-            this.snake.add_node();
-            this.#schedule_movement(old_pos,new_pos, direction);
-        }
 
-        // Element ahead: Bonus
-        if (front_content instanceof Bonus) {
-            // TODO Bonus handle
-        }
+
     }
 
+    #rotate_view(snake_position, snake_target_position){
 
+        let manager = this.engine.environment_manager;
+        let snake = this.engine.environment_manager.snake;
+
+        let x, y, z;
+        x = snake_position[0];
+        y = snake_position[1];
+        z = snake_position[2];
+
+        let target_x, target_y, target_z;
+        target_x = snake_target_position[0];
+        target_y = snake_target_position[1];
+        target_z = snake_target_position[2];
+
+        if(!manager.check_consistency(target_x, target_y, target_z)) {
+            const rotated_delta = this.#change_face(snake_position, snake_target_position);
+            // const rotated_delta = this.#change_face(old_pos,new_pos);
+            target_x = Math.round(x + rotated_delta[0]);
+            target_y = Math.round(y + rotated_delta[1]);
+            target_z = Math.round(z + rotated_delta[2]);
+            let snake_target_direction = Utilities.vector_to_direction(rotated_delta);
+            this.schedule_movement(
+                [x, y, z],
+                [target_x, target_y, target_z],
+                snake_target_direction
+            );
+
+        }
+
+    }
 
     #change_face(old_pos, new_pos) {
         old_pos = vec3(old_pos[0], old_pos[1], old_pos[2]);
@@ -134,8 +190,8 @@ export class Controller{
 
         // Calculating the direction axis
         let delta_vector = subtract(new_pos, old_pos);
-        const current_up_direction = this.game.up_direction;
-        const current_right_direction = this.game.right_direction;
+        const current_up_direction = this.up_direction;
+        const current_right_direction = this.right_direction;
 
         // Unitary norm vector indicating up and right w.r.t the viewer
         let up_vector = Utilities.direction_to_vector(current_up_direction);
@@ -162,28 +218,115 @@ export class Controller{
         delta_vector = mult(rotation_matrix, vec4(delta_vector[0], delta_vector[1], delta_vector[2], 0));
 
         // Updating data structure
-        this.game.up_direction = Utilities.vector_to_direction(up_vector);
-        this.game.right_direction = Utilities.vector_to_direction(right_vector);
-        this.game.world_directions_updated = true;
+        this.up_direction = Utilities.vector_to_direction(up_vector);
+        this.right_direction = Utilities.vector_to_direction(right_vector);
+        this.world_directions_updated = true;
 
         return delta_vector;
     }
 
+    #collision_handler(snake_target_position) {
+        let manager = this.engine.environment_manager;
+        let snake = this.engine.environment_manager.snake;
 
+        let end_game = false;
+        let x, y, z;
+        x = snake_target_position[0];
+        y = snake_target_position[1];
+        z = snake_target_position[2];
+        let cell_content = manager.get_entity(x, y, z);
+        if(cell_content == null) return end_game;
+
+        switch (cell_content.constructor.name) {
+            case 'ObstaclePart':
+                console.log("ObstaclePart hit");
+                this.engine.obstacle_hit(cell_content);
+
+                end_game = true;
+                break;
+            case 'SnakeNode':
+                console.log("SnakeNode hit");
+                this.engine.snake_hit(cell_content);
+
+                end_game = true;
+                break;
+
+            case 'Food':
+                console.log("Food hit");
+                this.engine.food_hit(cell_content);
+                end_game = false;
+                break;
+
+            case 'Bonus':
+                console.log("Bonus hit");
+                this.engine.bonus_hit(cell_content);
+                end_game = false;
+                break;
+
+        }
+
+        return end_game;
+
+    }
+
+
+    // #collision_handler(old_pos, new_pos, direction) {
+    //
+    //     // End of plane: rotating
+    //     if(!this.game.check_consistency(new_pos[0], new_pos[1], new_pos[2])) {
+    //         const rotated_delta = this.#change_face(old_pos,new_pos);
+    //         new_pos[0] = Math.round(old_pos[0] + rotated_delta[0]);
+    //         new_pos[1] = Math.round(old_pos[1] + rotated_delta[1]);
+    //         new_pos[2] = Math.round(old_pos[2] + rotated_delta[2]);
+    //         direction = Utilities.vector_to_direction(rotated_delta);
+    //         this.#schedule_movement(old_pos,new_pos, direction);
+    //         return;
+    //     }
+    //
+    //     // const front_content = this.game..get_instance(new_pos);
+    //     const front_content = this.game.get_entity(new_pos);
+    //
+    //     // Element ahead: obstacle or snake
+    //     if (front_content instanceof ObstaclePart || front_content instanceof SnakeNode) {
+    //         // TODO END GAME
+    //         alert("HAI PIERSO");
+    //     }
+    //
+    //     // Element ahead: food
+    //     if (front_content instanceof Food) {
+    //         // TODO EAT
+    //         this.game.destroy_object_structure(new_pos[0], new_pos[1], new_pos[2]);
+    //         this.game.destroy_object_view();
+    //         this.snake.add_node();
+    //         this.#schedule_movement(old_pos,new_pos, direction);
+    //     }
+    //
+    //     // Element ahead: Bonus
+    //     if (front_content instanceof Bonus) {
+    //         // TODO Bonus handle
+    //     }
+    // }
+    //
 
     /*-------- Movement: runner -----*/
 
     move_snake() {
-        const next_movement = this.snake.get_next_movement();
-        if (next_movement === null) {
-            const pos = [this.snake.x, this.snake.y, this.snake.z];
-            const new_pos = [...pos];
-            const direction = this.snake.get_current_direction();
-            new_pos[direction.axis] += direction.sign;
+        let manager = this.engine.environment_manager;
+        let snake = this.engine.environment_manager.snake;
 
-            this.#schedule_movement(pos,new_pos, direction);
+        const next_movement = snake.get_next_movement();
+        if (next_movement === null) {
+            const instance_position = [snake.x, snake.y, snake.z];
+            // const instance_position = snake.snake_position;
+            const instance_target_position = [...instance_position];
+            const instance_direction = snake.get_current_direction();
+            instance_target_position[instance_direction.axis] += instance_direction.sign;
+
+            this.schedule_movement(instance_position, instance_target_position, instance_direction);
         }
-        this.snake.move();
+
+
+        snake.move();
     }
 
 
@@ -194,13 +337,12 @@ export class Controller{
         const controller = this;
         document.addEventListener('keydown', keyDownHandler, false);
 
-        var KeyboardHelper = { left: 65, up: 87, right: 68, down: 83, space: 32};
+        const KeyboardHelper = {left: 65, up: 87, right: 68, down: 83, space: 32};
 
         function keyDownHandler(event) {
-
+            controller.update_snake_position();
             if(event.keyCode === KeyboardHelper.right) {
                 controller.right();
-
             }
             else if(event.keyCode === KeyboardHelper.left) {
                 controller.left();
@@ -215,5 +357,12 @@ export class Controller{
                 controller.snake.add_node();
             }
         }
+    }
+
+    update_snake_position() {
+        let manager = this.engine.environment_manager;
+        let snake = this.engine.environment_manager.snake;
+
+        this.snake_position = [snake.x, snake.y, snake.z];
     }
 }

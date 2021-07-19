@@ -1,15 +1,22 @@
-import {ObstaclePart, Bonus, Food, Entity, CubeCell, Obstacle, Particle, SnakeEntity} from "./Entity.js";
+import {
+    ObstaclePart,
+    Food,
+    Entity,
+    CubeCell,
+    Obstacle,
+    Particle,
+    SnakeEntity,
+    Bonus, LuckyBonus, ScoreBonus, FastBonus, InvincibilityBonus, InvisibilityBonus
+} from "./Entity.js";
 import * as THREE from '../resources/three.js-r129/build/three.module.js';
 import { TWEEN } from "../resources/three.js-r129/examples/jsm/libs/tween.module.min.js";
-import { CoordinateGenerator } from "./CoordinateGenerator.js";
+import { CoordinateManager } from "./CoordinateManager.js";
 import {Snake} from "../content/Snake.js";
 import {Config} from "./Config.js";
 
 
 // Level generator
-export class RandomEnvironmentGenerator{
-    #up_direction
-    #right_direction
+export class EnvironmentManager {
 
     constructor(environment){
         
@@ -17,22 +24,13 @@ export class RandomEnvironmentGenerator{
         // this.mesh = null;
         this.snake = null;
 
-        this.#up_direction = {
-            axis: Config.DIRECTIONS.AXES.Y,
-            sign: Config.DIRECTIONS.SIGN.POSITIVE
-        };
-        this.#right_direction = {
-            axis: Config.DIRECTIONS.AXES.X,
-            sign: Config.DIRECTIONS.SIGN.POSITIVE
-        };
-        this.world_directions_updated = false;
 
 
         this.obstacle_num = 0;
         this.food_num = 0;
         this.bonus_num = 0;
 
-        this.coord_generator = new CoordinateGenerator(environment.width, environment.height, environment.depth);
+        this.coord_generator = new CoordinateManager(environment.width, environment.height, environment.depth);
 
         // 
         this.object_to_draw = [];
@@ -151,11 +149,6 @@ export class RandomEnvironmentGenerator{
     destroy_object_view(){
 
         const environment_mesh = this.environment.mesh;
-
-
-        let w = this.environment.width;
-        const h = this.environment.height;
-        const d = this.environment.depth;
 
         // explosion particles
         const particles = [];
@@ -369,6 +362,32 @@ export class RandomEnvironmentGenerator{
             
     }
 
+    random_bonus_type(){
+        let type = null;
+        let bonus_type_number = 5;
+        let bonus_type = Math.floor((Math.random() * bonus_type_number) + 1);
+        console.log("bonus_type", bonus_type);
+        switch (bonus_type){
+            case 1:
+                type = LuckyBonus;
+                break;
+            case 2:
+                type = ScoreBonus;
+                break;
+            case 3:
+                type = FastBonus;
+                break;
+            case 4:
+                type = InvincibilityBonus;
+                break;
+            case 5:
+                type = InvisibilityBonus;
+                break;
+        }
+
+        return type;
+    }
+
     // randomly generates entity on the environment
     // - core obstacle are generated
     // - random obstacle are generated
@@ -406,24 +425,12 @@ export class RandomEnvironmentGenerator{
         this.spawn_obstacles(obstacles_num, true, true, true);
         this.spawn_foods(1, true, false, true);
         const bonus_num = Math.round(Math.random());
-        this.spawn_bonus(bonus_num, true, false, false);
+        this.spawn_bonus(bonus_num, true, false, true);
 
         this.snake = this.spawn_snake(1, true, true, false)[0];
         if(this.snake == null) console.log("SNAKE IS NULL", this.snake);
     }
 
-    // [TODO] REMOVE replaced by init_game
-    // generate_snake() {
-    //
-    //     const world_coordinates = this.coord_generator.get_random_available();
-    //     let x = this.environment.width / 2;//world_coordinates[0];
-    //     let y = this.environment.height / 2 ;
-    //     let z = this.environment.depth -1; //world_coordinates[2];
-    //
-    //     this.snake = this.create_object_structure(x, y, z, Snake, true, true, false);
-    //
-    //     this.create_object_view();
-    // }
 
 
    
@@ -478,25 +485,26 @@ export class RandomEnvironmentGenerator{
     
 
     // Spawn {number} ObstaclePart object in the environment
-    spawn_obstacles(number, drawable, movable, erasable){
-        this.spawn_objects(number, ObstaclePart, drawable, movable, erasable, false);
+    spawn_obstacles(number, drawable, movable, erasable, random){
+        this.spawn_objects(number, ObstaclePart, drawable, movable, erasable, random);
     }
 
 
     // Spawn {number} Food object  in the environment
-    spawn_foods(number, drawable, movable, erasable){
-        this.spawn_objects(number, Food, drawable, movable, erasable, false);
+    spawn_foods(number, drawable, movable, erasable, random){
+        this.spawn_objects(number, Food, drawable, movable, erasable, random);
     }
 
 
     // Spawn {number} Bonus object in the environment
-    spawn_bonus(number, drawable, movable, erasable){
-        this.spawn_objects(number, Bonus, drawable, movable, erasable, false);
+    spawn_bonus(number, drawable, movable, erasable, random){
+        let type = this.random_bonus_type();
+        this.spawn_objects(number, type, drawable, movable, erasable, random);
     }
 
     // Spawn {number} Bonus object in the environment
-    spawn_snake(number, drawable, movable, erasable){
-        return this.spawn_objects(number, Snake, drawable, movable, erasable, false);
+    spawn_snake(number, drawable, movable, erasable, random){
+        return this.spawn_objects(number, Snake, drawable, movable, erasable, random);
     }
 
     // Spawn {number} object of type {type} in the environment
@@ -518,20 +526,9 @@ export class RandomEnvironmentGenerator{
     }
 
 
-
-    /*------- Getters && Setters------*/
-    get up_direction() {
-        return {...this.#up_direction}
-    }
-    get right_direction() {
-        return {...this.#right_direction}
-    }
-
-    set up_direction(direction) {
-        this.#up_direction = direction;
-    }
-
-    set right_direction(direction) {
-        this.#right_direction = direction;
+    get_entity(x, y, z){
+        if(this.check_consistency(x, y, z))
+            return this.environment.get_cube_cell_content([x, y, z]);
+        else return null;
     }
 }
