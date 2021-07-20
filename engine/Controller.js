@@ -277,7 +277,11 @@ export class Controller{
                 end_game = false;
                 break;
 
-            case 'Bonus':
+            case 'LuckyBonus':
+            case 'ScoreBonus':
+            case 'FastBonus':
+            case 'InvincibilityBonus':
+            case 'InvisibilityBonus':
                 console.log("Bonus hit");
                 this.engine.bonus_hit(cell_content);
                 end_game = false;
