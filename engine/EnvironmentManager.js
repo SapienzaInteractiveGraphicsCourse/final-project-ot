@@ -59,7 +59,7 @@ export class EnvironmentManager {
         else if(object instanceof Bonus) this.bonus_num++;
         else if(object instanceof Snake) this.snake_nodes_num++;
         else if(object instanceof SnakeNodeEntity) this.snake_nodes_num++;
-        
+
         this.object_to_draw.push(object); // add object to queue
 
         this.coord_generator.remove_available_coordinate(x, y, z); // update generator
@@ -106,21 +106,22 @@ export class EnvironmentManager {
         if( !from_cell.content.movable) return false; // object in cell not movable
         
 
-        from_cell.content.x = to_x;
-        from_cell.content.y = to_y;
-        from_cell.content.z = to_z;
-        
+        from_cell.content.update_entity_structure_position(to_x, to_y, to_z);
+
         to_cell.content = from_cell.content;
         from_cell.content = null;
 
+        // if(to_cell.content instanceof Snake) this.move_snake_structure(to_cell.content);
+        // todo remove
         if (!to_cell.content instanceof Snake)
             this.object_to_move.push(to_cell.content);
+        // end todo remove
 
         // update generator
         this.coord_generator.remove_available_coordinate(to_x, to_y, to_z);
         this.coord_generator.add_available_coordinate(from_x, from_y, from_z);
         
-        console.log("Moved object [ ", to_cell.content.constructor.name," ] from [ ", from_x," ", from_y," ", from_z, " ] to [ ", to_x," ", to_y," ", to_z, " ]");
+        // console.log("Moved object [ ", to_cell.content.constructor.name," ] from [ ", from_x," ", from_y," ", from_z, " ] to [ ", to_x," ", to_y," ", to_z, " ]");
 
         return true;
 
@@ -368,7 +369,6 @@ export class EnvironmentManager {
         let type = null;
         let bonus_type_number = 5;
         let bonus_type = Math.floor((Math.random() * bonus_type_number) + 1);
-        console.log("bonus_type", bonus_type);
         switch (bonus_type){
             case 1:
                 type = LuckyBonus;
@@ -425,15 +425,40 @@ export class EnvironmentManager {
         // generate random obstacle
         const obstacles_num = Math.floor(Math.random() * game_level);
         this.spawn_obstacles(obstacles_num, true, true, true);
-        this.spawn_foods(10, true, false, true);
+        this.spawn_foods(1, true, false, true);
         const bonus_num = Math.round(Math.random());
-        this.spawn_bonus(bonus_num, true, false, true);
+        this.spawn_random_type_bonus(bonus_num, true, false, true);
 
         this.snake = this.spawn_snake(1, true, true, false)[0];
         if(this.snake == null) console.log("SNAKE IS NULL", this.snake);
     }
 
+    destroy_game(){
 
+        let entities_coord_list = this.coord_generator.unavailable_coordinates;
+        console.log(this);
+        console.log(this.coord_generator);
+        for(let i = 0; i < entities_coord_list.length; i++){
+            let c = entities_coord_list[i];
+            this.destroy_object_structure(c[0], c[1], c[2]);
+        }
+
+        this.destroy_object_view();
+
+
+    }
+
+    destroy_environment(){
+        // destroy core obstacle
+    }
+
+    spawn_random_type_bonus(number, drawable, movable, erasable){
+        for(let i = 0; i < number; i++){
+            let type = this.random_bonus_type();
+            this.spawn_bonus(1, type, drawable, movable, erasable, false);
+
+        }
+    }
 
    
     // Moves {number} object in the envirnoment
@@ -499,8 +524,7 @@ export class EnvironmentManager {
 
 
     // Spawn {number} Bonus object in the environment
-    spawn_bonus(number, drawable, movable, erasable, random){
-        let type = this.random_bonus_type();
+    spawn_bonus(number, type, drawable, movable, erasable, random){
         this.spawn_objects(number, type, drawable, movable, erasable, random);
     }
 

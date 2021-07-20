@@ -10,52 +10,8 @@ import {Camera} from "./Camera.js";
 import {Utilities} from "./Utilities.js";
 import {Config} from "./Config.js";
 import {SnakeNode} from "./Snake.js";
+import {ModelLoader} from "./ModelLoader.js";
 
-class ScoreManger{
-
-    get score() {
-        return this._score;
-    }
-
-    _score;
-
-    constructor() {
-        this._score = Config.initial_score;
-        this.multiplicator = Config.score_multiplicator;
-        this.food_score = Config.food_score;
-        this.bonus_score = Config.bonus_score;
-        this.obstacle_score = Config.obstacle_score;
-        this.snakenode_score = Config.snakenode_score;
-    }
-
-    update_score(type){
-        let score = 0;
-        switch (type) {
-            case type instanceof Food:
-                score = this.food_score;
-                break;
-
-            case type instanceof Bonus:
-                score = this.bonus_score;
-                break;
-
-            case type instanceof ObstaclePart:
-                score = this.obstacle_score;
-                break;
-
-            case type instanceof SnakeNode:
-                score = this.snakenode_score;
-                break;
-        }
-        this._score = this._score + this.multiplicator * score;
-
-        console.log("Score: ", this._score);
-    }
-
-
-
-
-}
 
 class GameEngine{
 
@@ -82,11 +38,8 @@ class GameEngine{
 
     }
 
-    init_resources(){
-        //    load texture, bump maps, images etc.
-        console.log("Loading resources...");
-
-        console.log("Resources loaded.");
+    init_score_manager(){
+        // this.score_manager.
     }
 
     init_engine(){
@@ -126,6 +79,8 @@ class GameEngine{
     stop_engine(){
         // stop match
         console.log("Stopping game.");
+        this.environment_manager.destroy_game();
+        this.init_engine();
 
         console.log("Game stopped.");
 
@@ -133,11 +88,12 @@ class GameEngine{
 
     bonus_hit(content){
 
+        console.log(content.constructor.name, " Hitted");
         // destroy object
         this.environment_manager.destroy_object_structure(content.x, content.y, content.z);
         this.environment_manager.destroy_object_view();
 
-        this.environment_manager.spawn_bonus(1, true, true, true, true);
+        this.environment_manager.spawn_random_type_bonus(1, true, true, true);
 
         this.score_manager.update_score(Bonus);
 
@@ -158,7 +114,7 @@ class GameEngine{
         alert("Obstacle HIT");
         //console.log("obstacle hit");
         this.score_manager.update_score(ObstaclePart);
-
+        this.stop_engine();
     }
 
     snake_hit(){
@@ -172,49 +128,167 @@ class GameEngine{
 }
 
 
-let engine = new GameEngine();
-engine.init_resources();
-engine.init_engine();
+class ScoreManger{
 
+    get score() {
+        return this._score;
+    }
 
-/*----- Enviroment -----*/
-const canvas = document.getElementById("canvas");
-const renderer = new THREE.WebGLRenderer({canvas});
-const scene = new THREE.Scene();
-const light = new THREE.AmbientLight( 0x404040, 5.0); // soft white light
-const camera_obj = new Camera(0,0,25);
+    _score;
 
-const controls = new OrbitControls( camera_obj.camera, renderer.domElement );
-controls.target.set(0, 0, 0);
+    constructor() {
+        this._score = Config.initial_score;
+        this.multiplicator = Config.multiplicator;
+        this.food_score = Config.food_score;
+        this.bonus_score = Config.bonus_score;
+        this.obstacle_score = Config.obstacle_score;
+        this.snakenode_score = Config.snakenode_score;
 
+        this.mesh = null;
+    }
 
-scene.add( light );
-scene.add( engine.environment_manager.environment.mesh);
+    update_score(type){
+        let score = 0;
+        switch (type.name) {
+            case 'Food':
+                score = this.food_score;
+                break;
 
-requestAnimationFrame(render);
+            case 'Bonus':
+                score = this.bonus_score;
+                break;
 
+            case 'ObstaclePart':
+                score = this.obstacle_score;
+                break;
 
-function render(time) {
-
-    if(engine.is_started){
-
-        if (Controller.get_instance().world_directions_updated){
-            camera_obj.update_position(Controller.get_instance().up_direction, Controller.get_instance().right_direction);
-            Controller.get_instance().world_directions_updated = false;
+            case 'SnakeNode':
+                score = this.snakenode_score;
+                break;
+            default:
+                console.log("Update score: not implemented exception", type.name);
+                break;
         }
+
+        this._score = this._score + this.multiplicator * score;
+        console.log("New Score: ", this._score);
+
 
     }
 
 
-    Utilities.resizeCanvas(renderer, camera_obj.camera);
+    draw(){
 
-    TWEEN.update(time);
+        const loader = new THREE.FontLoader();
 
-    controls.update();
+        loader.load( 'fonts/helvetiker_regular.typeface.json', function ( font ) {
 
-    renderer.render(scene, camera_obj.camera);
+            const geometry = new THREE.TextGeometry( 'Hello three.js!', {
+                font: font,
+                size: 80,
+                height: 5,
+                curveSegments: 12,
+                bevelEnabled: true,
+                bevelThickness: 10,
+                bevelSize: 8,
+                bevelOffset: 0,
+                bevelSegments: 5
+            } );
+        } );
+    }
+
+
+
+
+
+
+}
+
+
+function load_resources(){
+
+    //    load texture, bump maps, images etc.
+    console.log("Loading resources...");
+
+    let loader = new ModelLoader(resources_loaded_callback);
+
+    // loader.add_resources_to_load('models/apple/scene.gltf');
+    // loader.add_resources_to_load('models/stone/scene.gltf');
+    // loader.add_resources_to_load('models/big_border_stone_03/scene.gltf');
+    // loader.add_resources_to_load('models/stone_black_1/scene.gltf');
+
+    loader.load_resources(resource_loaded_callback, null, null);
+
+    function resource_loaded_callback(){
+        let delta = 100 / loader.total_resources;
+        let loading_status = document.getElementById("loader-progress-bar").style.width;
+        loading_status = String(parseInt(loading_status) + delta + "%");
+        document.getElementById("loader-progress-bar").style.width = loading_status;
+
+    }
+
+
+    function resources_loaded_callback(){
+
+        console.log("Resources loaded.");
+
+        document.getElementById("loader-div").style.display = "none";
+        document.getElementById("settings-div").style.display = "unset";
+
+
+
+    }
+
+}
+
+function init(){
+
+    let engine = new GameEngine();
+    engine.init_engine();
+    engine.start_engine();
+
+    /*----- Enviroment -----*/
+    const canvas = document.getElementById("canvas-div");
+    const renderer = new THREE.WebGLRenderer({canvas});
+    const scene = new THREE.Scene();
+    const light = new THREE.AmbientLight( 0x404040, 5.0); // soft white light
+    const camera_obj = new Camera(0,0,25);
+
+    const controls = new OrbitControls( camera_obj.camera, renderer.domElement );
+    controls.target.set(0, 0, 0);
+
+
+    scene.add( light );
+    scene.add( engine.environment_manager.environment.mesh);
 
     requestAnimationFrame(render);
+
+
+    function render(time) {
+
+        if(engine.is_started){
+
+            if (Controller.get_instance().world_directions_updated){
+                camera_obj.update_position(Controller.get_instance().up_direction, Controller.get_instance().right_direction);
+                Controller.get_instance().world_directions_updated = false;
+            }
+
+        }
+
+
+        Utilities.resizeCanvas(renderer, camera_obj.camera);
+
+        TWEEN.update(time);
+
+        controls.update();
+
+        renderer.render(scene, camera_obj.camera);
+
+        requestAnimationFrame(render);
+    }
+
+
+
 }
 
 
@@ -226,11 +300,14 @@ function configure_event_handlers(){
 }
 
 function btn_start_click_function(){
-    console.log("start");
-    let message = "Settings"
-    alert(message);
-    document.getElementById('gamestartscreen').hidden = true;
-    engine.start_engine();
+
+    document.getElementById("loader-div").style.display = "none";
+    document.getElementById("settings-div").style.display = "none";
+    document.getElementById("canvas-div").style.display = "unset";
+
+
+    init();
+
 }
 
 function btn_end_click_function(game){
@@ -242,111 +319,16 @@ function btn_end_click_function(game){
 }
 
 
-// requestAnimationFrame(render);
-
 
 configure_event_handlers();
 
+// test configuration
+// [todo replace with the following function]
+// load_resources();
 
+document.getElementById("loader-div").style.display = "none";
+document.getElementById("settings-div").style.display = "none";
+document.getElementById("canvas-div").style.display = 'unset';
+init();
 
-// TODO Remove
-// var controls;
-// var cube_environment;
-//
-// let game;
-
-
-
-
-// function start_engine(){
-//
-//     /*----- Enviroment -----*/
-//     // const canvas = document.getElementById("canvas");
-//     // const renderer = new THREE.WebGLRenderer({canvas});
-//     // const scene = new THREE.Scene();
-//     // const light = new THREE.AmbientLight( 0x404040, 5.0); // soft white light
-//     // const camera_obj = new Camera(0,0,25);
-//     //
-//     //
-//     // controls = new OrbitControls( camera_obj.camera, renderer.domElement );
-//     // controls.target.set(0, 0, 0);
-//
-//
-//
-//
-//     let w_width = Config.world_width;
-//     let w_height = Config.world_height;
-//     let w_depth = Config.world_depth;
-//     let w_face_depth = Config.world_face_depth;
-//
-//     let game_level = Config.game_level;
-//
-//     let environment = new Environment(w_width, w_height, w_depth, w_face_depth);
-//
-//     game = new RandomEnvironmentGenerator(environment);
-//     game.init_game(game_level);
-//     game.spawn_objects(3, Food, true, true, true, false);
-//     game.spawn_objects(3, Bonus, true, true, true, false);
-//     game.spawn_objects(30, ObstaclePart, true, true, true, false);
-//
-//
-//     Controller.init(game);
-//     cube_environment = game.environment.mesh;
-//
-//     scene.add( light );
-//     scene.add(cube_environment);
-//
-//     Controller.get_instance().right();
-//     Controller.get_instance().move_snake();
-//     game.snake.add_node();
-//     game.snake.add_node();
-//     game.snake.add_node();
-//     game.snake.add_node();
-//
-//
-//
-//
-//
-//
-//     var tic = 0;
-//
-//
-//     // function render(time) {
-//     //     // tic++;
-//     //     // if(tic % 200 == 0){
-//     //     //
-//     //     //     console.log("TIC: ", tic);
-//     //     //
-//     //     //     //game.move_objects(3, false);
-//     //     //
-//     //     //     //game.destroy_objects(3, true);
-//     //     //
-//     //     //     // game.spawn_objects(1, Food, true, true, true);
-//     //     //     // if(tic == 200) game.spawn_objects(1, Bonus, true, true, true, false);
-//     //     //     //game.spawn_objects(5, ObstaclePart, true, true, true, true);
-//     //     //
-//     //     // }
-//     //     if (game.world_directions_updated){
-//     //         camera_obj.update_position(game.up_direction, game.right_direction);
-//     //         game.world_directions_updated = false;
-//     //     }
-//     //
-//     //
-//     //     Utilities.resizeCanvas(renderer,camera_obj.camera);
-//     //
-//     //     TWEEN.update(time);
-//     //
-//     //     controls.update();
-//     //
-//     //     renderer.render(scene, camera_obj.camera);
-//     //
-//     //     requestAnimationFrame(render);
-//     // }
-//     //
-//     // requestAnimationFrame(render);
-//
-// }
-
-
-
-// start_engine();
+// [end todo replace]

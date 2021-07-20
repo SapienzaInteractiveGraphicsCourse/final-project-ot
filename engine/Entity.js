@@ -18,6 +18,11 @@ export class Entity extends View {
     // x = matrix rows {0, ..., width - 1}
     // y = matrix columns {0, ..., height - 1}
     // z = matrix columns {0, ..., depth - 1}
+    x; y; z;
+
+    pos;
+    rot;
+
     constructor(x, y, z, drawable, movable, erasable){
         super();
 
@@ -41,9 +46,30 @@ export class Entity extends View {
             z: this.z - Config.world_depth/2 + Config.cell_cube_dim/2
         }
 
-        this.rot = { x: 0, y: 0, z: 0 }
+        this.rot = {
+            x: 0,
+            y: 0,
+            z: 0
+        }
 
         this.mesh = null;
+    }
+
+    // update entity position
+    #update_entity_view_position(){
+        this.pos = {
+            x: this.x - Config.world_width/2 + Config.cell_cube_dim/2,
+            y: this.y - Config.world_height/2 + Config.cell_cube_dim/2,
+            z: this.z - Config.world_depth/2 + Config.cell_cube_dim/2
+        }
+    }
+
+    update_entity_structure_position(x, y, z){
+        this.x = x;
+        this.y = y;
+        this.z = z;
+        this.#update_entity_view_position();
+
     }
 
     draw(){
@@ -57,10 +83,20 @@ export class Entity extends View {
             const sphere = new THREE.Mesh( food_geometry, obj_material );
 
             sphere.position.set(this.pos.x, this.pos.y, this.pos.z);
-            sphere.rotation.set(this.rot.x, this.rot.y, this.pos.z);
+            sphere.rotation.set(this.rot.x, this.rot.y, this.rot.z);
             this.mesh = sphere;
 
         }else this.mesh = null;
+    }
+
+    animate(){
+        if(this.movable){
+
+            const tween = new TWEEN.Tween(this.mesh.position).to(this.pos, 1000);
+            tween.start();
+
+
+        }
     }
 
 
@@ -233,8 +269,8 @@ export class Bonus extends Entity{
         super(x, y, z, drawable, movable, erasable); // call the super class constructor and pass in the name parameter
 
         this.mesh = null;
-        this.draw();
-        this.animate();
+        // this.draw();
+        // this.animate();
     }
 
 
@@ -296,6 +332,9 @@ export class LuckyBonus extends Bonus{
             this.mesh = torus;
 
         }else this.mesh = null;
+    }
+    animate() {
+        super.animate();
     }
 }
 // the snake gains more

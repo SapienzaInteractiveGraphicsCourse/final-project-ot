@@ -4,46 +4,31 @@ html, body {
     margin: 0;
     height: 100%;
 }
-/*#canvas {*/
-/*    width: 100%;*/
-/*    height: 100%;*/
-/*    display: block;*/
-/*}*/
 
-/*#menu{*/
-/*    z-index: 100;*/
-/*    height: 500px;*/
-/*}*/
-
-
-#gamecontainer {
-
+#loader-div{
+    /*display: none;*/
+}
+.loader-container{
     width: 100%;
     height: 100%;
-    position: relative;
+
 }
 
+#canvas-div{
+    display: none;
+}
 canvas{
-    position: absolute;
-    z-index: 1;
     width: 100%;
     height: 100%;
-}
-
-#gamestartscreen {
-
-    width: 100%;
-    height: 100%;
-    position: absolute;
-
-    z-index: 2;
-}
-
-
-.setting_form{
-    background-color:#2fa1d6 ;
-    width: 70%;
-    height: 70%;
-
 
 }
+
+#settings-div{
+    display: none;
+}
+.menu-container{
+    width: 80%;
+    height: 80%;
+
+}
+

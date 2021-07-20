@@ -2,14 +2,16 @@
 import * as THREE from '../resources/three.js-r129/build/three.module.js';
 import {GLTFLoader} from "../resources/three.js-r129/examples/jsm/loaders/GLTFLoader.js";
 
-// ! don't touch
-let resources_to_load_number = 0;
-let resources_loaded = 0;
-
-
 export class ModelLoader{
 
-    constructor(){
+    get total_resources() {
+        return this._total_resources;
+    }
+
+    #resources_to_load;
+    #loader;
+
+    constructor(callback){
 
         //  Manager
         const manager = new THREE.LoadingManager();
@@ -19,11 +21,13 @@ export class ModelLoader{
 
         };
 
-        manager.onLoad = function ( ) {
+        // manager.onLoad = function ( ) {
+        //
+        //     console.log( 'Loading complete!');
+        //
+        // };
 
-            console.log( 'Loading complete!');
-
-        };
+        manager.onLoad = callback;
 
         manager.onProgress = function ( url, itemsLoaded, itemsTotal ) {
 
@@ -37,81 +41,70 @@ export class ModelLoader{
 
         };
 
-        this.loader = new GLTFLoader( manager );
 
-        this.resources_to_load = [];
-        // this.resources_to_load_number = 0;
-        // this.resources_loaded = 0;
+        this.#loader = new GLTFLoader( manager );
+        this.#resources_to_load = [];
+        this._total_resources = 0;
 
 
     }
 
     add_resources_to_load(path){
-        resources_to_load_number++;
-        this.resources_to_load.push(path);
+        this.#resources_to_load.push(path);
+        this._total_resources++;
     }
 
-    load_resources(){
+    load_resources(onload_callback, onprogress_callback, onerror_callback){
 
-        let promises = [];
-
-        let res = this.resources_to_load.pop();
+        // get first model path to load
+        let res = this.#resources_to_load.pop();
         while( res !== undefined){
             let res_path = res;
-            let promise = new Promise(resolve => {
+            // load model
+            this.#loader.load(
+                res_path, onload_callback, onprogress_callback, onerror_callback
+                // this.#resource_onload_callback,
+                // this.#resource_onprogress_callback,
+                // this.#resource_onerror_callback
+            );
 
-                this.loader.load(
-                    res_path,
-                    this.#resource_onload_callback,
-                    this.#resource_onprogress_callback,
-                    this.#resource_onerror_callback
-                );
-
-            });
-
-            promises.push(promise);
-            res = this.resources_to_load.pop();
+            // get next model path to load
+            res = this.#resources_to_load.pop();
         }
 
-        return promises;
 
     }
 
 
     #resource_onload_callback(gltf){
-        console.log("Resource loaded callback.");
-        // resources_to_load_number--;
-        // resources_loaded++;
-        // console.log("Loaded", resources_loaded, "To load: ", resources_to_load_number);
+        // console.log("Resource loaded callback.");
 
     }
 
     #resource_onprogress_callback(xhr){
-        console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+        // console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
     }
 
     #resource_onerror_callback(error){
-        console.log( 'An error happened' );
+        // console.log( 'An error happened' );
 
     }
+
 
 
 
 }
 
-let loader = new ModelLoader();
-
-// loader.add_resources_to_load('/home/leonardo/WebstormProjects/final-project-ot/engine/models/apple/scene.gltf');
-// loader.add_resources_to_load('/home/leonardo/WebstormProjects/final-project-ot/engine/models/stone/scene.gltf');
-
-loader.add_resources_to_load('models/apple/scene.gltf');
+// let loader = new ModelLoader();
+//
+// // loader.add_resources_to_load('/home/leonardo/WebstormProjects/final-project-ot/engine/models/apple/scene.gltf');
+// // loader.add_resources_to_load('/home/leonardo/WebstormProjects/final-project-ot/engine/models/stone/scene.gltf');
+//
+// loader.add_resources_to_load('models/apple/scene.gltf');
 // loader.add_resources_to_load('models/stone/scene.gltf');
+// loader.add_resources_to_load('models/big_border_stone_03/scene.gltf');
+// loader.add_resources_to_load('models/stone_black_1/scene.gltf');
+//
+// loader.load_resources();
 
-let promises = loader.load_resources();
-
-
-Promise.allSettled(promises).then(() => {
-    console.log("Promise solved");
-    alert("okkk");
-});
 
