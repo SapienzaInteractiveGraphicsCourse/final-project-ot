@@ -1,6 +1,6 @@
 import {equal, mult, subtract, vec3, rotate, vec4, add} from "../Common/MVnew.js";
 import {Utilities} from "./Utilities.js";
-import {Food, ObstaclePart} from "./Entity.js";
+import {Bonus, Food, ObstaclePart} from "./Entity.js";
 import {SnakeNode} from "./Snake.js";
 import {Config} from "./Config.js";
 
@@ -38,9 +38,6 @@ export class Controller{
         let manager = engine.environment_manager;
         let snake = engine.environment_manager.snake;
 
-        // this.game = engine.environment_manager;
-        // this.snake = engine.environment_manager.snake;
-
         this.snake_position = [snake.x, snake.y, snake.z];
 
         this.#up_direction = {
@@ -54,6 +51,7 @@ export class Controller{
         this.world_directions_updated = false;
 
         this.#init_keyboard();
+
     }
 
 
@@ -256,7 +254,6 @@ export class Controller{
         z = snake_target_position[2];
         let cell_content = manager.get_entity(x, y, z);
         if(cell_content == null) return end_game;
-
         switch (cell_content.constructor.name) {
             case 'ObstaclePart':
                 console.log("ObstaclePart hit");
@@ -277,11 +274,16 @@ export class Controller{
                 end_game = false;
                 break;
 
-            case 'Bonus':
+            case 'LuckyBonus':
+            case 'ScoreBonus':
+            case 'FastBonus':
+            case 'InvincibilityBonus':
+            case 'InvisibilityBonus':
                 console.log("Bonus hit");
                 this.engine.bonus_hit(cell_content);
                 end_game = false;
                 break;
+
 
         }
 
