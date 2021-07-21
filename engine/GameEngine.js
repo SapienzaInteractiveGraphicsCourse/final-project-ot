@@ -340,9 +340,9 @@ configure_event_handlers();
 // [todo replace with the following function]
 load_resources();
 
-// document.getElementById("loader-div").style.display = "none";
-// document.getElementById("settings-div").style.display = "none";
-// document.getElementById("canvas-div").style.display = 'unset';
-// init();
+//document.getElementById("loader-div").style.display = "none";
+//document.getElementById("settings-div").style.display = "none";
+//document.getElementById("canvas-div").style.display = 'unset';
+//init();
 
 // [end todo replace]

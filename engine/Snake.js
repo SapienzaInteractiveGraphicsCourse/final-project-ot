@@ -69,7 +69,10 @@ class SynchronousAnimations {
             this.#spawn = events.spawn;
         events.rotations.forEach((event) => {
             this.#rotations.push(event);
-        })
+        });
+        events.animations.forEach((event) => {
+            this.#animations.push(event);
+        });
     }
 
     // Getters
@@ -78,6 +81,9 @@ class SynchronousAnimations {
     }
     get rotations() {
         return this.#rotations;
+    }
+    get animations() {
+        return this.#animations;
     }
     get direction() {
         return this.#direction;
@@ -142,8 +148,8 @@ class AnimationHandler {
     static startNextEvent() {
         if (AnimationHandler.eventQueue.length === 0) return null;
         AnimationHandler.currentEvents = AnimationHandler.eventQueue[0];
-        AnimationHandler.eventQueue[0].start()
-        AnimationHandler.eventQueue.shift()
+        AnimationHandler.eventQueue[0].start();
+        AnimationHandler.eventQueue.shift();
     }
 
     static getNextEvent() {
@@ -235,6 +241,7 @@ export class Snake extends Entity{
     #nodeMaterial;
 
     speed;
+    schedule_lock = false;
 
     head;
     nodes = [];
@@ -327,8 +334,9 @@ export class Snake extends Entity{
 
         /*----- Scheduling repositioning and resizing -----*/
         const nodes = this.nodes;
+        const tween_delay = new TWEEN.Tween(node.mesh.scale).to({x: 0, y: 0, z:0}, this.speed / 2);
         const tween = new TWEEN.Tween(node.mesh.scale).to({x: 1, y: 1, z: 1}, this.speed / 2);
-        tween.onStart((twn) => {
+        tween_delay.onStart((twn) => {
             let tail;
             for (let i = nodes.length - 1; i>=0; i--){
                 // The tail is the last SPAWNED node
@@ -362,8 +370,10 @@ export class Snake extends Entity{
             node.spawned = true;
        });
 
+        tween_delay.chain(tween);
+
         const events = new SynchronousAnimations();
-        events.addSpawn(node.id, tween);
+        events.addSpawn(node.id, tween_delay);
         eventsList.push(events);
         AnimationHandler.addEvents(eventsList);
 
@@ -392,6 +402,11 @@ export class Snake extends Entity{
     * Output: -
     */
     add_movement(coordinates, direction) {
+        if (this.schedule_lock){
+            console.log("Scheduling movement error: the scheduler is busy!");
+            return;
+        }
+        this.schedule_lock = true;
         // If the new direction and the current one are different -> perform a rotation
         if (this.head.direction !== null && (this.head.direction.axis !== direction.axis || this.head.direction.sign !== direction.sign))
             this.rotate(this.head.direction, direction);
@@ -410,7 +425,7 @@ export class Snake extends Entity{
         tween.onComplete((twn) => {Controller.get_instance().move_snake();});
 
         AnimationHandler.addMovement(tween, direction);
-
+        this.schedule_lock = false;
     }
 
     /* Perform a rotation for each node */
@@ -436,6 +451,13 @@ export class Snake extends Entity{
 
             const rotation = new TWEEN.Tween(node_relative_pos).to({x: x, y: y, z: z}, this.speed).onStart((twn) => {
                 node.update_direction(new_direction);
+            });
+
+            // Bug correction
+            rotation.onComplete((twn) => {
+                if (node_relative_pos.x !== 0) node_relative_pos.x > 0 ? node_relative_pos.x = 1 : node_relative_pos.x = -1;
+                if (node_relative_pos.y !== 0) node_relative_pos.y > 0 ? node_relative_pos.y = 1 : node_relative_pos.y = -1;
+                if (node_relative_pos.z !== 0) node_relative_pos.z > 0 ? node_relative_pos.z = 1 : node_relative_pos.z = -1;
             });
 
             const events = new SynchronousAnimations();

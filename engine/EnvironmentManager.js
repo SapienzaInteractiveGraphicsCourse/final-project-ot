@@ -12,6 +12,7 @@ import { TWEEN } from "../resources/three.js-r129/examples/jsm/libs/tween.module
 import { CoordinateManager } from "./CoordinateManager.js";
 import {Snake} from "./Snake.js";
 import {Config} from "./Config.js";
+import {Utilities} from "./Utilities.js";
 
 
 // Level generator
@@ -22,6 +23,7 @@ export class EnvironmentManager {
         this.environment = environment;
         // this.mesh = null;
         this.snake = null;
+        this.snake_nodes = [];
 
 
 
@@ -115,7 +117,7 @@ export class EnvironmentManager {
         from_cell.content = null;
 
 
-        if (!(to_cell.content instanceof Snake) || !(to_cell.content instanceof SnakeNodeEntity))
+        if (!(to_cell.content instanceof Snake) && !(to_cell.content instanceof SnakeNodeEntity))
             this.object_to_move.push(to_cell.content);
 
 
@@ -129,8 +131,46 @@ export class EnvironmentManager {
     }
 
 
-    move_snake_structure(new_pos) {
+    move_snake_structure(id,new_pos) {
+        const from_x = this.snake_nodes[id].x;
+        const from_y = this.snake_nodes[id].y;
+        const from_z = this.snake_nodes[id].z;
+        const to_x = new_pos[0];
+        const to_y = new_pos[1];
+        const to_z = new_pos[2];
 
+        if (Utilities.array_equal([from_x, from_y, from_z], new_pos)) return true;
+        if(!this.check_consistency(to_x, to_y, to_z)) return false;
+
+        const to_cell = this.environment.environment[to_x][to_y][to_z];
+        const from_cell = this.environment.environment[from_x][from_y][from_z];
+
+        if( from_cell.content == null) return false; // empty cell
+        if( !from_cell.content.movable) return false; // object in cell not movable
+
+        if( to_cell.content != null) {
+            this.destroy_object_structure(to_x, to_y, to_z);
+            this.destroy_object_view();
+        }
+
+        from_cell.content.update_entity_structure_position(to_x, to_y, to_z);
+        to_cell.content = from_cell.content;
+        from_cell.content = null;
+
+
+        // Only for debug
+        if (to_cell.content.drawable) {
+            this.object_to_move.push(to_cell.content);
+            this.move_object_view();
+        }
+
+        // update generator
+        this.coord_generator.remove_available_coordinate(to_x, to_y, to_z);
+        this.coord_generator.add_available_coordinate(from_x, from_y, from_z);
+
+
+        //console.log("Moved object [ ", to_cell.content.constructor.name," ] from [ ", from_x," ", from_y," ", from_z, " ] to [ ", to_x," ", to_y," ", to_z, " ]");
+        return true;
     }
 
     // end
@@ -432,9 +472,9 @@ export class EnvironmentManager {
         this.spawn_snake();
         const obstacles_num = Math.floor(Math.random() * game_level);
         this.spawn_obstacles(obstacles_num, true, true, true);
-        this.spawn_foods(20, true, false, true);
+        this.spawn_foods(5, true, false, true);
         // const bonus_num = Math.round(Math.random());
-        const bonus_num = 50;
+        const bonus_num = 1;
         this.spawn_random_type_bonus(bonus_num, true, false, true);
 
 
@@ -545,18 +585,20 @@ export class EnvironmentManager {
 
         console.log([x,y,z])
         this.snake = this.create_object_structure(x, y, z, Snake, true, true, false);
+        this.snake_nodes.push(this.snake);
         this.create_object_view();
     }
 
     create_snake_node_structure(node, position){
-        const node_structure = this.create_object_structure(position[0], position[1], position[2], SnakeNodeEntity, false, false, true);
+        const node_structure = this.create_object_structure(position[0], position[1], position[2], SnakeNodeEntity, false, true, true);
         if (node_structure === null || node === null)
             console.log("ERROR create node structure", node_structure, node);
         if (node !== null && node.mesh !== null && node_structure!== null) {
             //node_structure.mesh = node.mesh;
             node_structure.id = node.id;
+            this.snake_nodes.push(node_structure);
+            this.create_object_view();
         }
-        this.create_object_view();
     }
 
     // Spawn {number} object of type {type} in the environment

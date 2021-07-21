@@ -145,12 +145,12 @@ export class Controller{
         );
 
         if (done) {
-            const nodes_old_pos = snake.get_nodes_position();
+            //const nodes_old_pos = snake.get_nodes_position();
             snake.add_movement(snake_target_position, snake_target_direction);
             const nodes_new_pos = snake.get_nodes_position();
 
-            for (let i = 1; i<nodes_new_pos.length; i++) {
-                const old_pos = nodes_old_pos[i];
+            for (let i = 1; i<nodes_new_pos.length - 1; i++) {
+                //const old_pos = nodes_old_pos[i];
                 const new_pos = nodes_new_pos[i];
 
                 if (i >= manager.snake_nodes_num) {
@@ -158,9 +158,8 @@ export class Controller{
                     manager.create_snake_node_structure(node, new_pos);
                     continue;
                 }
-                const check_done  = manager.move_object_structure(old_pos[0], old_pos[1], old_pos[2],new_pos[0],new_pos[1],new_pos[2]);
-                if (!check_done && !Utilities.array_equal(old_pos, new_pos))
-                    console.log("ERROR: snake structure movement [Node,old_pos, new_pos]", snake.get_node(i), old_pos, new_pos);
+                const check_done  = manager.move_snake_structure(i, new_pos);
+                if (!check_done) console.log("ERROR: snake structure movement [Node,old_pos, new_pos]", snake.get_node(i), new_pos);
                 manager.move_object_view();
             }
 
