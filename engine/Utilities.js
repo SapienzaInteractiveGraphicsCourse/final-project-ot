@@ -20,6 +20,20 @@ export class Utilities {
         return [x - w/2 + 0.5, y - h/2 + 0.5, z - d/2 + 0.5];
     }
 
+    static render_to_world(coordinates_or_x,y,z) {
+        let x = coordinates_or_x;
+        if (arguments.length === 1) {
+            z = coordinates_or_x[2];
+            y = coordinates_or_x[1];
+            x = coordinates_or_x[0];
+        }
+        var w = Config.world_width;
+        var h = Config.world_height;
+        var d = Config.world_depth;
+
+        return [Math.round(x + w/2 - 0.5),Math.round( y + h/2 - 0.5), Math.round( z + d/2 - 0.5)];
+    }
+
     static direction_to_vector(direction){
         const out = vec3();
         out[direction.axis] = direction.sign;
@@ -68,6 +82,17 @@ export class Utilities {
     static radians_to_degrees(radians)
     {
         return radians * (180/Math.PI);
+    }
+
+    static array_equal(arr1, arr2) {
+        let equal = true;
+        arr1.forEach((value, index) => {
+            if (value !== arr2[index]) {
+                equal = false;
+                return equal;
+            }
+        });
+        return equal;
     }
 
 }

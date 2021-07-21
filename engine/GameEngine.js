@@ -70,8 +70,7 @@ class GameEngine{
         this.is_started = true;
 
         Controller.init(this);
-        Controller.get_instance().right();
-        Controller.get_instance().move_snake();
+        Controller.get_instance().start();
 
         console.log("Game started.");
     }
@@ -197,11 +196,7 @@ class ScoreManger{
         } );
     }
 
-
-
-
-
-
+    tick = 0;
 }
 
 
@@ -227,8 +222,16 @@ function load_resources(){
 
     }
 
+    if (tick++ % 200 === 0) {
+        console.log("pino")
+        //engine.environment_manager.spawn_obstacles(10, true, true, true, false);
+        //engine.environment_manager.move_objects(10, false);
+        //engine.environment_manager.destroy_objects(5, false);
+    }
+
 
     function resources_loaded_callback(){
+
 
         console.log("Resources loaded.");
 

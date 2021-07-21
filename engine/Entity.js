@@ -169,7 +169,14 @@ export class SnakeNodeEntity extends Entity{
     }
 
     draw(){
+        // this draw is only for debug purposes
         if(this.drawable) {
+            const nodeGeometry = new THREE.SphereGeometry(1.1, 20, 20 );
+            const nodeMaterial = new THREE.MeshPhongMaterial({color: 0xCE1212});
+            nodeMaterial.transparent = true;
+            nodeMaterial.opacity = 0.7;
+            this.mesh = new THREE.Mesh(nodeGeometry, nodeMaterial);
+            this.mesh.position.set(this.pos.x, this.pos.y, this.pos.z);
         } else this.mesh = null;
     }
 

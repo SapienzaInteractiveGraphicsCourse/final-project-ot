@@ -23,7 +23,7 @@ export class Config {
 
     //    game setting
 
-    static game_level = 5;
+    static game_level = 50;
 
     /*------ Snake settings ------*/
     static snake_speed = 500;

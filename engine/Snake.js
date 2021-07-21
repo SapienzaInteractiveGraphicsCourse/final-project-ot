@@ -179,7 +179,7 @@ class AnimationHandler {
 
 
 
-export class SnakeNode {
+export class SnakeNode{
     id;
     x;
     y;
@@ -275,10 +275,13 @@ export class Snake extends Entity{
             const material = new THREE.MeshPhongMaterial({color: 0x44aa88});
 
             // The position and orientation will be updated at the first movement
-            this.head = new SnakeNode(0,0,0,0,null, geometry, material);
+            this.head = new SnakeNode(0,this.x,this.y,this.z,null, geometry, material);
             this.head.spawned = true;
             this.nodes[0] = this.head;
             this.mesh = this.head.container;
+
+            const render_pos = Utilities.world_to_render(this.x, this.y, this.z);
+            this.head.container.position.set(render_pos[0], render_pos[1], render_pos[2]);
 
             Utilities.makeAxisGridDebug(this.head.container, 'Snake Head Position');
             Utilities.makeAxisGridDebug(this.head.mesh, 'Snake Head');
@@ -324,7 +327,8 @@ export class Snake extends Entity{
 
         /*----- Scheduling repositioning and resizing -----*/
         const nodes = this.nodes;
-        const tween = new TWEEN.Tween(node.mesh.scale).to({x: 1, y: 1, z: 1}, this.speed / 2).onStart((twn) => {
+        const tween = new TWEEN.Tween(node.mesh.scale).to({x: 1, y: 1, z: 1}, this.speed / 2);
+        tween.onStart((twn) => {
             let tail;
             for (let i = nodes.length - 1; i>=0; i--){
                 // The tail is the last SPAWNED node
@@ -368,43 +372,15 @@ export class Snake extends Entity{
     }
 
 
-    // TODO Remove
-    add_node_old() {
-        const tail = this.nodes[this.nodes.length -1];
-        const pos = tail.get_position();
-        pos[tail.direction.axis] -= tail.direction.sign;
-
-        const node = new SnakeNode(pos[0],pos[1],pos[2],tail.direction,this.#nodeGeometry,this.#nodeMaterial);
-
-        switch (tail.direction.axis) {
-            case Config.DIRECTIONS.AXES.X:
-                node.container.position.x -= tail.direction.sign * this.#nodeDistance;
-                break;
-            case Config.DIRECTIONS.AXES.Y:
-                node.container.position.y -= tail.direction.sign * this.#nodeDistance;
-                break;
-            case Config.DIRECTIONS.AXES.Z:
-                node.container.position.z -= tail.direction.sign * this.#nodeDistance;
-                break;
-        }
-
-        tail.container.add(node.container);
-        this.nodes.push(node);
-
-
-        Utilities.makeAxisGridDebug(node.container,"Snake Node Position#" + this.nodes.length);
-        Utilities.makeAxisGridDebug(node.mesh,"Snake Node#" + this.nodes.length);
-    }
-
-
 
     /*----- Animation Handler ------*/
 
     /* Start the next animations block */
     move() {
         const nextEvent = AnimationHandler.getNextEvent();
-        if (nextEvent !== null)
+        if (nextEvent !== null) {
             AnimationHandler.startNextEvent();
+        }
         else {
             console.log("ERROR: Null Snake movement");
         }
@@ -420,16 +396,15 @@ export class Snake extends Entity{
         if (this.head.direction !== null && (this.head.direction.axis !== direction.axis || this.head.direction.sign !== direction.sign))
             this.rotate(this.head.direction, direction);
 
-        // Updating the position of each node
-        this.update_positions(coordinates, direction);
+        // Updating the head position
+        this.head.update_position(coordinates);
+        this.head.update_direction(direction);
+        this.update_nodes_position();
 
         // Converting and setting the coordinates
         const render_coordinates = Utilities.world_to_render(coordinates);
         const target = {x: render_coordinates[0], y: render_coordinates[1], z: render_coordinates[2]};
         const tween = new TWEEN.Tween(this.head.container.position).to(target,this.speed);
-
-        //TODO Remove
-        const snake = this;
 
         // Ask to the controller a new movement after the end
         tween.onComplete((twn) => {Controller.get_instance().move_snake();});
@@ -470,22 +445,20 @@ export class Snake extends Entity{
         AnimationHandler.addRotation(eventsList);
     }
 
+    //TODO Destroy
 
-    update_positions(coordinates, direction) {
-        this.head.update_position(coordinates);
-        this.head.update_direction(direction);
 
+    update_nodes_position() {
         //TODO remove
         //console.log("head pos-dir", this.head.get_position(),this.head.get_direction());
 
         for (let i = 1; i < this.nodes.length; i++){
             const node = this.nodes[i];
-            const node_pos = node.get_position();
-            const node_dir = node.get_direction();
-            node_pos[node_dir.axis] += node_dir.sign;
-            node.update_position(node_pos);
-
-            //console.log("node pos-dir",i, node.get_position(),node.get_direction());
+            let pos = new THREE.Vector3();
+            node.mesh.getWorldPosition(pos);
+            pos = Utilities.render_to_world(pos.x, pos.y, pos.z);
+            node.update_position(pos);
+            //console.log("node pos-dir",i,node.spawned, node.get_position(),node.get_direction());
         }
     }
 
@@ -494,14 +467,17 @@ export class Snake extends Entity{
     get_nodes_position(only_spawned = true) {
         const pos = []
         for (let i = 0; i<this.nodes.length; i++) {
-            if (only_spawned && !this.nodes[i].spawned)
-                continue;
+            const node = this.nodes[i];
+            if (only_spawned && !node.spawned) continue;
             pos.push(this.nodes[i].get_position());
         }
         return pos;
     }
     get_current_direction() {
         return this.head.direction;
+    }
+    get_node(index) {
+        return this.nodes[index];
     }
     get_current_movement() {
         return AnimationHandler.getNextMovement();

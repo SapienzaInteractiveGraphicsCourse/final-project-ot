@@ -8,14 +8,11 @@ import {Config} from "./Config.js";
 export class Controller{
     static instance = null;
 
-    game;
-    snake;
-    snake_position;
+    engine;
 
+    snake_position;
     #up_direction;
     #right_direction;
-
-    environment_nodes = 1;
 
     /*------- SINGLETON Handle ------*/
     static init(engine) {
@@ -32,14 +29,14 @@ export class Controller{
         console.log("ERROR: Controller not initialized");
     }
 
+    static reset(engine) {
+        Controller.instance = new Controller(engine);
+    }
+
     constructor(engine) {
 
         this.engine = engine;
-        let manager = engine.environment_manager;
         let snake = engine.environment_manager.snake;
-
-        // this.game = engine.environment_manager;
-        // this.snake = engine.environment_manager.snake;
 
         this.snake_position = [snake.x, snake.y, snake.z];
 
@@ -54,6 +51,11 @@ export class Controller{
         this.world_directions_updated = false;
 
         this.#init_keyboard();
+    }
+
+    start() {
+        this.right();
+        this.move_snake();
     }
 
 
@@ -118,14 +120,12 @@ export class Controller{
     }
 
 
-
-
-    /*----------- Movement: Collision ---------*/
-
     schedule_movement(snake_position, snake_target_position, snake_target_direction){
 
         let manager = this.engine.environment_manager;
         let snake = this.engine.environment_manager.snake;
+
+        if (Utilities.array_equal(snake_position, snake_target_position)) return;
 
         if (snake.get_next_movement() !== null){
             console.log("Double hit suppression");
@@ -154,23 +154,24 @@ export class Controller{
                 const new_pos = nodes_new_pos[i];
 
                 if (i >= manager.snake_nodes_num) {
-                    manager.create_snake_node_structure(new_pos);
+                    const node = snake.get_node(i);
+                    manager.create_snake_node_structure(node, new_pos);
                     continue;
                 }
-
-                manager.move_object_structure(old_pos[0], old_pos[1], old_pos[2],new_pos[0],new_pos[1],new_pos[2]);
+                const check_done  = manager.move_object_structure(old_pos[0], old_pos[1], old_pos[2],new_pos[0],new_pos[1],new_pos[2]);
+                if (!check_done && !Utilities.array_equal(old_pos, new_pos))
+                    console.log("ERROR: snake structure movement [Node,old_pos, new_pos]", snake.get_node(i), old_pos, new_pos);
+                manager.move_object_view();
             }
-
 
         } else {
             this.#rotate_view(snake_position, snake_target_position);
             const gameover = this.#collision_handler(snake_target_position);
             if (!gameover) this.schedule_movement(snake_position, snake_target_position, snake_target_direction);
         }
-
-
-
     }
+
+
 
     #rotate_view(snake_position, snake_target_position){
 
@@ -189,7 +190,6 @@ export class Controller{
 
         if(!manager.check_consistency(target_x, target_y, target_z)) {
             const rotated_delta = this.#change_face(snake_position, snake_target_position);
-            // const rotated_delta = this.#change_face(old_pos,new_pos);
             target_x = Math.round(x + rotated_delta[0]);
             target_y = Math.round(y + rotated_delta[1]);
             target_z = Math.round(z + rotated_delta[2]);
@@ -277,6 +277,11 @@ export class Controller{
                 end_game = false;
                 break;
 
+            case 'LuckyBonus':
+            case 'ScoreBonus':
+            case 'FastBonus':
+            case 'InvincibilityBonus':
+            case 'InvisibilityBonus':
             case 'Bonus':
                 console.log("Bonus hit");
                 this.engine.bonus_hit(cell_content);

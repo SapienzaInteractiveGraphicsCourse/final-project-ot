@@ -76,10 +76,12 @@ export class EnvironmentManager {
         if( object == null ) return;
         if( object.mesh == null ) return;
         if( !object.erasable ) return;
-        
+
+
         if(object instanceof ObstaclePart) this.obstacle_num--;
         else if(object instanceof Food) this.food_num--;
         else if(object instanceof Bonus) this.bonus_num--;
+        else if(object instanceof Snake) this.snake = null;
 
         this.object_to_destroy.push(object); // add object to queue
 
@@ -101,33 +103,38 @@ export class EnvironmentManager {
         const to_cell = this.environment.environment[to_x][to_y][to_z];
         if( to_cell.content != null) return false; // not empty cell
 
+
         const from_cell = this.environment.environment[from_x][from_y][from_z];
         if( from_cell.content == null) return false; // empty cell
         if( !from_cell.content.movable) return false; // object in cell not movable
-        
+
 
         from_cell.content.update_entity_structure_position(to_x, to_y, to_z);
 
         to_cell.content = from_cell.content;
         from_cell.content = null;
 
-        // if(to_cell.content instanceof Snake) this.move_snake_structure(to_cell.content);
-        // todo remove
-        if (!to_cell.content instanceof Snake)
+
+        if (!(to_cell.content instanceof Snake) || !(to_cell.content instanceof SnakeNodeEntity))
             this.object_to_move.push(to_cell.content);
-        // end todo remove
+
 
         // update generator
         this.coord_generator.remove_available_coordinate(to_x, to_y, to_z);
         this.coord_generator.add_available_coordinate(from_x, from_y, from_z);
         
-        // console.log("Moved object [ ", to_cell.content.constructor.name," ] from [ ", from_x," ", from_y," ", from_z, " ] to [ ", to_x," ", to_y," ", to_z, " ]");
-
+        //console.log("Moved object [ ", to_cell.content.constructor.name," ] from [ ", from_x," ", from_y," ", from_z, " ] to [ ", to_x," ", to_y," ", to_z, " ]");
         return true;
 
     }
 
+
+    move_snake_structure(new_pos) {
+
+    }
+
     // end
+
 
 
     // the following methods update the graphic interface
@@ -270,7 +277,7 @@ export class EnvironmentManager {
         const height = this.environment.height;
         const depth = this.environment.depth;
 
-        console.log("Moved ", this.object_to_move.length, " object.");
+        //console.log("Moved ", this.object_to_move.length, " object.");
         for(let i = 0; i < this.object_to_move.length; i++){
 
             const object = this.object_to_move[i];
@@ -283,7 +290,7 @@ export class EnvironmentManager {
                     y: object.y - height/2 + 0.5, 
                     z: object.z - depth/2 + 0.5 
                 }, 
-                1000
+                10
             );
             
 
@@ -415,21 +422,21 @@ export class EnvironmentManager {
             }   
         }
 
-
         this.create_object_view();
         
     }
 
     init_game(game_level){
-
+        //TODO spawn snake before
         // generate random obstacle
+        this.spawn_snake();
         const obstacles_num = Math.floor(Math.random() * game_level);
         this.spawn_obstacles(obstacles_num, true, true, true);
         this.spawn_foods(1, true, false, true);
         const bonus_num = Math.round(Math.random());
         this.spawn_random_type_bonus(bonus_num, true, false, true);
 
-        this.snake = this.spawn_snake(1, true, true, false)[0];
+
         if(this.snake == null) console.log("SNAKE IS NULL", this.snake);
     }
 
@@ -528,14 +535,27 @@ export class EnvironmentManager {
         this.spawn_objects(number, type, drawable, movable, erasable, random);
     }
 
-    // Spawn {number} Bonus object in the environment
-    spawn_snake(number, drawable, movable, erasable, random){
-        //TODO not random.
-        return this.spawn_objects(number, Snake, drawable, movable, erasable, random);
+    // Spawn Snake
+    //TODO remove number random
+    spawn_snake(){
+        const x = this.environment.width / 2;
+        const y = this.environment.height / 2;
+        const z = this.environment.depth - 1;
+
+        console.log([x,y,z])
+        this.snake = this.create_object_structure(x, y, z, Snake, true, true, false);
+        this.create_object_view();
     }
 
-    create_snake_node_structure(position){
-        this.create_object_structure(position[0], position[1], position[2], SnakeNodeEntity, false, true, false);
+    create_snake_node_structure(node, position){
+        const node_structure = this.create_object_structure(position[0], position[1], position[2], SnakeNodeEntity, false, false, true);
+        if (node_structure === null || node === null)
+            console.log("ERROR create node structure", node_structure, node);
+        if (node !== null && node.mesh !== null && node_structure!== null) {
+            //node_structure.mesh = node.mesh;
+            node_structure.id = node.id;
+        }
+        this.create_object_view();
     }
 
     // Spawn {number} object of type {type} in the environment
