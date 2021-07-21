@@ -4,13 +4,13 @@ import {EnvironmentManager} from "./EnvironmentManager.js";
 import {TWEEN} from "../resources/three.js-r129/examples/jsm/libs/tween.module.min.js";
 import * as THREE from '../resources/three.js-r129/build/three.module.js';
 import { OrbitControls } from '../resources/three.js-r129/examples/jsm/controls/OrbitControls.js';
-import { ObstaclePart, Food, Bonus} from "./Entity.js";
+import {ObstaclePart, Food, Bonus} from "./Entity.js";
 import {Controller} from "./Controller.js";
 import {Camera} from "./Camera.js";
 import {Utilities} from "./Utilities.js";
 import {Config} from "./Config.js";
 import {SnakeNode} from "./Snake.js";
-import {ModelLoader} from "./ModelLoader.js";
+import {ModelLoader, EntityMeshManager} from "./ModelLoader.js";
 
 
 class GameEngine{
@@ -196,7 +196,11 @@ class ScoreManger{
         } );
     }
 
-    tick = 0;
+
+
+
+
+
 }
 
 
@@ -205,40 +209,47 @@ function load_resources(){
     //    load texture, bump maps, images etc.
     console.log("Loading resources...");
 
-    let loader = new ModelLoader(resources_loaded_callback);
+    ModelLoader.init(resources_loaded_callback);
 
-    // loader.add_resources_to_load('models/apple/scene.gltf');
-    // loader.add_resources_to_load('models/stone/scene.gltf');
-    // loader.add_resources_to_load('models/big_border_stone_03/scene.gltf');
-    // loader.add_resources_to_load('models/stone_black_1/scene.gltf');
+    ModelLoader.get_instance().add_resources_to_load(['gltf', 'models/apple/scene.gltf']);
+    ModelLoader.get_instance().add_resources_to_load(['gltf', 'models/stone/scene.gltf']);
+    ModelLoader.get_instance().add_resources_to_load(['gltf', 'models/big_border_stone_03/scene.gltf']);
+    ModelLoader.get_instance().add_resources_to_load(['gltf', 'models/stone_black_1/scene.gltf']);
+    // /home/leonardo/WebstormProjects/final-project-ot/resources/three.js-r129/examples/fonts/helvetiker_regular.typeface.json
+    ModelLoader.get_instance().add_resources_to_load(['font', '../resources/three.js-r129/examples/fonts/helvetiker_regular.typeface.json']);
 
-    loader.load_resources(resource_loaded_callback, null, null);
+    ModelLoader.get_instance().load_resources(resource_onload_callback, null, resource_onerror_callback);
 
-    function resource_loaded_callback(){
-        let delta = 100 / loader.total_resources;
+    // one resource loaded callback
+    function resource_onload_callback(){
+        let delta = 100 / ModelLoader.get_instance().total_resources;
         let loading_status = document.getElementById("loader-progress-bar").style.width;
         loading_status = String(parseInt(loading_status) + delta + "%");
         document.getElementById("loader-progress-bar").style.width = loading_status;
 
     }
 
-    if (tick++ % 200 === 0) {
-        console.log("pino")
-        //engine.environment_manager.spawn_obstacles(10, true, true, true, false);
-        //engine.environment_manager.move_objects(10, false);
-        //engine.environment_manager.destroy_objects(5, false);
+    function resource_onerror_callback(){
+        console.log("Error");
+
+    }
+
+    function resource_onprogress_callback(){
+        console.log('Progress');
+
     }
 
 
+    // all resources loaded callback
     function resources_loaded_callback(){
-
 
         console.log("Resources loaded.");
 
         document.getElementById("loader-div").style.display = "none";
         document.getElementById("settings-div").style.display = "unset";
 
-
+        // init mesh manager that may be contains some object loaded by model loader.
+        EntityMeshManager.init();
 
     }
 
@@ -327,11 +338,11 @@ configure_event_handlers();
 
 // test configuration
 // [todo replace with the following function]
-// load_resources();
+load_resources();
 
-document.getElementById("loader-div").style.display = "none";
-document.getElementById("settings-div").style.display = "none";
-document.getElementById("canvas-div").style.display = 'unset';
-init();
+// document.getElementById("loader-div").style.display = "none";
+// document.getElementById("settings-div").style.display = "none";
+// document.getElementById("canvas-div").style.display = 'unset';
+// init();
 
 // [end todo replace]

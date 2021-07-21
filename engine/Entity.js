@@ -1,8 +1,9 @@
-import { View } from "./View.js";
+import {View} from "./View.js";
 import * as THREE from '../resources/three.js-r129/build/three.module.js';
 import {TWEEN} from "../resources/three.js-r129/examples/jsm/libs/tween.module.min.js";
 import {Config} from "./Config.js";
 import {Utilities} from "./Utilities.js";
+import {EntityMeshManager} from "./ModelLoader.js";
 
 
 
@@ -135,12 +136,8 @@ export class ObstaclePart extends Entity{
 
     draw(){
         if(this.drawable){
-            const obstacle_material = new THREE.MeshNormalMaterial();
-            obstacle_material.transparent = true;
-            obstacle_material.opacity = 0.8;
 
-            const obstacle_geometry = new THREE.BoxGeometry(1, 1 ,1);
-            const box =  new THREE.Mesh( obstacle_geometry, obstacle_material );
+            const box = EntityMeshManager.get_instance().get_obstacle_part_mesh();
             box.position.set(this.pos.x, this.pos.y, this.pos.z);
             box.rotation.set(this.rot.x, this.rot.y, this.rot.z);
 
@@ -196,9 +193,10 @@ export class Food extends Entity{
     draw(){
 
         if(this.drawable){
-            const obj_material = new THREE.MeshBasicMaterial( {color: 0xCE1212} );
-            const food_geometry = new THREE.SphereGeometry( 0.25, 8, 8 );
-            const sphere = new THREE.Mesh( food_geometry, obj_material );
+            // const obj_material = new THREE.MeshBasicMaterial( {color: 0xCE1212} );
+            // const food_geometry = new THREE.SphereGeometry( 0.25, 8, 8 );
+            // const sphere = new THREE.Mesh( food_geometry, obj_material );
+            const sphere = EntityMeshManager.get_instance().get_food_mesh();
             sphere.position.set(this.pos.x, this.pos.y, this.pos.z);
             sphere.rotation.set(this.rot.x, this.rot.y, this.pos.z);
 
@@ -330,9 +328,10 @@ export class LuckyBonus extends Bonus{
     draw(){
         if(this.drawable){
 
-            const geometry = new THREE.TorusGeometry( 0.3, 0.05, 10, 16);
-            const material = new THREE.MeshBasicMaterial( { color: 0x48A229 } );
-            const torus = new THREE.Mesh( geometry, material );
+            // const geometry = new THREE.TorusGeometry( 0.3, 0.05, 10, 16);
+            // const material = new THREE.MeshBasicMaterial( { color: 0x48A229 } );
+            // const torus = new THREE.Mesh( geometry, material );
+            const torus = EntityMeshManager.get_instance().get_lucky_bonus_mesh();
             torus.position.set(this.pos.x, this.pos.y, this.pos.z);
             torus.rotation.set(this.rot.x, this.rot.y, this.pos.z);
 
@@ -344,6 +343,7 @@ export class LuckyBonus extends Bonus{
         super.animate();
     }
 }
+
 // the snake gains more
 export class ScoreBonus extends Bonus{
     constructor(x, y, z, drawable, movable, erasable){
@@ -357,9 +357,10 @@ export class ScoreBonus extends Bonus{
     draw(){
         if(this.drawable){
 
-            const geometry = new THREE.TorusGeometry( 0.3, 0.05, 10, 16);
-            const material = new THREE.MeshBasicMaterial( { color: 0xFFC500 } );
-            const torus = new THREE.Mesh( geometry, material );
+            // const geometry = new THREE.TorusGeometry( 0.3, 0.05, 10, 16);
+            // const material = new THREE.MeshBasicMaterial( { color: 0xFFC500 } );
+            // const torus = new THREE.Mesh( geometry, material );
+            const torus = EntityMeshManager.get_instance().get_score_bonus_mesh();
             torus.position.set(this.pos.x, this.pos.y, this.pos.z);
             torus.rotation.set(this.rot.x, this.rot.y, this.pos.z);
 
@@ -383,9 +384,10 @@ export class FastBonus extends Bonus{
     draw(){
         if(this.drawable){
 
-            const geometry = new THREE.TorusGeometry( 0.3, 0.05, 10, 16);
-            const material = new THREE.MeshBasicMaterial( { color: 0xFFFF92 } );
-            const torus = new THREE.Mesh( geometry, material );
+            // const geometry = new THREE.TorusGeometry( 0.3, 0.05, 10, 16);
+            // const material = new THREE.MeshBasicMaterial( { color: 0xFFFF92 } );
+            // const torus = new THREE.Mesh( geometry, material );
+            const torus = EntityMeshManager.get_instance().get_fast_bonus_mesh();
             torus.position.set(this.pos.x, this.pos.y, this.pos.z);
             torus.rotation.set(this.rot.x, this.rot.y, this.pos.z);
 
@@ -409,9 +411,11 @@ export class InvincibilityBonus extends Bonus{
     draw(){
         if(this.drawable){
 
-            const geometry = new THREE.TorusGeometry( 0.3, 0.05, 10, 16);
-            const material = new THREE.MeshBasicMaterial( { color: 0x3A5FD6 } );
-            const torus = new THREE.Mesh( geometry, material );
+            // const geometry = new THREE.TorusGeometry( 0.3, 0.05, 10, 16);
+            // const material = new THREE.MeshBasicMaterial( { color: 0x3A5FD6 } );
+            // const torus = new THREE.Mesh( geometry, material );
+
+            const torus = EntityMeshManager.get_instance().get_invincibility_bonus_mesh();
             torus.position.set(this.pos.x, this.pos.y, this.pos.z);
             torus.rotation.set(this.rot.x, this.rot.y, this.pos.z);
 
@@ -435,9 +439,11 @@ export class InvisibilityBonus extends Bonus{
     draw(){
         if(this.drawable){
 
-            const geometry = new THREE.TorusGeometry( 0.3, 0.05, 10, 16);
-            const material = new THREE.MeshBasicMaterial( { color: 0xBAC2DC } );
-            const torus = new THREE.Mesh( geometry, material );
+            // const geometry = new THREE.TorusGeometry( 0.3, 0.05, 10, 16);
+            // const material = new THREE.MeshBasicMaterial( { color: 0xBAC2DC } );
+            // const torus = new THREE.Mesh( geometry, material );
+
+            const torus = EntityMeshManager.get_instance().get_invisibility_bonus_mesh();
             torus.position.set(this.pos.x, this.pos.y, this.pos.z);
             torus.rotation.set(this.rot.x, this.rot.y, this.pos.z);
 

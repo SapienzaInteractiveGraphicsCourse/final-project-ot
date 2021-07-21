@@ -432,8 +432,9 @@ export class EnvironmentManager {
         this.spawn_snake();
         const obstacles_num = Math.floor(Math.random() * game_level);
         this.spawn_obstacles(obstacles_num, true, true, true);
-        this.spawn_foods(1, true, false, true);
-        const bonus_num = Math.round(Math.random());
+        this.spawn_foods(20, true, false, true);
+        // const bonus_num = Math.round(Math.random());
+        const bonus_num = 50;
         this.spawn_random_type_bonus(bonus_num, true, false, true);
 
 
