@@ -77,8 +77,8 @@ export class EntityMeshManager {
         this.#fast_bonus_material = new THREE.MeshBasicMaterial( { color: 0xFFFF92 } );
 
         // invisibility bonus
-        this.#invisibility_bonus_geometry = new THREE.TorusGeometry( 0.3, 0.05, 10, 16);
-        this.#invisibility_bonus_material = new THREE.MeshBasicMaterial( { color: 0xBAC2DC } );
+        // this.#invisibility_bonus_geometry = new THREE.TorusGeometry( 0.3, 0.05, 10, 16);
+        // this.#invisibility_bonus_material = new THREE.MeshBasicMaterial( { color: 0xBAC2DC } );
 
         // invincibility bonus
         // this.#invincibility_bonus_geometry = new THREE.TorusGeometry( 0.3, 0.05, 10, 16);

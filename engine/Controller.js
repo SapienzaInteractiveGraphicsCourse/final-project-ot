@@ -31,7 +31,20 @@ export class Controller{
     }
 
     static reset(engine) {
+        if (Controller.instance == null) {
+            console.log("ERROR: Controller is not initialized");
+            return;
+        }
         Controller.instance = new Controller(engine);
+    }
+
+    static destroy(){
+        if (Controller.instance == null) {
+            console.log("ERROR: Controller is not initialized");
+            return;
+        }
+
+        Controller.instance = null;
     }
 
     constructor(engine) {
@@ -130,13 +143,13 @@ export class Controller{
         if (Utilities.array_equal(snake_position, snake_target_position)) return;
 
         if (snake.get_next_movement() !== null){
-            console.log("Double hit suppression");
+            if(Config.log) console.log("Double hit suppression");
             return;
         }
 
         const snake_direction = snake.get_current_direction();
         if (snake_direction !== null && snake_direction.axis === snake_target_direction.axis && snake_direction.sign !== snake_target_direction.sign) {
-            console.log("Forbidden direction");
+            if(Config.log) console.log("Forbidden direction");
             return;
         }
 
@@ -261,20 +274,20 @@ export class Controller{
 
         switch (cell_content.constructor.name) {
             case 'ObstaclePart':
-                console.log("ObstaclePart hit");
+                if(Config.log) console.log("ObstaclePart hit");
                 this.engine.obstacle_hit(cell_content);
 
                 end_game = true;
                 break;
             case 'SnakeNodeEntity':
-                console.log("SnakeNode hit");
+                if(Config.log) console.log("SnakeNode hit");
                 this.engine.snake_hit(cell_content);
 
                 end_game = true;
                 break;
 
             case 'Food':
-                console.log("Food hit");
+                if(Config.log) console.log("Food hit");
                 this.engine.food_hit(cell_content);
                 end_game = false;
                 break;
@@ -285,7 +298,7 @@ export class Controller{
             case 'InvincibilityBonus':
             case 'InvisibilityBonus':
             case 'Bonus':
-                console.log("Bonus hit");
+                if(Config.log) console.log("Bonus hit");
                 this.engine.bonus_hit(cell_content);
                 end_game = false;
                 break;
@@ -338,6 +351,8 @@ export class Controller{
     /*-------- Movement: runner -----*/
 
     move_snake() {
+        if(!this.started) return;
+
         let manager = this.engine.environment_manager;
         let snake = this.engine.environment_manager.snake;
 

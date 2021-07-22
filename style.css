@@ -26,9 +26,13 @@ canvas{
 #settings-div{
     display: none;
 }
+
+form.row > div{
+    padding: 20px;
+}
 .menu-container{
-    width: 80%;
-    height: 80%;
+    /*width: 80%;*/
+    /*height: 80%;*/
 
 }
 

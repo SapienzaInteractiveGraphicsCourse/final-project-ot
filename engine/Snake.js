@@ -290,8 +290,8 @@ export class Snake extends Entity{
             const render_pos = Utilities.world_to_render(this.x, this.y, this.z);
             this.head.container.position.set(render_pos[0], render_pos[1], render_pos[2]);
 
-            Utilities.makeAxisGridDebug(this.head.container, 'Snake Head Position');
-            Utilities.makeAxisGridDebug(this.head.mesh, 'Snake Head');
+            if(Config.grid_helpler) Utilities.addAxisGridDebug(this.head.container, 'Snake Head Position');
+            if(Config.grid_helpler) Utilities.addAxisGridDebug(this.head.mesh, 'Snake Head');
         }
     }
 
@@ -377,8 +377,8 @@ export class Snake extends Entity{
         eventsList.push(events);
         AnimationHandler.addEvents(eventsList);
 
-        Utilities.makeAxisGridDebug(node.container,"Snake Node Position#" + this.nodes.length);
-        Utilities.makeAxisGridDebug(node.mesh,"Snake Node#" + this.nodes.length);
+        if(Config.grid_helpler) Utilities.addAxisGridDebug(node.container,"Snake Node Position#" + this.nodes.length);
+        if(Config.grid_helpler) Utilities.addAxisGridDebug(node.mesh,"Snake Node#" + this.nodes.length);
     }
 
 

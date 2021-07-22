@@ -1,14 +1,14 @@
 export class Config {
 
-    static world_width = 10;
-    static world_height = 10;
-    static world_depth = 10;
-    static world_face_depth = 1;
+    static username = "Guest";
 
-    static DIRECTIONS = {AXES: {X:0, Y:1, Z:2}, SIGN: {POSITIVE: 1, NEGATIVE: -1}}
+    // debugging mode
+    static log = false;
+    static grid_helpler = false;
+
+
     // view
     static cell_cube_dim = 1;
-
 
     /*----- Camera settings ------*/
     static fov = 60;
@@ -20,14 +20,28 @@ export class Config {
     static camera_offset_up = 5;
     static camera_offset_right = 5;
 
+    static DIRECTIONS = {AXES: {X:0, Y:1, Z:2}, SIGN: {POSITIVE: 1, NEGATIVE: -1}}
+    static x_axis = 'X';
+    static y_axis = 'Y';
+    static z_axis = 'Z';
+
+
+
+
+
 
     //    game setting
-
     static game_level = 30;
+
+    static world_width = 10;
+    static world_height = 10;
+    static world_depth = 10;
+    static world_face_depth = 1;
+
 
     /*------ Snake settings ------*/
     static snake_speed = 400;
-    static snake_nodes_distance = 1; //TODO parametric
+    static snake_nodes_distance = Config.cell_cube_dim; //TODO parametric
     static static_nodes_dimension = 0.8; // (0,1] * snake_nodes_distance
 
     // resource name
@@ -52,11 +66,15 @@ export class Config {
     static lucky_bonus_gltf_model_name;
     static lucky_bonus_gltf_model_path;
 
-
-    static x_axis = 'X';
-    static y_axis = 'Y';
-    static z_axis = 'Z';
+    // score config
+    static initial_score = 0;
+    static multiplicator = 1;
+    static food_score = 1;
+    static bonus_score = 0;
+    static obstacle_score = 0;
+    static snakenode_score = 0;
 
 
 
 }
+

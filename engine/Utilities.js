@@ -63,10 +63,15 @@ export class Utilities {
         }
     }
 
-    static makeAxisGridDebug(node, label, size = 1, units = 10) {
+    static addAxisGridDebug(node, label, size = 1, units = 10) {
         const handler = new AxisGridHandler(node,size,units);
         Utilities.gui.add(handler, 'axisVisible').name(label + ' Axis');
         Utilities.gui.add(handler, 'gridVisible').name(label + ' Grid');
+
+    }
+
+    // todo implements removeAxisGridDebug !
+    static removeAxisGridDebug(node, label, size = 1, units = 10) {
 
     }
 

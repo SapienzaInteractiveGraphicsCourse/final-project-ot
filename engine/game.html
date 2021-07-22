@@ -36,83 +36,76 @@
     </canvas>
 
 <!--    Menu -->
-    <div id="settings-div" class="container menu-container">
+    <div id="settings-div" class="col-6 container menu-container">
 
-        <form class="row">
+        <form class="row" style="background-color: #55aaff; ">
 
-            <div class="col-md-12">
+            <div class="col-12">
                 <div class="offset-md-4 col-md-4">
-                    <label for="inputEmail4" class="form-label">Username</label>
-                    <input type="text" class="form-control" id="inputEmail4">
+                    <input id="username-text" type="text" class="form-control" id="inputEmail4" placeholder="Username">
                 </div>
 
             </div>
 
-            <div class="col-md-4">
-                <div class="offset-md-1 col-md-10">
-                    <label class="form-label">Example range</label>
-                    <input type="range" class="form-range" min="0" max="5" step="0.5" >
+
+            <div class="col-3" style="padding: 20px 0 20px 20px">
+                <div class="offset-md-1 col-md-10">  </div>
+                <div class="offset-md-1 col-md-10"> dimension [5, 50] </div>
+                <div class="offset-md-1 col-md-10"> level [1, 10] </div>
+            </div>
+
+            <div class="col-3" style="padding: 20px 20px 20px 0">
+                    <input id="env-dim-range" type="range" class="form-range" min="5" max="50" step="1" value="5" >
+                    <input id="env-level-range" type="range" class="form-range" min="1" max="10" step="1" >
+            </div>
+
+<!--            <div class="col-2"></div>-->
+
+
+            <div class="col-4">
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="spw-obs-check">
+                    <label class="form-check-label" for="spw-obs-check"> spawning obstacle</label>
                 </div>
-                <div class="offset-md-1 col-md-10">
-                    <label class="form-label">Example range</label>
-                    <input type="range" class="form-range" min="0" max="5" step="0.5" >
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="spw-bonus-check">
+                    <label class="form-check-label" for="spw-bonus-check"> spawning bonus </label>
                 </div>
-                <div class="offset-md-1 col-md-10">
-                    <label class="form-label">Example range</label>
-                    <input type="range" class="form-range" min="0" max="5" step="0.5" >
+                <br>
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="mov-obs-check">
+                    <label class="form-check-label" for="mov-obs-check"> moving obstacle</label>
                 </div>
-                <div class="offset-md-1 col-md-10">
-                    <label class="form-label">Example range</label>
-                    <input type="range" class="form-range" min="0" max="5" step="0.5" >
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="mov-food-check">
+                    <label class="form-check-label" for="mov-food-check"> moving food </label>
                 </div>
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="mov-bonus-check">
+                    <label class="form-check-label" for="mov-bonus-check"> moving bonus </label>
+                </div>
+                <br>
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="des-obs-check">
+                    <label class="form-check-label" for="des-obs-check"> destructible obstacles </label>
+                </div>
+
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="des-food-check">
+                    <label class="form-check-label" for="des-food-check"> destructible food </label>
+                </div>
+
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="des-bonus-check">
+                    <label class="form-check-label" for="des-bonus-check"> destructible bonus </label>
+                </div>
+
 
             </div>
 
-            <div class="col-md-4">
-                <div class="offset-md-1 col-md-10">
-                    <label class="form-label">Example range</label>
-                    <input type="range" class="form-range" min="0" max="5" step="0.5" >
-                </div>
-                <div class="offset-md-1 col-md-10">
-                    <label class="form-label">Example range</label>
-                    <input type="range" class="form-range" min="0" max="5" step="0.5" >
-                </div>
-                <div class="offset-md-1 col-md-10">
-                    <label class="form-label">Example range</label>
-                    <input type="range" class="form-range" min="0" max="5" step="0.5" >
-                </div>
-                <div class="offset-md-1 col-md-10">
-                    <label class="form-label">Example range</label>
-                    <input type="range" class="form-range" min="0" max="5" step="0.5" >
-                </div>
-
-            </div>
-
-            <div class="col-md-4">
-                <div class="offset-md-1 col-md-10">
-                    <label class="form-label">Example range</label>
-                    <input type="range" class="form-range" min="0" max="5" step="0.5" >
-                </div>
-                <div class="offset-md-1 col-md-10">
-                    <label class="form-label">Example range</label>
-                    <input type="range" class="form-range" min="0" max="5" step="0.5" >
-                </div>
-                <div class="offset-md-1 col-md-10">
-                    <label class="form-label">Example range</label>
-                    <input type="range" class="form-range" min="0" max="5" step="0.5" >
-                </div>
-                <div class="offset-md-1 col-md-10">
-                    <label class="form-label">Example range</label>
-                    <input type="range" class="form-range" min="0" max="5" step="0.5" >
-                </div>
-
-            </div>
-
-            <div class="col-md-12">
-                <div class="col-md-4 ">
-                    <button type="button" class="btn btn-primary" id="btn-start">Submit form</button>
-                </div>
-
+            <div class="col-12">
+                    <button type="button" class="offset-2 col-4 btn btn-primary" id="btn-save"> Save </button>
+                    <button type="button" class="col-4 btn btn-primary" id="btn-start" disabled> Start </button>
             </div>
 
         </form>

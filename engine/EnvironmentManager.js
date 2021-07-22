@@ -18,13 +18,14 @@ import {Utilities} from "./Utilities.js";
 // Level generator
 export class EnvironmentManager {
 
-    constructor(environment){
-        
+    constructor(environment, level){
+
+
         this.environment = environment;
-        // this.mesh = null;
         this.snake = null;
         this.snake_nodes = [];
 
+        this.level = level;
 
 
         this.obstacle_num = 0;
@@ -40,6 +41,7 @@ export class EnvironmentManager {
         this.object_to_destroy = [];
 
         this.init_environment();
+        this.init_game(level);
         // this.generate_snake();
 
     }
@@ -66,7 +68,7 @@ export class EnvironmentManager {
 
         this.coord_generator.remove_available_coordinate(x, y, z); // update generator
 
-        console.log("Created object: [ ", type.name, " ] at [ ", x," ", y," ", z, " ]");
+        if(Config.log) console.log("Created object: [ ", type.name, " ] at [ ", x," ", y," ", z, " ]");
 
         return object;
     }
@@ -83,7 +85,11 @@ export class EnvironmentManager {
         if(object instanceof ObstaclePart) this.obstacle_num--;
         else if(object instanceof Food) this.food_num--;
         else if(object instanceof Bonus) this.bonus_num--;
+
         else if(object instanceof Snake) this.snake = null;
+        else if(object instanceof SnakeNodeEntity) this.snake_nodes_num--;
+
+
 
         this.object_to_destroy.push(object); // add object to queue
 
@@ -91,7 +97,7 @@ export class EnvironmentManager {
 
         this.environment.environment[x][y][z].content = null;
 
-        console.log("Destrojed object [ ", object.constructor.name," ] at [ ", x," ", y," ", z, " ]");
+        if(Config.log) console.log("Destrojed object [ ", object.constructor.name," ] at [ ", x," ", y," ", z, " ]");
 
 
     }
@@ -124,13 +130,15 @@ export class EnvironmentManager {
         // update generator
         this.coord_generator.remove_available_coordinate(to_x, to_y, to_z);
         this.coord_generator.add_available_coordinate(from_x, from_y, from_z);
-        
-        //console.log("Moved object [ ", to_cell.content.constructor.name," ] from [ ", from_x," ", from_y," ", from_z, " ] to [ ", to_x," ", to_y," ", to_z, " ]");
+
+        if(Config.log) console.log("Moved object [ ", to_cell.content.constructor.name," ] from [ ", from_x," ", from_y," ", from_z, " ] to [ ", to_x," ", to_y," ", to_z, " ]");
         return true;
 
     }
 
 
+    destroy_snake_structure(){}
+    create_snake_structure(){}
     move_snake_structure(id,new_pos) {
         const from_x = this.snake_nodes[id].x;
         const from_y = this.snake_nodes[id].y;
@@ -182,6 +190,7 @@ export class EnvironmentManager {
     // draw an object in the object_to_draw queue
     create_object_view(){
 
+        if(Config.log) console.log("Drawn ", this.object_to_draw.length, " object.");
         for(let i = 0; i < this.object_to_draw.length; i++){
 
             const object = this.object_to_draw[i];
@@ -205,7 +214,7 @@ export class EnvironmentManager {
         let explosion = [];
 
         let j, i;
-        console.log("Removed ", this.object_to_destroy.length, " object.");
+        if(Config.log) console.log("Removed ", this.object_to_destroy.length, " object.");
         for(i = 0; i < this.object_to_destroy.length; i++){
 
             const object = this.object_to_destroy[i];
@@ -317,7 +326,7 @@ export class EnvironmentManager {
         const height = this.environment.height;
         const depth = this.environment.depth;
 
-        //console.log("Moved ", this.object_to_move.length, " object.");
+        if(Config.log) console.log("Moved ", this.object_to_move.length, " object.");
         for(let i = 0; i < this.object_to_move.length; i++){
 
             const object = this.object_to_move[i];
@@ -483,12 +492,13 @@ export class EnvironmentManager {
 
     destroy_game(){
 
-        let entities_coord_list = this.coord_generator.unavailable_coordinates;
-        console.log(this);
-        console.log(this.coord_generator);
-        for(let i = 0; i < entities_coord_list.length; i++){
-            let c = entities_coord_list[i];
-            this.destroy_object_structure(c[0], c[1], c[2]);
+        let unavailable_coords_list = this.coord_generator.unavailable_coordinates;
+        let unavailable_coords_keys = Object.keys(unavailable_coords_list);
+
+        for(let i = 0; i < unavailable_coords_keys.length; i++){
+            let coord = unavailable_coords_list[unavailable_coords_keys[i]];
+            this.destroy_object_structure(coord[0], coord[1], coord[2]);
+
         }
 
         this.destroy_object_view();
@@ -497,7 +507,10 @@ export class EnvironmentManager {
     }
 
     destroy_environment(){
-        // destroy core obstacle
+
+        this.environment.mesh
+
+
     }
 
     spawn_random_type_bonus(number, drawable, movable, erasable){
@@ -583,8 +596,8 @@ export class EnvironmentManager {
         const y = this.environment.height / 2;
         const z = this.environment.depth - 1;
 
-        console.log([x,y,z])
-        this.snake = this.create_object_structure(x, y, z, Snake, true, true, false);
+        // console.log([x,y,z])
+        this.snake = this.create_object_structure(x, y, z, Snake, true, true, true);
         this.snake_nodes.push(this.snake);
         this.create_object_view();
     }
@@ -594,7 +607,7 @@ export class EnvironmentManager {
         if (node_structure === null || node === null)
             console.log("ERROR create node structure", node_structure, node);
         if (node !== null && node.mesh !== null && node_structure!== null) {
-            //node_structure.mesh = node.mesh;
+            node_structure.mesh = node.mesh;
             node_structure.id = node.id;
             this.snake_nodes.push(node_structure);
             this.create_object_view();

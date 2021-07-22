@@ -38,6 +38,8 @@ export class Environment extends View{
 
         this.environment = env;
 
+        this.mesh = null;
+
         this.draw();
 
 
@@ -150,10 +152,10 @@ export class Environment extends View{
         // return;
 
 
-        const cube_w = this.width;
-        const cube_h = this.height;
-        const cube_d = this.depth;
-        const cube_face_depth = this.face_depth;
+        const cube_w = this.width * Config.cell_cube_dim;
+        const cube_h = this.height * Config.cell_cube_dim;
+        const cube_d = this.depth * Config.cell_cube_dim;
+        const cube_face_depth = this.face_depth * Config.cell_cube_dim;
 
         // Cube Material
         const cube_material = new THREE.MeshBasicMaterial( {color: 0xffff00} );
@@ -186,7 +188,7 @@ export class Environment extends View{
 
         }
 
-        Utilities.makeAxisGridDebug(cube_mesh, 'Environment');
+        if(Config.grid_helpler) Utilities.addAxisGridDebug(cube_mesh, 'Environment');
 
         this.mesh = cube_mesh;
 
