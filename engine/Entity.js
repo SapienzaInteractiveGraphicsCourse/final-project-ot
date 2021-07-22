@@ -297,11 +297,27 @@ export class Bonus extends Entity{
 
         if (this.drawable){
 
-            const target_coords = {
-                x: Utilities.degrees_to_radians(360),
-                y: Utilities.degrees_to_radians(360),
-                z: Utilities.degrees_to_radians(360)
-            };
+            let target_coords;
+            let rotation_axis = Utilities.axis_from_world_coord(this.x, this.y, this.z);
+            switch (rotation_axis){
+                case Config.x_axis:
+                    target_coords  = { x: Utilities.degrees_to_radians(360), y: 0, z: 0 };
+                    break;
+                case Config.y_axis:
+                    target_coords  = { x: 0, y: Utilities.degrees_to_radians(360), z: 0 };
+                    break;
+                case Config.z_axis:
+                    target_coords  = { x: 0, y: 0, z: Utilities.degrees_to_radians(360) };
+                    break;
+            }
+
+            // console.log("target_coords ", target_coords);
+
+            // const target_coords = {
+            //     x: Utilities.degrees_to_radians(360),
+            //     y: Utilities.degrees_to_radians(360),
+            //     z: Utilities.degrees_to_radians(360)
+            // };
 
             // console.log("rotation ", target_coords);
             const tween_start = new TWEEN.Tween(this.mesh.rotation).to(target_coords, 2500).repeat(Infinity);
@@ -416,6 +432,7 @@ export class InvincibilityBonus extends Bonus{
             // const torus = new THREE.Mesh( geometry, material );
 
             const torus = EntityMeshManager.get_instance().get_invincibility_bonus_mesh();
+            torus.scale.set(Config.cell_cube_dim/3, Config.cell_cube_dim/3, Config.cell_cube_dim/3);
             torus.position.set(this.pos.x, this.pos.y, this.pos.z);
             torus.rotation.set(this.rot.x, this.rot.y, this.pos.z);
 
@@ -444,6 +461,7 @@ export class InvisibilityBonus extends Bonus{
             // const torus = new THREE.Mesh( geometry, material );
 
             const torus = EntityMeshManager.get_instance().get_invisibility_bonus_mesh();
+            torus.scale.set(Config.cell_cube_dim/5, Config.cell_cube_dim/5, Config.cell_cube_dim/5);
             torus.position.set(this.pos.x, this.pos.y, this.pos.z);
             torus.rotation.set(this.rot.x, this.rot.y, this.pos.z);
 

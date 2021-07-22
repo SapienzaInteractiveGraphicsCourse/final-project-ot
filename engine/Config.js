@@ -30,6 +30,33 @@ export class Config {
     static snake_nodes_distance = 1; //TODO parametric
     static static_nodes_dimension = 0.8; // (0,1] * snake_nodes_distance
 
+    // resource name
+    static food_gltf_model_name = 'food_model';
+    static food_gltf_model_path = 'models/apple/scene.gltf' ;
+
+    static obstacle_part_gltf_model_name;
+    static obstacle_part_gltf_model_path;
+
+    static invisibility_bonus_gltf_model_name = 'bonus_invisibility_model';
+    static invisibility_bonus_gltf_model_path = 'models/spooky_ghost/scene.gltf';
+
+    static invincibility_bonus_gltf_model_name = 'bonus_invincibility_model';
+    static invincibility_bonus_gltf_model_path = 'models/cartoon_bomb/scene.gltf';
+
+    static fast_bonus_gltf_model_name;
+    static fast_bonus_gltf_model_path;
+
+    static score_bonus_gltf_model_name = 'bonus_score_model';
+    static score_bonus_gltf_model_path = '../resources/three.js-r129/examples/fonts/helvetiker_regular.typeface.json';
+
+    static lucky_bonus_gltf_model_name;
+    static lucky_bonus_gltf_model_path;
+
+
+    static x_axis = 'X';
+    static y_axis = 'Y';
+    static z_axis = 'Z';
+
 
 
 }

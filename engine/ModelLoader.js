@@ -1,6 +1,7 @@
 //TODO REMOVE
 import * as THREE from '../resources/three.js-r129/build/three.module.js';
 import {GLTFLoader} from "../resources/three.js-r129/examples/jsm/loaders/GLTFLoader.js";
+import {Config} from "./Config.js";
 
 export class EntityMeshManager {
 
@@ -61,29 +62,13 @@ export class EntityMeshManager {
         this.#lucky_bonus_material = new THREE.MeshBasicMaterial( { color: 0x48A229 } );
 
         // score bonus
-
-        // this.#score_bonus_geometry = new THREE.TorusGeometry( 0.3, 0.05, 10, 16);
-        // this.#score_bonus_geometry = new THREE.TextGeometry('$', {
-        //     font: ModelLoader.get_instance().geometries[0],
-        //     size: 80,
-        //     height: 5,
-        //     curveSegments: 12,
-        //     bevelEnabled: true,
-        //     bevelThickness: 10,
-        //     bevelSize: 8,
-        //     bevelOffset: 0,
-        //     bevelSegments: 5
-        // });
-
         this.#score_bonus_geometry = new THREE.TextGeometry('$', {
-            font: ModelLoader.get_instance().geometries[0],
+            font: ModelLoader.get_instance().models[Config.score_bonus_gltf_model_name],
             size: 0.5,
             height: 0.1
         });
 
         this.#score_bonus_material = new THREE.MeshBasicMaterial( { color: 0xFFC500 } );
-
-
 
 
 
@@ -96,9 +81,10 @@ export class EntityMeshManager {
         this.#invisibility_bonus_material = new THREE.MeshBasicMaterial( { color: 0xBAC2DC } );
 
         // invincibility bonus
-        this.#invincibility_bonus_geometry = new THREE.TorusGeometry( 0.3, 0.05, 10, 16);
-        this.#invincibility_bonus_material = new THREE.MeshBasicMaterial( { color: 0x3A5FD6 } );
-
+        // this.#invincibility_bonus_geometry = new THREE.TorusGeometry( 0.3, 0.05, 10, 16);
+        // this.#invincibility_bonus_material = new THREE.MeshBasicMaterial( { color: 0x3A5FD6 } );
+        //
+        // this.#invincibility_bonus_geometry = ModelLoader.get_instance().models[0];
 
     }
 
@@ -124,11 +110,17 @@ export class EntityMeshManager {
     }
 
     get_invisibility_bonus_mesh(){
-        return new THREE.Mesh( this.#invisibility_bonus_geometry, this.#invisibility_bonus_material );
+        // return new THREE.Mesh( this.#invisibility_bonus_geometry, this.#invisibility_bonus_material );
+
+        let model = ModelLoader.get_instance().models[Config.invisibility_bonus_gltf_model_name];
+        return model;
     }
 
     get_invincibility_bonus_mesh(){
-        return new THREE.Mesh( this.#invincibility_bonus_geometry, this.#invincibility_bonus_material );
+
+        let model = ModelLoader.get_instance().models[Config.invincibility_bonus_gltf_model_name];
+        return model;
+        // return new THREE.Mesh( this.#invincibility_bonus_geometry, this.#invincibility_bonus_material );
     }
 
 
@@ -210,37 +202,45 @@ export class ModelLoader{
     }
 
 
-    load_font(path, onload_callback, onprogress_callback, onerror_callback){
+    load_font(resource, onload_callback, onprogress_callback, onerror_callback){
 
         let loader = this;
 
-        this.#font_loader.load( path, private_font_onload_callback, onprogress_callback, onerror_callback);
+        // load font
+        this.#font_loader.load( resource.path, private_font_onload_callback, onprogress_callback, onerror_callback);
 
         function private_font_onload_callback(font){
-            loader.geometries.push(font);
+            loader.models[resource.name] = font;
             onload_callback();
         }
     }
 
-    load_gltf(path, onload_callback, onprogress_callback, onerror_callback){
+    load_gltf(resource, onload_callback, onprogress_callback, onerror_callback){
+
+        let loader = this;
+
         // load model
-        this.#gltf_loader.load( path, onload_callback, onprogress_callback, onerror_callback );
+        this.#gltf_loader.load( resource.path, private_gltf_onload_callback, onprogress_callback, onerror_callback );
+
+        function private_gltf_onload_callback(gltf){
+            loader.models[resource.name] = gltf.scene;
+            onload_callback();
+        }
     }
 
     load_resources(onload_callback, onprogress_callback, onerror_callback){
 
         // get first model path to load
-        let res = this.#resources_to_load.pop();
-        while( res !== undefined){
-            let res_type = res[0];
-            let res_path = res[1];
+        let resource = this.#resources_to_load.pop();
+        while( resource !== undefined){
 
-            switch (res_type) {
+            // resource = { type: ..., name: ..., path: ...}
+            switch (resource.type) {
                 case 'gltf':
-                    this.load_gltf(res_path, onload_callback, onprogress_callback, onerror_callback);
+                    this.load_gltf(resource, onload_callback, onprogress_callback, onerror_callback);
                     break;
                 case 'font':
-                    this.load_font(res_path, onload_callback, onprogress_callback, onerror_callback);
+                    this.load_font(resource, onload_callback, onprogress_callback, onerror_callback);
                     break;
                 case 'texture':
                     break;
@@ -250,9 +250,8 @@ export class ModelLoader{
             }
 
 
-
             // get next model path to load
-            res = this.#resources_to_load.pop();
+            resource = this.#resources_to_load.pop();
         }
 
 

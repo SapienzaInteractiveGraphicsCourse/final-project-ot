@@ -6,6 +6,18 @@ import {vec3} from "../Common/MVnew.js";
 export class Utilities {
     static gui = new GUI({name: "Debug", width: 400});
 
+    // given x, y and z coordinate return an axis of rotation
+    static axis_from_world_coord(x, y, z){
+        let axis;
+        if(x === 0 || x === Config.world_width - 1){
+            axis = Config.x_axis;
+        }else if(y === 0 || y === Config.world_height - 1){
+            axis = Config.y_axis;
+        }else if(z === 0 || z === Config.world_depth - 1){
+            axis = Config.z_axis;
+        }
+        return axis;
+    }
 
     static world_to_render(coordinates_or_x,y,z){
         let x = coordinates_or_x;

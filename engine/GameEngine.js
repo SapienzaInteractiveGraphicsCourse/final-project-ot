@@ -211,12 +211,15 @@ function load_resources(){
 
     ModelLoader.init(resources_loaded_callback);
 
-    ModelLoader.get_instance().add_resources_to_load(['gltf', 'models/apple/scene.gltf']);
-    ModelLoader.get_instance().add_resources_to_load(['gltf', 'models/stone/scene.gltf']);
-    ModelLoader.get_instance().add_resources_to_load(['gltf', 'models/big_border_stone_03/scene.gltf']);
-    ModelLoader.get_instance().add_resources_to_load(['gltf', 'models/stone_black_1/scene.gltf']);
-    // /home/leonardo/WebstormProjects/final-project-ot/resources/three.js-r129/examples/fonts/helvetiker_regular.typeface.json
-    ModelLoader.get_instance().add_resources_to_load(['font', '../resources/three.js-r129/examples/fonts/helvetiker_regular.typeface.json']);
+
+    // ModelLoader.get_instance().add_resources_to_load({ type: 'gltf', path: 'models/stone/scene.gltf'});
+    // ModelLoader.get_instance().add_resources_to_load({ type: 'gltf', path: 'models/big_border_stone_03/scene.gltf'});
+    // ModelLoader.get_instance().add_resources_to_load({ type: 'gltf', path: 'models/stone_black_1/scene.gltf'});
+
+    ModelLoader.get_instance().add_resources_to_load({ name: Config.food_gltf_model_name, type: 'gltf', path: Config.food_gltf_model_path });
+    ModelLoader.get_instance().add_resources_to_load({ name: Config.invincibility_bonus_gltf_model_name, type: 'gltf', path: Config.invincibility_bonus_gltf_model_path});
+    ModelLoader.get_instance().add_resources_to_load({ name: Config.score_bonus_gltf_model_name, type: 'font', path: Config.score_bonus_gltf_model_path});
+    ModelLoader.get_instance().add_resources_to_load({ name: Config.invisibility_bonus_gltf_model_name, type: 'gltf', path: Config.invisibility_bonus_gltf_model_path});
 
     ModelLoader.get_instance().load_resources(resource_onload_callback, null, resource_onerror_callback);
 
