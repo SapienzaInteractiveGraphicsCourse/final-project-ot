@@ -452,7 +452,6 @@ export class Snake extends Entity{
             const rotation = new TWEEN.Tween(node_relative_pos).to({x: x, y: y, z: z}, this.speed).onStart((twn) => {
                 node.update_direction(new_direction);
             });
-
             // Bug correction
             rotation.onComplete((twn) => {
                 if (node_relative_pos.x !== 0) node_relative_pos.x > 0 ? node_relative_pos.x = 1 : node_relative_pos.x = -1;

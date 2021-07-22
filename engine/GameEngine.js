@@ -79,7 +79,7 @@ class GameEngine{
         // stop match
         console.log("Stopping game.");
         this.environment_manager.destroy_game();
-        this.init_engine();
+        //this.init_engine();
 
         console.log("Game stopped.");
 
