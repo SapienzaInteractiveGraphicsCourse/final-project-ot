@@ -26,7 +26,7 @@ export class Config {
     static game_level = 30;
 
     /*------ Snake settings ------*/
-    static snake_speed = 200;
+    static snake_speed = 400;
     static snake_nodes_distance = 1; //TODO parametric
     static static_nodes_dimension = 0.8; // (0,1] * snake_nodes_distance
 

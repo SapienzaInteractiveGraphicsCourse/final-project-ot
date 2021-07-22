@@ -9,6 +9,7 @@ export class Controller{
     static instance = null;
 
     engine;
+    started;
 
     snake_position;
     #up_direction;
@@ -54,6 +55,7 @@ export class Controller{
     }
 
     start() {
+        this.started = true;
         this.right();
         this.move_snake();
     }
@@ -166,7 +168,8 @@ export class Controller{
         } else {
             this.#rotate_view(snake_position, snake_target_position);
             const gameover = this.#collision_handler(snake_target_position);
-            if (!gameover) this.schedule_movement(snake_position, snake_target_position, snake_target_direction);
+            if (gameover) this.started = false;
+            else this.schedule_movement(snake_position, snake_target_position, snake_target_direction);
         }
     }
 
@@ -364,6 +367,7 @@ export class Controller{
         const KeyboardHelper = {left: 65, up: 87, right: 68, down: 83, space: 32};
 
         function keyDownHandler(event) {
+            if (!controller.started) return;
             controller.update_snake_position();
             if(event.keyCode === KeyboardHelper.right) {
                 controller.right();
@@ -376,9 +380,6 @@ export class Controller{
             }
             else if(event.keyCode === KeyboardHelper.up) {
                 controller.up();
-            }
-            else if(event.keyCode === KeyboardHelper.space){
-                controller.snake.add_node();
             }
         }
     }
