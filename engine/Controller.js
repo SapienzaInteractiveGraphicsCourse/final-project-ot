@@ -272,6 +272,8 @@ export class Controller{
         let cell_content = manager.get_entity(x, y, z);
         if(cell_content == null) return end_game;
 
+        this.engine.collision(cell_content);
+
         switch (cell_content.constructor.name) {
             case 'ObstaclePart':
                 if(Config.log) console.log("ObstaclePart hit");

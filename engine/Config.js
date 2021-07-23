@@ -29,10 +29,7 @@ export class Config {
 
 
 
-
-    //    game setting
-    static game_level = 30;
-
+    // environment settings
     static world_width = 10;
     static world_height = 10;
     static world_depth = 10;
@@ -73,6 +70,23 @@ export class Config {
     static bonus_score = 0;
     static obstacle_score = 0;
     static snakenode_score = 0;
+
+
+    //    game setting
+    static game_level = 30;
+    static game_mode = "custom";
+    static spawn_obs = true;
+    static spawn_bonus = true;
+
+    static movable_obs = true;
+    static movable_food = true;
+    static movable_bonus = true;
+
+    static erasable_obs = true;
+    static erasable_food = true;
+    static erasable_bonus = true;
+
+
 
 
 

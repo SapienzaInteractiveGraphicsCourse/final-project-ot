@@ -3,14 +3,14 @@ import {EnvironmentManager} from "./EnvironmentManager.js";
 
 import {TWEEN} from "../resources/three.js-r129/examples/jsm/libs/tween.module.min.js";
 import * as THREE from '../resources/three.js-r129/build/three.module.js';
-import { OrbitControls } from '../resources/three.js-r129/examples/jsm/controls/OrbitControls.js';
-import {ObstaclePart, Food, Bonus} from "./Entity.js";
+import {OrbitControls} from '../resources/three.js-r129/examples/jsm/controls/OrbitControls.js';
+import {Bonus, Food, ObstaclePart} from "./Entity.js";
 import {Controller} from "./Controller.js";
 import {Camera} from "./Camera.js";
 import {Utilities} from "./Utilities.js";
 import {Config} from "./Config.js";
 import {SnakeNode} from "./Snake.js";
-import {ModelLoader, EntityMeshManager} from "./ModelLoader.js";
+import {EntityMeshManager, ModelLoader} from "./ModelLoader.js";
 
 
 class GameEngine{
@@ -44,7 +44,21 @@ class GameEngine{
         this.world_depth = Config.world_depth;
         this.world_face_depth = Config.world_face_depth;
 
+        this.username = Config.username;
         this.game_level = Config.game_level;
+        this.game_mode = Config.game_mode;
+        // this.texture_mode = Config.texture_mode;
+
+        this.spw_obs = Config.spawn_obs;
+        this.spw_bonus = Config.spawn_bonus;
+
+        this.mov_obs = Config.movable_obs;
+        this.mov_food = Config.movable_food;
+        this.mov_bonus = Config.movable_bonus;
+
+        this.des_obs = Config.erasable_obs;
+        this.des_food = Config.erasable_food;
+        this.des_bonus = Config.erasable_bonus;
 
     }
 
@@ -53,6 +67,9 @@ class GameEngine{
         let username = document.getElementById('username-text').value;
         let env_dim = document.getElementById('env-dim-range').value;
         let env_level = document.getElementById('env-level-range').value;
+
+        let game_mode = document.getElementById('game-mode-select').value;
+        let texture_mode = document.getElementById('texture-mode-select').value;
 
         let spw_obs = document.getElementById('spw-obs-check').checked;
         let spw_bonus = document.getElementById('spw-bonus-check').checked;
@@ -84,12 +101,13 @@ class GameEngine{
         Config.erasable_food = des_food;
         Config.erasable_bonus = des_bonus;
 
+        Config.game_mode = game_mode;
+
 
         // let texture_pack;
         // Config.texture_pack = texture_pack;
 
     }
-
 
     load_render() {
 
@@ -196,8 +214,7 @@ class GameEngine{
         engine.read_configuration();
 
         // init score manager
-        let score_manager = new ScoreManger();
-        this.score_manager = score_manager;
+        this.score_manager = new ScoreManger();
 
         // init environment
         let environment = new Environment(
@@ -208,10 +225,19 @@ class GameEngine{
         );
 
         // init environment manager
-        let level = this.game_level;
-        let manager = new EnvironmentManager(environment, level);
+        this.environment_manager = new EnvironmentManager(environment);
+        this.environment_manager.create_match(
+            this.game_level,
+            this.spw_obs,
+            this.spw_bonus,
+            this.mov_obs,
+            this.mov_food,
+            this.mov_bonus,
+            this.des_obs,
+            this.des_food,
+            this.des_bonus
 
-        this.environment_manager = manager;
+        );
 
         // removes all mesh from the scene
         for( let i = this.scene.children.length - 1; i >= 0; i--) {
@@ -223,7 +249,7 @@ class GameEngine{
         this.scene.add(this.environment_manager.environment.mesh);
 
 
-        // init controller
+        // init or reset controller
         if(this.started) Controller.reset(this);
         else Controller.init(this);
 
@@ -257,7 +283,17 @@ class GameEngine{
 
     }
 
+
+
     // collision handler
+
+    // given the
+    collision(cell_content){
+
+        // if()
+
+    }
+
     bonus_hit(content){
 
         console.log(content.constructor.name, " Hitted");
@@ -271,7 +307,9 @@ class GameEngine{
 
 
     }
+
     food_hit(content){
+
         this.environment_manager.destroy_object_structure(content.x, content.y, content.z);
         this.environment_manager.destroy_object_view();
 
@@ -280,13 +318,15 @@ class GameEngine{
 
         this.score_manager.update_score(Food);
     }
-    obstacle_hit(){
+
+    obstacle_hit(content){
         alert("Obstacle HIT");
         //console.log("obstacle hit");
         this.score_manager.update_score(ObstaclePart);
         this.stop_engine();
     }
-    snake_hit(){
+
+    snake_hit(content){
 
         alert("Snake HIT");
         this.score_manager.update_score(SnakeNode);

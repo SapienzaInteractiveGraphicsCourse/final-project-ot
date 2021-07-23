@@ -18,14 +18,12 @@ import {Utilities} from "./Utilities.js";
 // Level generator
 export class EnvironmentManager {
 
-    constructor(environment, level){
+    constructor(environment){
 
 
         this.environment = environment;
         this.snake = null;
         this.snake_nodes = [];
-
-        this.level = level;
 
 
         this.obstacle_num = 0;
@@ -41,14 +39,16 @@ export class EnvironmentManager {
         this.object_to_destroy = [];
 
         this.init_environment();
-        this.init_game(level);
-        // this.generate_snake();
+        // this.init_game();
 
     }
 
 
 
+
     // The following methods update the data structures
+
+    // create_game_entity_object(x, y, z, type, )
 
     // creates an object of type (type) in the environment at coordinates (x, y, z)
     create_object_structure(x, y, z, type, drawable, movable, erasable){
@@ -102,7 +102,6 @@ export class EnvironmentManager {
 
     }
 
-
     // moves the object in the environment at coordinates [fromx, fromy, fromz] to the location at coordinates [tox, toy, toz]
     move_object_structure(from_x, from_y, from_z, to_x, to_y, to_z){
         if(!this.check_consistency(from_x, from_y, from_z)) return false;
@@ -135,7 +134,6 @@ export class EnvironmentManager {
         return true;
 
     }
-
 
     destroy_snake_structure(){}
     create_snake_structure(){}
@@ -182,7 +180,6 @@ export class EnvironmentManager {
     }
 
     // end
-
 
 
     // the following methods update the graphic interface
@@ -475,19 +472,50 @@ export class EnvironmentManager {
         
     }
 
-    init_game(game_level){
-        //TODO spawn snake before
-        // generate random obstacle
+    // init_game(game_level){
+    //     //TODO spawn snake before
+    //     // generate random obstacle
+    //     this.spawn_snake();
+    //
+    //     const obstacles_num = Math.floor(Math.random() * game_level);
+    //     this.spawn_obstacles(obstacles_num, true, true, true);
+    //     this.spawn_foods(5, true, false, true);
+    //     // const bonus_num = Math.round(Math.random());
+    //     const bonus_num = 1;
+    //     this.spawn_random_type_bonus(bonus_num, true, false, true);
+    //
+    //
+    //     if(this.snake == null) console.log("SNAKE IS NULL", this.snake);
+    // }
+
+    create_match(game_level, draw_obs, draw_bonus, move_obs, move_food, move_bonus, destroy_obs, destroy_food, destroy_bonus){
+
         this.spawn_snake();
-        const obstacles_num = Math.floor(Math.random() * game_level);
-        this.spawn_obstacles(obstacles_num, true, true, true);
-        this.spawn_foods(5, true, false, true);
-        // const bonus_num = Math.round(Math.random());
-        const bonus_num = 1;
-        this.spawn_random_type_bonus(bonus_num, true, false, true);
+
+        if(draw_obs){
+            // obstacle
+            const obstacles_num = Math.floor(Math.random() * game_level);
+            this.spawn_obstacles(obstacles_num, true, move_obs, destroy_obs);
+
+        }
+
+        if(draw_bonus){
+            // bonus
+            let bonus_num = Math.floor(Math.random() * game_level);
+            bonus_num = 1;
+            this.spawn_random_type_bonus(bonus_num, true, move_bonus, destroy_bonus);
+
+        }
+
+        let food_num = Math.floor(Math.random() * game_level);
+        food_num = 1;
+        this.spawn_foods(food_num, true, move_bonus, destroy_food);
+
 
 
         if(this.snake == null) console.log("SNAKE IS NULL", this.snake);
+
+
     }
 
     destroy_game(){
@@ -508,7 +536,7 @@ export class EnvironmentManager {
 
     destroy_environment(){
 
-        this.environment.mesh
+        // this.environment.mesh
 
 
     }
@@ -592,8 +620,9 @@ export class EnvironmentManager {
     // Spawn Snake
     //TODO remove number random
     spawn_snake(){
-        const x = this.environment.width / 2;
-        const y = this.environment.height / 2;
+
+        const x = Math.round(this.environment.width / 2);
+        const y = Math.round(this.environment.height / 2);
         const z = this.environment.depth - 1;
 
         // console.log([x,y,z])

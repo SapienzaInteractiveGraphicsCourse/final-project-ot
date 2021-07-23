@@ -471,6 +471,14 @@ export class InvisibilityBonus extends Bonus{
     }
 }
 
+export class GameEntity{
+    constructor(x, y, z, visible, movable, erasable, type) {
+        this.entity = new type(x, y, z, true, true, true);
+        this.visible = visible;
+        this.movable = movable;
+        this.erasable = erasable;
+    }
+}
 
 export class Particle{
     constructor(x, y, z, radius = 0.1, type = THREE.DodecahedronGeometry, life = 1000, x_dir, y_dir, z_dir){
