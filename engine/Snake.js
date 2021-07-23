@@ -5,6 +5,7 @@ import {Entity} from "./Entity.js";
 import {Controller} from "./Controller.js";
 import {Config} from "./Config.js";
 import {Utilities} from "./Utilities.js";
+import {EntityMeshManager} from "./ModelLoader.js";
 
 /*
  * An instance of this class contains all the animations (movement, rotations, and generic animations) that should be started together.
@@ -194,7 +195,7 @@ export class SnakeNode{
     mesh;
     direction;
     spawned;
-    constructor(id, x,y,z, direction, geometry, material) {
+    constructor(id, x,y,z, direction, mesh) {
         this.id = id;
         this.x = x;
         this.y = y;
@@ -202,7 +203,7 @@ export class SnakeNode{
         this.direction = direction;
 
         this.container = new THREE.Object3D();
-        this.mesh = new THREE.Mesh(geometry, material);
+        this.mesh = mesh;
         this.container.add(this.mesh);
         this.spawned = false;
     }
@@ -253,7 +254,7 @@ export class Snake extends Entity{
         /*---- Configuration -----*/
         this.speed = Config.snake_speed;
         this.#nodeDistance = Config.snake_nodes_distance;
-        this.#nodeDimension = Config.static_nodes_dimension * this.#nodeDistance;
+        this.#nodeDimension = Config.snake_nodes_dimension;
 
 
         /*----- Position -----*/
@@ -277,12 +278,10 @@ export class Snake extends Entity{
     /* Draw the head */
     draw() {
         if (this.drawable) {
-            const dim = this.#nodeDimension;
-            const geometry = new THREE.BoxGeometry(dim,dim,dim);
-            const material = new THREE.MeshPhongMaterial({color: 0x44aa88});
+            const head_mesh = EntityMeshManager.get_instance().get_snake_head_mesh();
 
             // The position and orientation will be updated at the first movement
-            this.head = new SnakeNode(0,this.x,this.y,this.z,null, geometry, material);
+            this.head = new SnakeNode(0,this.x,this.y,this.z,null, head_mesh);
             this.head.spawned = true;
             this.nodes[0] = this.head;
             this.mesh = this.head.container;
@@ -324,7 +323,10 @@ export class Snake extends Entity{
         const tail = this.nodes[this.nodes.length -1];
         const pos = tail.get_position();
         pos[tail.direction.axis] -= tail.direction.sign;
-        const node = new SnakeNode(node_id,pos[0],pos[1],pos[2],tail.direction,this.#nodeGeometry,this.#nodeMaterial);
+
+        // Creating the node
+        const mesh = EntityMeshManager.get_instance().get_snake_node_mesh();
+        const node = new SnakeNode(node_id,pos[0],pos[1],pos[2],tail.direction,mesh);
 
         // Setting scale to 0 and adding it to the hierarchical model and the nodes list.
         node.mesh.scale.set(0,0,0);

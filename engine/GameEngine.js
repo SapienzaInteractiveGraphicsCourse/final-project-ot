@@ -115,15 +115,15 @@ class GameEngine{
         const canvas = document.getElementById("canvas-div");
         const renderer = new THREE.WebGLRenderer({canvas});
         const scene = new THREE.Scene();
-        const light = new THREE.AmbientLight( 0x404040, 5.0); // soft white light
+        const light = new THREE.AmbientLight( Config.ambient_light_color, Config.ambient_light_intensity);
         const camera_obj = new Camera(0,0,25);
 
         const controls = new OrbitControls( camera_obj.camera, renderer.domElement );
         controls.target.set(0, 0, 0);
 
-
         this.scene = scene;
         this.light = light;
+        this.camera_obj = camera_obj;
 
         requestAnimationFrame(render);
 
@@ -160,13 +160,17 @@ class GameEngine{
 
         ModelLoader.init(resources_loaded_callback);
 
-        // ModelLoader.get_instance().add_resources_to_load({ type: 'gltf', path: 'models/stone/scene.gltf'});
-        // ModelLoader.get_instance().add_resources_to_load({ type: 'gltf', path: 'models/big_border_stone_03/scene.gltf'});
-        // ModelLoader.get_instance().add_resources_to_load({ type: 'gltf', path: 'models/stone_black_1/scene.gltf'});
-        ModelLoader.get_instance().add_resources_to_load({ name: Config.food_gltf_model_name, type: 'gltf', path: Config.food_gltf_model_path });
-        ModelLoader.get_instance().add_resources_to_load({ name: Config.invincibility_bonus_gltf_model_name, type: 'gltf', path: Config.invincibility_bonus_gltf_model_path});
-        ModelLoader.get_instance().add_resources_to_load({ name: Config.score_bonus_gltf_model_name, type: 'font', path: Config.score_bonus_gltf_model_path});
-        ModelLoader.get_instance().add_resources_to_load({ name: Config.invisibility_bonus_gltf_model_name, type: 'gltf', path: Config.invisibility_bonus_gltf_model_path});
+        const textures_info = Config.TEXTURE_PACKS;
+        for (let i = 0; i < textures_info.length; i++) {
+
+            if (textures_info[i].textures === null) continue;
+            for (let texture_name in textures_info[i].textures) {
+                const texture_parameters = textures_info[i].textures[texture_name];
+                if (texture_parameters === null) continue;
+                ModelLoader.get_instance().add_resources_to_load(texture_parameters);
+
+            }
+        }
 
         ModelLoader.get_instance().load_resources(resource_onload_callback, null, resource_onerror_callback);
 
@@ -246,6 +250,7 @@ class GameEngine{
         }
 
         this.scene.add(this.light);
+        this.scene.add(this.camera_obj.container);
         this.scene.add(this.environment_manager.environment.mesh);
 
 

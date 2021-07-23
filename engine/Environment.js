@@ -159,8 +159,9 @@ export class Environment extends View{
 
         // Cube Material
         const cube_material = new THREE.MeshBasicMaterial( {color: 0xffff00} );
+        cube_material.visible = false;
         cube_material.transparent = true;
-        cube_material.opacity = 0.1;
+        cube_material.opacity = 0.0;
         cube_material.wireframe = true;
 
         // Cube Geometry
@@ -176,7 +177,9 @@ export class Environment extends View{
 
             // Core Material
             // const core_material = new THREE.MeshBasicMaterial( {color: 0x99CCFF, opacity: 0.1} );
-            const core_material = new THREE.MeshStandardMaterial( {color: 0x99CCFF, transparent: true, opacity: 0.7} );
+            const core_color = Config.world_color;
+            const core_opacity = Config.world_opacity;
+            const core_material = new THREE.MeshPhongMaterial( {color: core_color, transparent: true, opacity: core_opacity} );
 
 
             // Core Geometry

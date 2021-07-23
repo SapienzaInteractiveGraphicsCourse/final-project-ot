@@ -8,12 +8,25 @@ import {cross} from "../Common/MVnew.js";
 export class Camera {
 
     constructor(x, y ,z) {
-        this.camera = new THREE.PerspectiveCamera(Config.fov,Config.aspect,Config.near,Config.far);
-        this.camera.position.set(x, y, z);
+        // Camera
         this.speed = Config.camera_speed;
         this.radius = Config.camera_radius;
         this.offset_up = Config.camera_offset_up;
         this.offset_right = Config.camera_offset_right;
+        this.camera = new THREE.PerspectiveCamera(Config.fov,Config.aspect,Config.near,Config.far);
+
+        // Light
+        this.light = new THREE.PointLight(Config.camera_light_color, Config.camera_light_intensity);
+        this.light_pos = Config.camera_light_position;
+        this.light.position.set(this.light_pos.x, this.light_pos.y, this.light_pos.z);
+
+
+        this.container = new THREE.Object3D();
+        this.container.add(this.camera);
+        this.camera.add(this.light);
+        this.container.position.set(x, y, z);
+
+
     }
 
     update_position(up_direction, right_direction) {
@@ -29,7 +42,7 @@ export class Camera {
 
         const target_pos = {x: camera_vector[0], y:camera_vector[1], z:camera_vector[2]};
         const target_up = {x: up_vector[0], y: up_vector[1], z: up_vector[2]};
-        new TWEEN.Tween(this.camera.position).to(target_pos, this.speed).easing(TWEEN.Easing.Quadratic.Out).start();
+        new TWEEN.Tween(this.container.position).to(target_pos, this.speed).easing(TWEEN.Easing.Quadratic.Out).start();
         new TWEEN.Tween(this.camera.up).to(target_up,this.speed).easing(TWEEN.Easing.Quadratic.Out).start();
     }
 

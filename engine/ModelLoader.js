@@ -6,27 +6,18 @@ import {Config} from "./Config.js";
 export class EntityMeshManager {
 
     static #instance = null;
+    texture_pack;
 
-    #food_geometry;
-    #food_material;
-
-    #obstacle_part_geometry;
-    #obstacle_part_material;
-
-    #lucky_bonus_geometry;
-    #lucky_bonus_material;
-
-    #score_bonus_geometry;
-    #score_bonus_material;
-
-    #fast_bonus_geometry;
-    #fast_bonus_material;
-
-    #invincibility_bonus_geometry;
-    #invincibility_bonus_material;
-
-    #invisibility_bonus_geometry;
-    #invisibility_bonus_material;
+    #environment_core_mesh;
+    #snake_head_mesh;
+    #snake_node_mesh;
+    #food_mesh;
+    #obstacle_part_mesh;
+    #lucky_bonus_mesh;
+    #score_bonus_mesh;
+    #fast_bonus_mesh;
+    #invincibility_bonus_mesh;
+    #invisibility_bonus_mesh;
 
 
     /*------- SINGLETON Handle ------*/
@@ -45,86 +36,193 @@ export class EntityMeshManager {
     }
 
     constructor() {
+        this.texture_pack = Config.current_texture_pack;
+        this.set_texture_pack();
+    }
 
-        // food
-        this.#food_geometry = new THREE.SphereGeometry( 0.25, 8, 8 );
-        this.#food_material = new THREE.MeshBasicMaterial( {color: 0xCE1212} );
+    load_textures(){
 
-        // obstacle part
-        const obs_material = new THREE.MeshNormalMaterial();
-        obs_material.transparent = true;
-        obs_material.opacity = 0.8;
-        this.#obstacle_part_geometry = new THREE.BoxGeometry(1, 1 ,1);
-        this.#obstacle_part_material = obs_material;
-
-        // lucky bonus
-        this.#lucky_bonus_geometry = new THREE.TorusGeometry( 0.3, 0.05, 10, 16);
-        this.#lucky_bonus_material = new THREE.MeshBasicMaterial( { color: 0x48A229 } );
-
-        // score bonus
-        this.#score_bonus_geometry = new THREE.TextGeometry('$', {
-            font: ModelLoader.get_instance().models[Config.score_bonus_gltf_model_name],
-            size: 0.5,
-            height: 0.1
-        });
-
-        this.#score_bonus_material = new THREE.MeshBasicMaterial( { color: 0xFFC500 } );
+    }
 
 
 
-        // fast bonus
-        this.#fast_bonus_geometry = new THREE.TorusGeometry( 0.3, 0.05, 10, 16);
-        this.#fast_bonus_material = new THREE.MeshBasicMaterial( { color: 0xFFFF92 } );
+    /*------- Set methods ------*/
+    set_texture_pack() {
+        this.texture_pack = Config.current_texture_pack;
+        this.set_texture_models();
+        switch (this.texture_pack.id) {
+            case 0:
+            case 1:
+                this.set_standard_pack();
+                break;
+        }
+    }
 
-        // invisibility bonus
-        // this.#invisibility_bonus_geometry = new THREE.TorusGeometry( 0.3, 0.05, 10, 16);
-        // this.#invisibility_bonus_material = new THREE.MeshBasicMaterial( { color: 0xBAC2DC } );
+    set_texture_models() {
+        const textures = this.texture_pack.textures;
+        console.log("Loading textures...")
+        if (textures === null) return;
 
-        // invincibility bonus
+        if (textures["snake_head"] !== undefined)
+            this.#snake_head_mesh = ModelLoader.get_instance().models[textures["snake_head"].name];
+
+        if (textures["snake_node"] !== undefined)
+            this.#snake_node_mesh = ModelLoader.get_instance().models[textures["snake_node"].name];
+
+        if (textures["food"] !== undefined)
+            this.#food_mesh = ModelLoader.get_instance().models[textures["food"].name];
+
+        if (textures["obstacle"] !== undefined)
+            this.#obstacle_part_mesh = ModelLoader.get_instance().models[textures["obstacle"].name];
+
+        if (textures["invisibility"] !== undefined) {
+            this.#invisibility_bonus_mesh = ModelLoader.get_instance().models[textures["invisibility"].name];
+        }
+
+        if (textures["invincibility"] !== undefined)
+            this.#invincibility_bonus_mesh = ModelLoader.get_instance().models[textures["invincibility"].name];
+
+        if (textures["score"] !== undefined)
+            this.#score_bonus_mesh = ModelLoader.get_instance().models[textures["score"].name];
+
+        console.log("Done textures.")
+    }
+
+    set_standard_pack(){
+        let geometry, material, light, color, dimension;
+        /*------ Environment ------*/ //TODO
+        const core_color = Config.world_color;
+        const core_opacity = Config.world_opacity;
+        material = new THREE.MeshPhongMaterial( {color: core_color, transparent: true, opacity: core_opacity} );
+        geometry = new THREE.BoxGeometry(1, 1, 1, 1, 1, 1);
+
+        this.#environment_core_mesh = new THREE.Mesh(geometry, material);
+
+
+        /*------- Snake ------*/
+        // Head
+        dimension = Config.snake_head_dimension;
+        color = 0x87c38f;
+        geometry = new THREE.BoxGeometry(dimension,dimension,dimension);
+        material = new THREE.MeshPhongMaterial({color: color, emissive: color, emissiveIntensity: 0.3});
+        light = new THREE.PointLight(0x44aa88, 0.8, 2, 1);
+        this.#snake_head_mesh = new THREE.Mesh(geometry, material).add(light);
+
+        // Nodes
+        dimension = Config.snake_nodes_dimension;
+        color = 0x415d43;
+        geometry = new THREE.BoxGeometry(dimension,dimension,dimension);
+        material = new THREE.MeshPhongMaterial({color: color, emissive: color, emissiveIntensity: 0.3});
+        light = new THREE.PointLight(color, 0.8, 2, 1);
+
+        this.#snake_node_mesh = new THREE.Mesh(geometry, material).add(light);
+
+
+
+        /*------- Food ------*/
+        color = 0xF0E68C;
+        geometry = new THREE.SphereGeometry( 0.30, 50, 50 );
+        material = new THREE.MeshPhongMaterial( {color: color, emissive: color, emissiveIntensity: 0.4} );
+        material.shininess = 200;
+        light = new THREE.PointLight(color, 2.5, 2, 1);
+
+        this.#food_mesh = new THREE.Mesh(geometry, material).add(light);
+
+
+
+        /*------- Obstacle ------*/
+        color = 0x7f6a93;
+        geometry = new THREE.BoxGeometry(1, 1 ,1);
+        material = new THREE.MeshPhongMaterial({color: color});
+        material.transparent = true;
+        material.opacity = 0.8;
+
+        this.#obstacle_part_mesh = new THREE.Mesh(geometry, material);
+
+
+
+        /*------- Lucky bonus ------*/
+        color = 0x7f6a93;
+        geometry = new THREE.TorusGeometry( 0.5, 0.05, 10, 16);
+        material = new THREE.MeshBasicMaterial( { color: color } );
+
+        this.#lucky_bonus_mesh = new THREE.Mesh(geometry, material);
+
+
+
+        /*------- Score bonus ------*/
+        // geometry = new THREE.TextGeometry('$', {
+        //     font: ModelLoader.get_instance().models[this.texture_pack.textures.score.name],
+        //     size: 0.5,
+        //     height: 0.1
+        // });
+
+        material = new THREE.MeshBasicMaterial( { color: 0xFFC500 } );
+
+        this.#score_bonus_mesh = new THREE.Mesh(geometry, material);
+
+        /*------- Fast bonus ------*/
+        geometry = new THREE.TorusGeometry( 0.3, 0.05, 10, 16);
+        material = new THREE.MeshBasicMaterial( { color: 0xFFFF92 } );
+
+        this.#fast_bonus_mesh = new THREE.Mesh(geometry, material);
+
+
+        /*------- Invisibility bonus ------*/
+        // geometry = new THREE.TorusGeometry( 0.3, 0.05, 10, 16);
+        // material = new THREE.MeshBasicMaterial( { color: 0xBAC2DC } );
+        //
+        // this.#invisibility_bonus_mesh = new THREE.Mesh(geometry, material);
+
+
+        /*------- Invincibility bonus ------*/
         // this.#invincibility_bonus_geometry = new THREE.TorusGeometry( 0.3, 0.05, 10, 16);
         // this.#invincibility_bonus_material = new THREE.MeshBasicMaterial( { color: 0x3A5FD6 } );
         //
         // this.#invincibility_bonus_geometry = ModelLoader.get_instance().models[0];
+    }
 
+
+
+    /* -------- Build meshes --------*/
+    get_environment_core_mesh() {
+        return this.#environment_core_mesh;
+    }
+    get_snake_head_mesh() {
+        return this.#snake_head_mesh.clone();
+    }
+
+    get_snake_node_mesh() {
+        return this.#snake_node_mesh.clone();
     }
 
     get_food_mesh(){
-        return new THREE.Mesh( this.#food_geometry, this.#food_material );
+        return this.#food_mesh.clone();
     }
 
     get_obstacle_part_mesh(){
-
-        return new THREE.Mesh( this.#obstacle_part_geometry, this.#obstacle_part_material );
+        return this.#obstacle_part_mesh.clone();
     }
 
     get_lucky_bonus_mesh(){
-        return new THREE.Mesh( this.#lucky_bonus_geometry, this.#lucky_bonus_material );
+        return this.#lucky_bonus_mesh.clone();
     }
 
     get_score_bonus_mesh(){
-        return new THREE.Mesh( this.#score_bonus_geometry, this.#score_bonus_material );
+        return this.#score_bonus_mesh.clone();
     }
 
     get_fast_bonus_mesh(){
-        return new THREE.Mesh( this.#fast_bonus_geometry, this.#fast_bonus_material );
+        return this.#fast_bonus_mesh.clone();
     }
 
     get_invisibility_bonus_mesh(){
-        // return new THREE.Mesh( this.#invisibility_bonus_geometry, this.#invisibility_bonus_material );
-
-        let model = ModelLoader.get_instance().models[Config.invisibility_bonus_gltf_model_name];
-        return model;
+        return this.#invisibility_bonus_mesh.clone();
     }
 
     get_invincibility_bonus_mesh(){
-
-        let model = ModelLoader.get_instance().models[Config.invincibility_bonus_gltf_model_name];
-        return model;
-        // return new THREE.Mesh( this.#invincibility_bonus_geometry, this.#invincibility_bonus_material );
+        return this.#invisibility_bonus_mesh.clone();
     }
-
-
-
 }
 
 export class ModelLoader{
