@@ -2,6 +2,7 @@
 import * as THREE from '../resources/three.js-r129/build/three.module.js';
 import {GLTFLoader} from "../resources/three.js-r129/examples/jsm/loaders/GLTFLoader.js";
 import {Config} from "./Config.js";
+import {OBJLoader} from "../resources/three.js-r129/examples/jsm/loaders/OBJLoader.js";
 
 export class EntityMeshManager {
 
@@ -75,6 +76,9 @@ export class EntityMeshManager {
         if (textures["obstacle"] !== undefined)
             this.#obstacle_part_mesh = ModelLoader.get_instance().models[textures["obstacle"].name];
 
+        if (textures["lucky"] !== undefined)
+            this.#lucky_bonus_mesh = ModelLoader.get_instance().models[textures["lucky"].name];
+
         if (textures["invisibility"] !== undefined) {
             this.#invisibility_bonus_mesh = ModelLoader.get_instance().models[textures["invisibility"].name];
         }
@@ -89,7 +93,7 @@ export class EntityMeshManager {
     }
 
     set_standard_pack(){
-        let geometry, material, light, color, dimension;
+        let geometry, material, light, color, mesh, object, dimension;
         /*------ Environment ------*/ //TODO
         const core_color = Config.world_color;
         const core_opacity = Config.world_opacity;
@@ -120,11 +124,11 @@ export class EntityMeshManager {
 
 
         /*------- Food ------*/
-        color = 0xF0E68C;
-        geometry = new THREE.SphereGeometry( 0.30, 50, 50 );
+        color = 0xd55672;
+        geometry = new THREE.SphereGeometry( 0.25, 50, 50 );
         material = new THREE.MeshPhongMaterial( {color: color, emissive: color, emissiveIntensity: 0.4} );
         material.shininess = 200;
-        light = new THREE.PointLight(color, 2.5, 2, 1);
+        light = new THREE.PointLight(color, 1.5, 2, 1);
 
         this.#food_mesh = new THREE.Mesh(geometry, material).add(light);
 
@@ -142,44 +146,65 @@ export class EntityMeshManager {
 
 
         /*------- Lucky bonus ------*/
-        color = 0x7f6a93;
-        geometry = new THREE.TorusGeometry( 0.5, 0.05, 10, 16);
-        material = new THREE.MeshBasicMaterial( { color: color } );
+        color = 0xFFC500;
+        mesh = this.#lucky_bonus_mesh.children[0];
+        geometry = mesh.geometry;
+        material = new THREE.MeshPhongMaterial({color: color, emissive: color, emissiveIntensity: 0.4});
+        material.transparent = true;
+        material.opacity = 0.8;
 
-        this.#lucky_bonus_mesh = new THREE.Mesh(geometry, material);
 
+        mesh = new THREE.Mesh(geometry, material);
+        light = new THREE.PointLight(color, 2.5, 2, 1);
+        mesh.scale.set(0.01,0.01,0.01);
+        mesh.add(light);
+
+        this.#lucky_bonus_mesh = mesh;
 
 
         /*------- Score bonus ------*/
-        // geometry = new THREE.TextGeometry('$', {
-        //     font: ModelLoader.get_instance().models[this.texture_pack.textures.score.name],
-        //     size: 0.5,
-        //     height: 0.1
-        // });
+        color = 0xFFC500;
+        geometry = new THREE.TextGeometry('$', {
+            font: ModelLoader.get_instance().models[this.texture_pack.textures.score.name],
+            size: 0.5,
+            height: 0.1
+        });
+        material = new THREE.MeshPhongMaterial( { color: color, emissive: color, emissiveIntensity: 0.4 } );
+        material.transparent = true;
+        material.opacity = 0.8;
+        light = new THREE.PointLight(color, 2.5, 2, 1);
 
-        material = new THREE.MeshBasicMaterial( { color: 0xFFC500 } );
+        this.#score_bonus_mesh = new THREE.Mesh(geometry, material).add(light);
 
-        this.#score_bonus_mesh = new THREE.Mesh(geometry, material);
-
-        /*------- Fast bonus ------*/
+        /*------- Fast bonus - Deprecated ------*/
         geometry = new THREE.TorusGeometry( 0.3, 0.05, 10, 16);
         material = new THREE.MeshBasicMaterial( { color: 0xFFFF92 } );
 
         this.#fast_bonus_mesh = new THREE.Mesh(geometry, material);
 
 
-        /*------- Invisibility bonus ------*/
-        // geometry = new THREE.TorusGeometry( 0.3, 0.05, 10, 16);
-        // material = new THREE.MeshBasicMaterial( { color: 0xBAC2DC } );
-        //
-        // this.#invisibility_bonus_mesh = new THREE.Mesh(geometry, material);
+        /*------- Invisibility bonus - Deprecated ------*/
+        geometry = new THREE.TorusGeometry( 0.3, 0.05, 10, 16);
+        material = new THREE.MeshBasicMaterial( { color: 0xBAC2DC } );
+
+        this.#invisibility_bonus_mesh = new THREE.Mesh(geometry, material);
 
 
         /*------- Invincibility bonus ------*/
-        // this.#invincibility_bonus_geometry = new THREE.TorusGeometry( 0.3, 0.05, 10, 16);
-        // this.#invincibility_bonus_material = new THREE.MeshBasicMaterial( { color: 0x3A5FD6 } );
-        //
-        // this.#invincibility_bonus_geometry = ModelLoader.get_instance().models[0];
+        color = 0xFFC500;
+        mesh = this.#invincibility_bonus_mesh.children[0];
+        geometry = mesh.geometry;
+        material = new THREE.MeshPhongMaterial({color: color, emissive: color, emissiveIntensity: 0.6});
+        material.transparent = true;
+        material.opacity = 0.8;
+
+        mesh = new THREE.Mesh(geometry, material);
+        light = new THREE.PointLight(color, 2.5, 2, 1);
+        mesh.scale.set(.3,.3,.3);
+
+        mesh.add(light);
+        this.#invincibility_bonus_mesh = mesh;
+
     }
 
 
@@ -221,7 +246,7 @@ export class EntityMeshManager {
     }
 
     get_invincibility_bonus_mesh(){
-        return this.#invisibility_bonus_mesh.clone();
+        return this.#invincibility_bonus_mesh.clone();
     }
 }
 
@@ -231,6 +256,7 @@ export class ModelLoader{
 
     #resources_to_load;
     #gltf_loader;
+    #obj_loader;
     #font_loader;
 
     models = [];
@@ -282,7 +308,8 @@ export class ModelLoader{
         };
 
 
-        this.#gltf_loader = new GLTFLoader( manager );
+        this.#gltf_loader = new GLTFLoader(manager);
+        this.#obj_loader = new OBJLoader(manager);
         this.#resources_to_load = [];
         this._total_resources = 0;
 
@@ -326,6 +353,20 @@ export class ModelLoader{
         }
     }
 
+    load_obj(resource, onload_callback, onprogress_callback, onerror_callback){
+
+        let loader = this;
+
+        // load model
+        this.#obj_loader.load( resource.path, private_obj_onload_callback, onprogress_callback, onerror_callback );
+
+        function private_obj_onload_callback(obj){
+            loader.models[resource.name] = obj;
+            onload_callback();
+        }
+    }
+
+
     load_resources(onload_callback, onprogress_callback, onerror_callback){
 
         // get first model path to load
@@ -336,6 +377,9 @@ export class ModelLoader{
             switch (resource.type) {
                 case 'gltf':
                     this.load_gltf(resource, onload_callback, onprogress_callback, onerror_callback);
+                    break;
+                case 'obj':
+                    this.load_obj(resource, onload_callback, onprogress_callback, onerror_callback);
                     break;
                 case 'font':
                     this.load_font(resource, onload_callback, onprogress_callback, onerror_callback);

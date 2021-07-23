@@ -432,7 +432,6 @@ export class InvincibilityBonus extends Bonus{
             // const torus = new THREE.Mesh( geometry, material );
 
             const torus = EntityMeshManager.get_instance().get_invincibility_bonus_mesh();
-            torus.scale.set(Config.cell_cube_dim/3, Config.cell_cube_dim/3, Config.cell_cube_dim/3);
             torus.position.set(this.pos.x, this.pos.y, this.pos.z);
             torus.rotation.set(this.rot.x, this.rot.y, this.pos.z);
 
@@ -461,10 +460,10 @@ export class InvisibilityBonus extends Bonus{
             // const torus = new THREE.Mesh( geometry, material );
 
             const torus = EntityMeshManager.get_instance().get_invisibility_bonus_mesh();
-            torus.scale.set(Config.cell_cube_dim/5, Config.cell_cube_dim/5, Config.cell_cube_dim/5);
             torus.position.set(this.pos.x, this.pos.y, this.pos.z);
             torus.rotation.set(this.rot.x, this.rot.y, this.pos.z);
 
+            Utilities.addAxisGridDebug(torus, "Invisibility Bonus");
             this.mesh = torus;
 
         }else this.mesh = null;

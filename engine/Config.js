@@ -63,17 +63,18 @@ export class Config {
             name: "Standard",
             textures: {
                 invisibility: {name: 'bonus_invisibility_model', type: 'gltf', path: 'models/spooky_ghost/scene.gltf'},
-                invincibility: {name: 'bonus_invincibility_model', type: 'gltf', path: 'models/cartoon_bomb/scene.gltf'},
-                //score: {name: 'bonus_score_model', type: 'font', path: '../resources/three.js-r129/examples/fonts/helvetiker_regular.typeface.json'},
+                invincibility: {name: 'bonus_invincibility_model', type: 'obj', path: 'models/star/star.obj'},
+                lucky: {name: 'bonus_lucky_model', type: 'obj', path: 'models/lucky_leaf/lucky_leaf.obj'},
+                score: {name: 'bonus_score_model', type: 'font', path: '../resources/three.js-r129/examples/fonts/helvetiker_regular.typeface.json'},
             },
         },
         {
             id: 1,
             name: "Pack 1",
             textures: {
-                food: {name: 'food_model', type: 'gltf', path: 'models/apple/scene.gltf'},
-                invisibility: {name: 'bonus_invisibility_model', type: 'gltf', path: 'models/spooky_ghost/scene.gltf'},
-                invincibility: {name: 'bonus_invincibility_model', type: 'gltf', path: 'models/cartoon_bomb/scene.gltf'},
+                //food: {name: 'food_model', type: 'gltf', path: 'models/apple/scene.gltf'},
+                //invisibility: {name: 'bonus_invisibility_model', type: 'gltf', path: 'models/spooky_ghost/scene.gltf'},
+                //invincibility: {name: 'bonus_invincibility_model', type: 'gltf', path: 'models/cartoon_bomb/scene.gltf'},
                 //score: {name: 'bonus_score_model', type: 'gltf', path: '../resources/three.js-r129/examples/fonts/helvetiker_regular.typeface.json'},
             },
         },

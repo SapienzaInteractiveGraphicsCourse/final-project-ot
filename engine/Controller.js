@@ -312,44 +312,6 @@ export class Controller{
     }
 
 
-    // #collision_handler(old_pos, new_pos, direction) {
-    //
-    //     // End of plane: rotating
-    //     if(!this.game.check_consistency(new_pos[0], new_pos[1], new_pos[2])) {
-    //         const rotated_delta = this.#change_face(old_pos,new_pos);
-    //         new_pos[0] = Math.round(old_pos[0] + rotated_delta[0]);
-    //         new_pos[1] = Math.round(old_pos[1] + rotated_delta[1]);
-    //         new_pos[2] = Math.round(old_pos[2] + rotated_delta[2]);
-    //         direction = Utilities.vector_to_direction(rotated_delta);
-    //         this.#schedule_movement(old_pos,new_pos, direction);
-    //         return;
-    //     }
-    //
-    //     // const front_content = this.game..get_instance(new_pos);
-    //     const front_content = this.game.get_entity(new_pos);
-    //
-    //     // Element ahead: obstacle or snake
-    //     if (front_content instanceof ObstaclePart || front_content instanceof SnakeNode) {
-    //         // TODO END GAME
-    //         alert("HAI PIERSO");
-    //     }
-    //
-    //     // Element ahead: food
-    //     if (front_content instanceof Food) {
-    //         // TODO EAT
-    //         this.game.destroy_object_structure(new_pos[0], new_pos[1], new_pos[2]);
-    //         this.game.destroy_object_view();
-    //         this.snake.add_node();
-    //         this.#schedule_movement(old_pos,new_pos, direction);
-    //     }
-    //
-    //     // Element ahead: Bonus
-    //     if (front_content instanceof Bonus) {
-    //         // TODO Bonus handle
-    //     }
-    // }
-    //
-
     /*-------- Movement: runner -----*/
 
     move_snake() {

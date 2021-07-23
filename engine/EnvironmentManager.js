@@ -502,7 +502,7 @@ export class EnvironmentManager {
         if(draw_bonus){
             // bonus
             let bonus_num = Math.floor(Math.random() * game_level);
-            bonus_num = 1;
+            bonus_num = 10;
             this.spawn_random_type_bonus(bonus_num, true, move_bonus, destroy_bonus);
 
         }
