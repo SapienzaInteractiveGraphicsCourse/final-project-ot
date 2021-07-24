@@ -333,6 +333,7 @@ export class Controller{
         }
 
         this.engine.update_engine();
+
         snake.move();
     }
 

@@ -19,12 +19,6 @@ class MatchManager {
     constructor() {
 
 
-        this.username = null;
-        this.game_mode = null;
-
-        // regular game level
-        this.current_level = Config.current_level;
-
         this.read_configuration();
 
         this.save_configuration();
@@ -35,67 +29,113 @@ class MatchManager {
     get_configuration_message(){
 
         let message = " Game configuration " + "\n";
+
         // general
-        message += " id " + this.game_mode.id + "\n";
-        message += " name " + this.game_mode.name + "\n";
-        message += " levels " + this.game_mode.levels + "\n";
-        message += " total_levels " + this.game_mode.total_levels + "\n";
-        // etc
-        message += " world_width " + this.game_mode.configuration.levels[this.current_level].configuration.world_width + "\n";
-        message += " world_height " + this.game_mode.configuration.levels[this.current_level].configuration.world_height + "\n";
-        message += " world_face_depth" + this.game_mode.configuration.levels[this.current_level].configuration.world_depth + "\n";
-        message += " game_level " + this.game_mode.configuration.levels[this.current_level].configuration.game_level + "\n";
-        message += " spawn_obs " + this.game_mode.configuration.levels[this.current_level].configuration.spawn_obs + "\n";
-        message += " spawn_bonus " + this.game_mode.configuration.levels[this.current_level].configuration.spawn_bonus + "\n";
-        message += " movable_obs " + this.game_mode.configuration.levels[this.current_level].configuration.movable_obs + "\n";
-        message += " movable_food " + this.game_mode.configuration.levels[this.current_level].configuration.movable_food + "\n";
-        message += " movable_bonus " + this.game_mode.configuration.levels[this.current_level].configuration.movable_bonus + "\n";
-        message += " erasable_obs " + this.game_mode.configuration.levels[this.current_level].configuration.erasable_obs + "\n";
-        message += " erasable_food " + this.game_mode.configuration.levels[this.current_level].configuration.erasable_food + "\n";
-        message += " erasable_bonus " + this.game_mode.configuration.levels[this.current_level].configuration.erasable_bonus + "\n";
-        message += " target_score " + this.game_mode.configuration.levels[this.current_level].configuration.target_score + "\n";
+        message += " username " + this.username + "\n";
+        message += " current_level " + this.current_level + "\n";
+
+        // game mode general
+        message += " id " + this.game_mode_id + "\n";
+        message += " name " + this.game_mode_name + "\n";
+        message += " levels " + this.game_mode_levels + "\n";
+        message += " total_levels " + this.game_mode_total_levels + "\n";
+
+        // game level general
+        message += " game level id " + this.game_mode_level_id + "\n";
+        message += " game level name " + this.game_mode_level_name + "\n";
+
+        // game level specific
+        message += " world_width " + this.world_width + "\n";
+        message += " world_height " + this.world_height + "\n";
+        message += " world_face_depth" + this.world_depth + "\n";
+        message += " game_level " + this.game_level + "\n";
+        message += " spawn_obs " + this.spawn_obs + "\n";
+        message += " spawn_bonus " + this.spawn_bonus + "\n";
+        message += " movable_obs " + this.movable_obs + "\n";
+        message += " movable_food " + this.movable_food + "\n";
+        message += " movable_bonus " + this.movable_bonus + "\n";
+        message += " erasable_obs " + this.erasable_obs + "\n";
+        message += " erasable_food " + this.erasable_food + "\n";
+        message += " erasable_bonus " + this.erasable_bonus + "\n";
+        message += " target_score " + this.target_score + "\n";
 
         return message;
     }
 
+    read_data_from_config(){
+
+        // general
+        this.current_level = Config.current_level;
+        this.username = Config.username;
+
+        // game mode general
+        this.game_mode_id = Config.current_match_configuration.id;
+        this.game_mode_name = Config.current_match_configuration.name;
+        this.game_mode_levels = Config.current_match_configuration.levels;
+        this.game_mode_total_levels = Config.current_match_configuration.total_levels;
+
+
+        // game level general
+        this.game_mode_level_name = Config.current_match_configuration.configuration.levels[Config.current_level].name;
+        this.game_mode_level_id = Config.current_match_configuration.configuration.levels[Config.current_level].id;
+
+        // game level specific
+        this.texture_pack_id = Config.current_match_configuration.configuration.levels[Config.current_level].configuration.texture_pack_id;
+
+        this.world_width = Config.current_match_configuration.configuration.levels[Config.current_level].configuration.world_width;
+        this.world_height = Config.current_match_configuration.configuration.levels[Config.current_level].configuration.world_height;
+        this.world_depth = Config.current_match_configuration.configuration.levels[Config.current_level].configuration.world_depth;
+        this.world_face_depth = Config.current_match_configuration.configuration.levels[Config.current_level].configuration.world_face_depth;
+
+        this.game_level = Config.current_match_configuration.configuration.levels[Config.current_level].configuration.game_level;
+        this.target_score = Config.current_match_configuration.configuration.levels[Config.current_level].configuration.target_score;
+
+        this.spawn_bonus = Config.current_match_configuration.configuration.levels[Config.current_level].configuration.spawn_bonus;
+        this.spawn_obs = Config.current_match_configuration.configuration.levels[Config.current_level].configuration.spawn_obs;
+
+        this.movable_bonus = Config.current_match_configuration.configuration.levels[Config.current_level].configuration.movable_bonus;
+        this.movable_food = Config.current_match_configuration.configuration.levels[Config.current_level].configuration.movable_food;
+        this.movable_obs = Config.current_match_configuration.configuration.levels[Config.current_level].configuration.movable_obs;
+
+        this.erasable_bonus = Config.current_match_configuration.configuration.levels[Config.current_level].configuration.erasable_bonus;
+        this.erasable_food = Config.current_match_configuration.configuration.levels[Config.current_level].configuration.erasable_food;
+        this.erasable_obs = Config.current_match_configuration.configuration.levels[Config.current_level].configuration.erasable_obs;
+
+
+    }
 
     read_configuration() {
 
-        document.getElementById('username-text').value = Config.username;
+        this.read_data_from_config();
 
-        let current_match_configuration = Config.current_match_configuration;
-        document.getElementById('game-mode-select').selected = current_match_configuration.name;
+        document.getElementById('username-text').value = this.username;
+        document.getElementById('game-mode-select').selected = this.game_mode_name;
 
-        let current_level = this.current_level;
 
-        if(!current_match_configuration.levels){
+        if( ! this.game_mode_levels){
             // custom game
             enable_form_input(true);
 
             // alert(" read_configuration " + current_match_configuration.id + " current level " + current_level);
 
-            let current_game_settings = current_match_configuration.configuration.levels[current_level].configuration;
+            document.getElementById('texture-mode-select').selected = Config.TEXTURE_PACKS[this.texture_pack_id];
+            document.getElementById('env-dim-range').value = this.world_width;
+            document.getElementById('env-level-range').value = this.game_level;
 
-            document.getElementById('texture-mode-select').selected = Config.TEXTURE_PACKS[current_game_settings.texture_pack_id];
-            document.getElementById('env-dim-range').value = current_game_settings.world_width;
-            document.getElementById('env-level-range').value = current_game_settings.game_level;
+            document.getElementById('spw-obs-check').checked = this.spawn_obs;
+            document.getElementById('spw-bonus-check').checked = this.spawn_bonus;
 
+            document.getElementById('mov-obs-check').checked = this.movable_obs;
+            document.getElementById('mov-food-check').checked = this.movable_food;
+            document.getElementById('mov-bonus-check').checked = this.movable_bonus;
 
-            document.getElementById('spw-obs-check').checked = current_game_settings.spawn_obs;
-            document.getElementById('spw-bonus-check').checked = current_game_settings.spawn_bonus;
-
-            document.getElementById('mov-obs-check').checked = current_game_settings.movable_obs;
-            document.getElementById('mov-food-check').checked = current_game_settings.movable_food;
-            document.getElementById('mov-bonus-check').checked = current_game_settings.movable_bonus;
-
-            document.getElementById('des-obs-check').checked = current_game_settings.erasable_obs;
-            document.getElementById('des-food-check').checked = current_game_settings.erasable_food;
-            document.getElementById('des-bonus-check').checked = current_game_settings.erasable_bonus;
+            document.getElementById('des-obs-check').checked = this.erasable_obs;
+            document.getElementById('des-food-check').checked = this.erasable_food;
+            document.getElementById('des-bonus-check').checked = this.erasable_bonus;
 
         }else{
             // regular game
             // alert(" read_configuration " + current_match_configuration.id + " current level " + current_level);
-
             enable_form_input(false);
         }
 
@@ -106,19 +146,14 @@ class MatchManager {
 
     save_configuration(){
 
-        let username = document.getElementById('username-text').value;
+        Config.username = document.getElementById('username-text').value;
 
         let game_mode = parseInt(document.getElementById('game-mode-select').value);
 
         if(game_mode === Config.GAME_MODES[0].id) // custom
         {
 
-            this.current_level = 0; // reset game level
-            Config.current_level = this.current_level;
-            Config.current_match_configuration = Config.GAME_MODES[0];
-
             // alert(" save configuration " + game_mode + " current level " + this.current_level);
-
 
             // player can modify settings
 
@@ -138,41 +173,63 @@ class MatchManager {
             let des_food = document.getElementById('des-food-check').checked;
             let des_bonus = document.getElementById('des-bonus-check').checked;
 
+
             // current_level = 0; always
-            let current_level = this.current_level;
-            Config.GAME_MODES[0].configuration.levels[current_level].configuration.texture_pack_id = texture_mode;
+            this.current_level = 0; // reset game level
+            Config.current_level = this.current_level;
+            Config.current_match_configuration = Config.GAME_MODES[0];
 
-            Config.GAME_MODES[0].configuration.levels[current_level].configuration.world_width = env_dim;
-            Config.GAME_MODES[0].configuration.levels[current_level].configuration.world_height = env_dim;
-            Config.GAME_MODES[0].configuration.levels[current_level].configuration.world_depth = env_dim;
+            Config.GAME_MODES[0].configuration.levels[Config.current_level].configuration.texture_pack_id = texture_mode;
 
-            Config.GAME_MODES[0].configuration.levels[current_level].configuration.game_level = env_level;
-            Config.GAME_MODES[0].configuration.levels[current_level].configuration.spawn_obs = spw_obs;
-            Config.GAME_MODES[0].configuration.levels[current_level].configuration.spawn_bonus = spw_bonus;
+            Config.GAME_MODES[0].configuration.levels[Config.current_level].configuration.world_width = env_dim;
+            Config.GAME_MODES[0].configuration.levels[Config.current_level].configuration.world_height = env_dim;
+            Config.GAME_MODES[0].configuration.levels[Config.current_level].configuration.world_depth = env_dim;
 
-            Config.GAME_MODES[0].configuration.levels[current_level].configuration.movable_obs = mov_obs;
-            Config.GAME_MODES[0].configuration.levels[current_level].configuration.movable_food = mov_food;
-            Config.GAME_MODES[0].configuration.levels[current_level].configuration.movable_bonus = mov_bonus;
+            Config.GAME_MODES[0].configuration.levels[Config.current_level].configuration.game_level = env_level;
+            Config.GAME_MODES[0].configuration.levels[Config.current_level].configuration.spawn_obs = spw_obs;
+            Config.GAME_MODES[0].configuration.levels[Config.current_level].configuration.spawn_bonus = spw_bonus;
 
-            Config.GAME_MODES[0].configuration.levels[current_level].configuration.erasable_obs = des_obs;
-            Config.GAME_MODES[0].configuration.levels[current_level].configuration.erasable_food = des_food;
-            Config.GAME_MODES[0].configuration.levels[current_level].configuration.erasable_bonus = des_bonus;
+            Config.GAME_MODES[0].configuration.levels[Config.current_level].configuration.movable_obs = mov_obs;
+            Config.GAME_MODES[0].configuration.levels[Config.current_level].configuration.movable_food = mov_food;
+            Config.GAME_MODES[0].configuration.levels[Config.current_level].configuration.movable_bonus = mov_bonus;
+
+            Config.GAME_MODES[0].configuration.levels[Config.current_level].configuration.erasable_obs = des_obs;
+            Config.GAME_MODES[0].configuration.levels[Config.current_level].configuration.erasable_food = des_food;
+            Config.GAME_MODES[0].configuration.levels[Config.current_level].configuration.erasable_bonus = des_bonus;
 
 
         }
         else if(game_mode === Config.GAME_MODES[1].id) // regular
         {
-            // driven game
             // alert("save configuration " + game_mode + " current level " + this.current_level);
-            Config.current_level = this.current_level;
-            Config.current_match_configuration = Config.GAME_MODES[1];
+            Config.current_level = this.current_level; // update level if needed
+            Config.current_match_configuration = Config.GAME_MODES[1]; // set game mode
+
+            // all the configuration are readed from config files
 
 
         }
 
-        this.username = username;
-        this.current_level = Config.current_level;
-        this.game_mode = Config.current_match_configuration;
+        // this.username = Config.username;
+        // this.current_level = Config.current_level;
+        // this.game_mode = Config.current_match_configuration;
+        //
+        // this.world_width = Config.current_match_configuration.configuration.levels[Config.current_level].configuration.world_width;
+        // this.world_height = Config.current_match_configuration.configuration.levels[Config.current_level].configuration.world_height;
+        // this.world_depth = Config.current_match_configuration.configuration.levels[Config.current_level].configuration.world_depth;
+        // this.world_face_depth = Config.current_match_configuration.configuration.levels[Config.current_level].configuration.world_face_depth;
+        //
+        // this.game_level = Config.current_match_configuration.configuration.levels[Config.current_level].configuration.game_level;
+        // this.spawn_bonus = Config.current_match_configuration.configuration.levels[Config.current_level].configuration.spawn_bonus;
+        // this.spawn_obs = Config.current_match_configuration.configuration.levels[Config.current_level].configuration.spawn_obs;
+        //
+        // this.movable_bonus = Config.current_match_configuration.configuration.levels[Config.current_level].configuration.movable_bonus;
+        // this.movable_food = Config.current_match_configuration.configuration.levels[Config.current_level].configuration.movable_food;
+        // this.movable_obs = Config.current_match_configuration.configuration.levels[Config.current_level].configuration.movable_obs;
+        //
+        // this.erasable_bonus = Config.current_match_configuration.configuration.levels[Config.current_level].configuration.erasable_bonus;
+        // this.erasable_food = Config.current_match_configuration.configuration.levels[Config.current_level].configuration.erasable_food;
+        // this.erasable_obs = Config.current_match_configuration.configuration.levels[Config.current_level].configuration.erasable_obs;
 
 
 
@@ -183,8 +240,8 @@ class MatchManager {
 
         alert(
             " Start level \n" +
-            " Config: " + this.game_mode.id + " " + this.game_mode.name + " " + this.game_mode.levels + "\n" +
-            " Level: " + this.game_mode.configuration.levels[this.current_level].name
+            " Config: " + this.game_mode_id + " " + this.game_mode_name + " " + this.game_mode_levels + "\n" +
+            " Level: " + this.game_mode_level_name
         )
     }
 
@@ -192,18 +249,18 @@ class MatchManager {
 
         alert(
             " End level \n" +
-            " Config: " + this.game_mode.id + " " + this.game_mode.name + " " + this.game_mode.levels + "\n" +
+            " Config: " + this.game_mode_id + " " + this.game_mode_name + " " + this.game_mode_levels + "\n" +
             " Total score " + reached_score + "\n" +
             " Level " + this.current_level
         )
 
-        if (this.game_mode.levels === true) {
+        if (this.game_mode_levels === true) {
             // regular game
             let current_level = this.current_level;
-            let target_score = this.game_mode.configuration.levels[current_level].configuration.target_score;
+            let target_score = this.target_score;
             if (reached_score >= target_score) {
                 alert("Level Win, total score " + reached_score);
-                if (this.game_mode.total_levels - 1 === this.current_level ){
+                if (this.game_mode_total_levels - 1 === this.current_level ){
                     alert("World completed, thanks you!");
                     this.current_level = 0;
                 }
@@ -364,28 +421,28 @@ class GameEngine{
         // init environment
 
         let environment = new Environment(
-            this.match_manager.game_mode.configuration.levels[this.match_manager.current_level].configuration.world_width,
-            this.match_manager.game_mode.configuration.levels[this.match_manager.current_level].configuration.world_height,
-            this.match_manager.game_mode.configuration.levels[this.match_manager.current_level].configuration.world_depth,
-            this.match_manager.game_mode.configuration.levels[this.match_manager.current_level].configuration.world_face_depth
+            this.match_manager.world_width,
+            this.match_manager.world_height,
+            this.match_manager.world_depth,
+            this.match_manager.world_face_depth
         );
 
         // init environment manager
         this.environment_manager = new EnvironmentManager(environment);
 
         this.environment_manager.create_match(
-            this.match_manager.game_mode.configuration.levels[this.match_manager.current_level].configuration.game_level,
+            this.match_manager.game_level,
 
-            this.match_manager.game_mode.configuration.levels[this.match_manager.current_level].configuration.spawn_obs,
-            this.match_manager.game_mode.configuration.levels[this.match_manager.current_level].configuration.spawn_bonus,
+            this.match_manager.spawn_obs,
+            this.match_manager.spawn_bonus,
 
-            this.match_manager.game_mode.configuration.levels[this.match_manager.current_level].configuration.movable_obs,
-            this.match_manager.game_mode.configuration.levels[this.match_manager.current_level].configuration.movable_food,
-            this.match_manager.game_mode.configuration.levels[this.match_manager.current_level].configuration.movable_bonus,
+            this.match_manager.movable_obs,
+            this.match_manager.movable_food,
+            this.match_manager.movable_bonus,
 
-            this.match_manager.game_mode.configuration.levels[this.match_manager.current_level].configuration.erasable_obs,
-            this.match_manager.game_mode.configuration.levels[this.match_manager.current_level].configuration.erasable_food,
-            this.match_manager.game_mode.configuration.levels[this.match_manager.current_level].configuration.erasable_bonus
+            this.match_manager.erasable_obs,
+            this.match_manager.erasable_food,
+            this.match_manager.erasable_bonus
 
         );
 
@@ -442,6 +499,26 @@ class GameEngine{
     }
 
     update_engine(){
+
+        const spawn_obs = this.match_manager.spawn_obs;
+        const spawn_bonus = this.match_manager.spawn_bonus;
+
+        const movableObs = this.match_manager.movable_obs;
+        const movableFood = this.match_manager.movable_food;
+        const movableBonus = this.match_manager.movable_bonus;
+
+        const erasableObs = this.match_manager.erasable_obs;
+        const erasableFood = this.match_manager.erasable_food;
+        const erasableBonus = this.match_manager.erasable_bonus;
+
+        // if(spawn_obs) this.environment_manager.spawn_obstacles(1, true, movableObs, erasableObs, false);
+        // if(spawn_bonus) this.environment_manager.spawn_random_type_bonus(1, Bonus, true, movableBonus, erasableBonus, false);
+
+        // const num = Math.round(this.environment_manager.obstacle_num / 8);
+        // this.environment_manager.move_objects(num, false)
+        // this.environment_manager.destroy_objects(num, false);
+
+
     }
 
     // collision handler
@@ -457,6 +534,7 @@ class GameEngine{
             this.environment_manager.destroy_object_structure(content.x, content.y, content.z);
             this.environment_manager.destroy_object_view();
 
+            let num;
             switch (content.constructor.name) {
                 case 'ObstaclePart':
                     alert("Not implemented exception");
@@ -465,19 +543,41 @@ class GameEngine{
                     alert("Not implemented exception");
                     break;
                 case 'Food':
+                    // when the snake eat food
+                    // adds a node
                     this.environment_manager.snake.add_node();
-                    this.environment_manager.spawn_foods(1, true, true, true, false);
 
+                    // spawn a new food
+                    if(this.environment_manager.food_num < 2) this.environment_manager.spawn_foods(1, true, true, true, false);
+
+                    num = Math.random();
+                    if(num > 0.8) this.environment_manager.spawn_random_type_bonus(1, true, true, true);
 
                     break;
-
                 case 'LuckyBonus':
+                    num = Math.random();
+                    if(num > 0 && num < 0.30){
+                        this.environment_manager.spawn_random_type_bonus(5, true, true, true);
+                    }
+                    else if(num > 0.30 && num < 0.60) this.environment_manager.spawn_foods(3, true, true, true);
+                    else {
+                        num = Math.floor((Math.random() * 5 ) + 2);
+                        this.score_manager.multiplicator = num;
+                    }
+                    break;
                 case 'ScoreBonus':
-                case 'FastBonus':
-                case 'InvincibilityBonus':
-                case 'InvisibilityBonus':
-                case 'Bonus':
 
+                    num = Math.floor((Math.random() * 5 ) + 2);
+                    this.score_manager.multiplicator = num;
+
+                    break;
+                case 'FastBonus':
+                    break;
+                case 'InvincibilityBonus':
+                    break;
+                case 'InvisibilityBonus':
+                    break;
+                case 'Bonus':
                     break;
             }
 
@@ -504,6 +604,9 @@ class GameEngine{
         }
         else{
             alert(content.constructor.name + " Hitted");
+
+            this.camera_obj.camera.remove(this.score_manager.total_score_mesh);
+            this.scene.remove(this.score_manager.local_score_mesh);
 
             this.stop_engine(this.score_manager.score);
 

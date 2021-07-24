@@ -118,8 +118,8 @@ export class Config {
     // score config
     static initial_score = 0;
     static multiplicator = 1;
-    static food_score = 1;
-    static bonus_score = 0;
+    static food_score = 5;
+    static bonus_score = 0.5;
     static obstacle_score = 0;
     static snakenode_score = 0;
 

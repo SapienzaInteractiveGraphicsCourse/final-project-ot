@@ -6,23 +6,33 @@ import {TWEEN} from "../resources/three.js-r129/examples/jsm/libs/tween.module.m
 
 export class ScoreManager{
 
+    set multiplicator(value) {
+        this._multiplicator = value * this._multiplicator;
+    }
+
     get score() {
         return this._score;
     }
 
     _score;
+    _multiplicator;
 
     constructor() {
+
         this._score = Config.initial_score;
+        this._multiplicator = Config.multiplicator;
+        this.food_score = Config.food_score;
+        this.bonus_score = Config.bonus_score;
+        this.obstacle_score = Config.obstacle_score;
+        this.snakenode_score = Config.snakenode_score;
 
-        this.read_score_configuration();
 
-         this.local_score_mesh = null;
-         this.total_score_mesh = null;
+        this.local_score_mesh = null;
+        this.total_score_mesh = null;
     }
 
-    read_score_configuration(){
-        this.multiplicator = Config.multiplicator;
+    update_score_configuration(){
+        this._multiplicator = Config.multiplicator;
         this.food_score = Config.food_score;
         this.bonus_score = Config.bonus_score;
         this.obstacle_score = Config.obstacle_score;
@@ -59,20 +69,20 @@ export class ScoreManager{
                 break;
         }
 
-        this._score = this._score + this.multiplicator * score;
+        this._score = this._score + this._multiplicator * score;
 
         // update mesh
-        this.update_local_score_mesh( [hitted_object.x, hitted_object.y, hitted_object.z], score );
-        this.update_total_score_mesh();
+        this.update_local_score_mesh( [hitted_object.x, hitted_object.y, hitted_object.z], this._multiplicator * score);
+        this.update_total_score_mesh(this._score);
 
 
 
     }
 
 
-    update_total_score_mesh() {
+    update_total_score_mesh(total_score) {
 
-        const total_score_string = String(this.score); // print in front of the player
+        const total_score_string = String(total_score); // print in front of the player
 
         // if (object_score === 0) return;
 
