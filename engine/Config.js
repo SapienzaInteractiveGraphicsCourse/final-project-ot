@@ -21,6 +21,7 @@ export class Config {
     // view
     static cell_cube_dim = 1;
     static graphic_level = 3;
+    static max_anisotropy = 1;
 
 
     /*----- Enviroment settings ------*/
@@ -54,7 +55,7 @@ export class Config {
                 background: {name: 'background_texture', type: 'texture', path: 'models/bg.jpg'},
                 invincibility: {name: 'bonus_invincibility_model', type: 'obj', path: 'models/star/star.obj'},
                 lucky: {name: 'bonus_lucky_model', type: 'obj', path: 'models/lucky_leaf/lucky_leaf.obj'},
-                score: {name: 'bonus_score_model', type: 'font', path: '../resources/three.js-r129/examples/fonts/helvetiker_regular.typeface.json'},
+                score: {name: 'bonus_score_model', type: 'font', path: '../resources/three.js-r129/examples/fonts/droid/droid_sans_mono_regular.typeface.json'},
             },
         },
         {

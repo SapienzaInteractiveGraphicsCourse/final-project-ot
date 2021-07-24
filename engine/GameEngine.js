@@ -179,6 +179,7 @@ class MatchManager {
             Config.current_match_configuration = Config.GAME_MODES[0];
 
             Config.GAME_MODES[0].configuration.levels[Config.current_level].configuration.texture_pack_id = texture_mode;
+            Config.current_texture_pack = Config.TEXTURE_PACKS[texture_mode];
 
             Config.GAME_MODES[0].configuration.levels[Config.current_level].configuration.world_width = env_dim;
             Config.GAME_MODES[0].configuration.levels[Config.current_level].configuration.world_height = env_dim;
@@ -317,6 +318,7 @@ class GameEngine{
         controls.target.set(0, 0, 0);
 
         scene.background = new THREE.Color(0,0,0.1);
+        Config.max_anisotropy = renderer.getMaxAnisotropy();
 
         this.scene = scene;
         this.light = light;
@@ -414,6 +416,7 @@ class GameEngine{
 
         // read match configuration
         this.match_manager.read_configuration();
+        EntityMeshManager.get_instance().set_texture_pack();
 
 
         // init score manager
@@ -430,6 +433,8 @@ class GameEngine{
 
         // init environment manager
         this.environment_manager = new EnvironmentManager(environment);
+
+
 
         this.environment_manager.create_match(
             this.match_manager.game_level,

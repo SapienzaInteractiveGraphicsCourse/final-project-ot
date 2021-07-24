@@ -48,6 +48,7 @@ export class Camera {
 
     reset_position() {
         this.container.position.set(this.offset_right, this.offset_up, this.radius);
+        this.camera.up.set(0, 1, 0);
     }
 
 

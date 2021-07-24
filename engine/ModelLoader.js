@@ -235,6 +235,9 @@ export class EntityMeshManager {
         normal = ModelLoader.get_instance().models[textures["core_norm"].name];
         texture.format = THREE.RGBFormat;
         normal.format = THREE.RGBFormat;
+        texture.anisotropy = Config.max_anisotropy;
+        normal.anisotropy = Config.max_anisotropy;
+
 
         material = new THREE.MeshPhongMaterial( {color: color, map: texture, normalMap: normal} );
 
@@ -281,6 +284,7 @@ export class EntityMeshManager {
         /*------- Obstacle ------*/
         color = 0x7f6a93;
         texture = this.#obstacle_part_mesh;
+        texture.anisotropy = Config.max_anisotropy;
         geometry = new THREE.BoxGeometry(1, 1 ,1);
         material = new THREE.MeshBasicMaterial({map: texture});
 

@@ -87,17 +87,18 @@ export class ScoreManager{
         // if (object_score === 0) return;
 
         /*------- Score bonus ------*/
-        let geometry = new THREE.TextGeometry(total_score_string, {
-            font: ModelLoader.get_instance().models[Config.current_texture_pack.textures.score.name],
+        let geometry = new THREE.TextGeometry("Score: " + total_score_string, {
+            font: ModelLoader.get_instance().models[Config.TEXTURE_PACKS[0].textures.score.name],
             // size: Config.cell_cube_dim / 3,
-            size : Config.cell_cube_dim * 2,
-            height: 0.1
+            size : Config.cell_cube_dim / 4,
+            height: 0.01
         });
 
-        let material = new THREE.MeshBasicMaterial( { color: 0xFFFFFF, transparent: true, opacity: 0.1 } );
+        const color = 0xFFC500;
+        const material = new THREE.MeshPhongMaterial({color: 0xFFFFFF});
 
-        let score_mesh = new THREE.Mesh(geometry, material);
-        score_mesh.position.set(0, 2, -10);
+        const score_mesh = new THREE.Mesh(geometry, material);
+        score_mesh.position.set(-5.0, 3.5, -10);
 
         this.total_score_mesh = score_mesh;
 
@@ -114,7 +115,7 @@ export class ScoreManager{
 
         /*------- Score bonus ------*/
         let geometry = new THREE.TextGeometry(object_score_string, {
-            font: ModelLoader.get_instance().models[Config.current_texture_pack.textures.score.name],
+            font: ModelLoader.get_instance().models[Config.TEXTURE_PACKS[0].textures.score.name],
             // size: Config.cell_cube_dim / 3,
             size : Config.cell_cube_dim/3,
             height: 0.1
@@ -159,7 +160,7 @@ export class ScoreManager{
 
         const tween_scale = new TWEEN.Tween(scale).to(target_scale, 400);
 
-        const tween_erase = new TWEEN.Tween( content.material ).to({ opacity: 0 }, 350).start();
+        const tween_erase = new TWEEN.Tween( content.material ).to({ opacity: 0 }, 500).start();
 
         tween_erase.start();
         tween_move.start();
