@@ -5,7 +5,15 @@ import {
     CubeCell,
     Obstacle,
     Particle,
-    Bonus, LuckyBonus, ScoreBonus, FastBonus, InvincibilityBonus, InvisibilityBonus, SnakeNodeEntity
+    Bonus,
+    LuckyBonus,
+    ScoreBonus,
+    FastBonus,
+    InvincibilityBonus,
+    InvisibilityBonus,
+    SnakeNodeEntity,
+    GameEntity,
+    CoreObstaclePart
 } from "./Entity.js";
 import * as THREE from '../resources/three.js-r129/build/three.module.js';
 import { TWEEN } from "../resources/three.js-r129/examples/jsm/libs/tween.module.min.js";
@@ -27,6 +35,7 @@ export class EnvironmentManager {
 
 
         this.obstacle_num = 0;
+        this.core_obstacle_num = 0;
         this.food_num = 0;
         this.bonus_num = 0;
         this.snake_nodes_num = 0;
@@ -48,7 +57,20 @@ export class EnvironmentManager {
 
     // The following methods update the data structures
 
-    // create_game_entity_object(x, y, z, type, )
+    // modifies an existing object in the environment at coordinates (x, y, z)
+    modify_object_structure(x, y, z, drawable, movable, erasable){
+        if(!this.check_consistency(x, y, z)) return false;
+
+        const object = this.environment.environment[x][y][z].content;
+        if( object == null ) return false;
+        if(object instanceof CoreObstaclePart) return false; // core obstacle cannot be modified
+
+        if(drawable !== undefined) this.environment.environment[x][y][z].content.drawable = drawable;
+        if(movable !== undefined) this.environment.environment[x][y][z].content.movable = movable;
+        if(erasable !== undefined) this.environment.environment[x][y][z].content.erasable = erasable;
+
+
+    }
 
     // creates an object of type (type) in the environment at coordinates (x, y, z)
     create_object_structure(x, y, z, type, drawable, movable, erasable){
@@ -57,8 +79,9 @@ export class EnvironmentManager {
         
         let object = new type(x, y, z, drawable, movable, erasable);
         this.environment.environment[x][y][z].content = object;
-        
+
         if(object instanceof ObstaclePart) this.obstacle_num++;
+        if(object instanceof CoreObstaclePart) this.core_obstacle_num++;
         else if(object instanceof Food) this.food_num++;
         else if(object instanceof Bonus) this.bonus_num++;
         else if(object instanceof Snake) this.snake_nodes_num++;
@@ -75,17 +98,17 @@ export class EnvironmentManager {
 
     // destroys the object in the environment at coordinates (x, y, z)
     destroy_object_structure(x, y, z){
-        if(!this.check_consistency(x, y, z)) return;
+        if(!this.check_consistency(x, y, z)) return false;
         const object = this.environment.environment[x][y][z].content;
-        if( object == null ) return;
-        if( object.mesh == null ) return;
-        if( !object.erasable ) return;
+        if( object == null ) return false;
+        // if( object.mesh == null ) return false; // TODO REMOVE ( could be unnecessary)
+        if( !object.erasable && !object.eatable) return false;
+
 
 
         if(object instanceof ObstaclePart) this.obstacle_num--;
         else if(object instanceof Food) this.food_num--;
         else if(object instanceof Bonus) this.bonus_num--;
-
         else if(object instanceof Snake) this.snake = null;
         else if(object instanceof SnakeNodeEntity) this.snake_nodes_num--;
 
@@ -99,6 +122,8 @@ export class EnvironmentManager {
 
         if(Config.log) console.log("Destrojed object [ ", object.constructor.name," ] at [ ", x," ", y," ", z, " ]");
 
+        return true;
+
 
     }
 
@@ -107,14 +132,12 @@ export class EnvironmentManager {
         if(!this.check_consistency(from_x, from_y, from_z)) return false;
         if(!this.check_consistency(to_x, to_y, to_z)) return false;
 
-        const to_cell = this.environment.environment[to_x][to_y][to_z];
-        if( to_cell.content != null) return false; // not empty cell
-
-
         const from_cell = this.environment.environment[from_x][from_y][from_z];
         if( from_cell.content == null) return false; // empty cell
         if( !from_cell.content.movable) return false; // object in cell not movable
 
+        const to_cell = this.environment.environment[to_x][to_y][to_z];
+        if( to_cell.content != null) return false; // not empty cell (target position unavailable)
 
         from_cell.content.update_entity_structure_position(to_x, to_y, to_z);
 
@@ -131,6 +154,7 @@ export class EnvironmentManager {
         this.coord_generator.add_available_coordinate(from_x, from_y, from_z);
 
         if(Config.log) console.log("Moved object [ ", to_cell.content.constructor.name," ] from [ ", from_x," ", from_y," ", from_z, " ] to [ ", to_x," ", to_y," ", to_z, " ]");
+
         return true;
 
     }
@@ -215,10 +239,10 @@ export class EnvironmentManager {
         for(i = 0; i < this.object_to_destroy.length; i++){
 
             const object = this.object_to_destroy[i];
+            if( !object.erasable && !object.eatable) continue;
 
             explosion = this.create_object_explosion_animation(object.x, object.y, object.z);
             particles.push(explosion);
-
 
             this.environment.mesh.remove(object.mesh); // remove obstacles
 
@@ -327,6 +351,8 @@ export class EnvironmentManager {
         for(let i = 0; i < this.object_to_move.length; i++){
 
             const object = this.object_to_move[i];
+            if( !object.movable ) continue;
+
 
             // ANIMATION
 
@@ -462,7 +488,7 @@ export class EnvironmentManager {
             for(let j = space; j < height - space; j++){
                 for(let k = space; k < depth - space; k++){
                     
-                    this.create_object_structure(i, j, k, ObstaclePart, false, false, false);
+                    this.create_object_structure(i, j, k, CoreObstaclePart, false, false, false);
                    
                 }
             }   
@@ -488,18 +514,18 @@ export class EnvironmentManager {
     //     if(this.snake == null) console.log("SNAKE IS NULL", this.snake);
     // }
 
-    create_match(game_level, draw_obs, draw_bonus, move_obs, move_food, move_bonus, destroy_obs, destroy_food, destroy_bonus){
+    create_match(game_level, spawn_obs, spawn_bonus, move_obs, move_food, move_bonus, destroy_obs, destroy_food, destroy_bonus){
 
         this.spawn_snake();
 
-        if(draw_obs){
+        if(spawn_obs){
             // obstacle
             const obstacles_num = Math.floor(Math.random() * game_level);
             this.spawn_obstacles(obstacles_num, true, move_obs, destroy_obs);
 
         }
 
-        if(draw_bonus){
+        if(spawn_bonus){
             // bonus
             let bonus_num = Math.floor(Math.random() * game_level);
             bonus_num = 10;
@@ -562,6 +588,13 @@ export class EnvironmentManager {
 
             const coord = this.coord_generator.get_random_unavailable();
             if(coord == null) continue;
+
+            const entity = this.get_entity(coord[0], coord[1], coord[2]);
+            if(entity instanceof CoreObstaclePart){
+                i--;
+                continue;
+            }
+
             const relative_movement = this.random_movement(1, false);
 
             from_x = coord[0];
@@ -582,7 +615,6 @@ export class EnvironmentManager {
 
     // Destroys {number} object in the envirnoment
     // if { random } the number of object is in the range { 0 , number}
-   
     destroy_objects(number, random){
         if(random) number = Math.floor(Math.random() * number);
 
@@ -618,7 +650,6 @@ export class EnvironmentManager {
     }
 
     // Spawn Snake
-    //TODO remove number random
     spawn_snake(){
 
         const x = Math.round(this.environment.width / 2);
@@ -626,7 +657,7 @@ export class EnvironmentManager {
         const z = this.environment.depth - 1;
 
         // console.log([x,y,z])
-        this.snake = this.create_object_structure(x, y, z, Snake, true, true, true);
+        this.snake = this.create_object_structure(x, y, z, Snake, true, true, false);
         this.snake_nodes.push(this.snake);
         this.create_object_view();
     }

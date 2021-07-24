@@ -249,7 +249,7 @@ export class Snake extends Entity{
     nodesPositions = [];
 
     constructor(x=0,y=0,z=0, drawable, movable, erasable) {
-        super(x, y, z, drawable, movable, erasable);
+        super(x, y, z, drawable, movable, erasable, false);
 
         /*---- Configuration -----*/
         this.speed = Config.snake_speed;

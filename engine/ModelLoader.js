@@ -22,6 +22,8 @@ export class EntityMeshManager {
     #invisibility_bonus_mesh;
 
 
+
+
     /*------- SINGLETON Handle ------*/
     static init() {
         if (EntityMeshManager.#instance != null) {
