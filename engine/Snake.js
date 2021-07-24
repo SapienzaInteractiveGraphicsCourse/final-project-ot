@@ -211,7 +211,6 @@ export class SnakeNode{
         this.mesh = mesh;
         this.container.add(this.mesh);
         this.spawned = false;
-        AnimationHandler.reset();
     }
 
     get_position() {
@@ -256,6 +255,8 @@ export class Snake extends Entity{
 
     constructor(x=0,y=0,z=0, drawable, movable, erasable) {
         super(x, y, z, drawable, movable, erasable, false);
+
+        AnimationHandler.reset();
 
         /*---- Configuration -----*/
         this.speed = Config.snake_speed;
