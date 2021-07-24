@@ -121,7 +121,7 @@ export class EntityMeshManager {
         this.#snake_head_mesh = new THREE.Mesh(geometry, material)
 
         if (Config.graphic_level >= 1){
-            light = new THREE.PointLight(0x44aa88, 0.8, 2, 1);
+            light = new THREE.PointLight(color, 0.8, 2, 1);
             this.#snake_head_mesh.add(light);
         }
 
@@ -225,59 +225,64 @@ export class EntityMeshManager {
 
 
     set_pack_one() {
+        const textures = this.texture_pack.textures;
         let geometry, material, light, color, mesh, object, dimension;
+        let texture, normal;
         /*------ Environment ------*/
-        const core_color = Config.world_color;
-        const core_opacity = Config.world_opacity;
-        material = new THREE.MeshPhongMaterial( {color: core_color, transparent: true, opacity: core_opacity} );
+        color = 0x7FFF00;
         geometry = new THREE.BoxGeometry(1, 1, 1, 1, 1, 1);
+        texture = ModelLoader.get_instance().models[textures["core"].name];
+        normal = ModelLoader.get_instance().models[textures["core_norm"].name];
+        texture.format = THREE.RGBFormat;
+        normal.format = THREE.RGBFormat;
+
+        material = new THREE.MeshPhongMaterial( {color: color, map: texture, normalMap: normal} );
 
         this.#environment_core_mesh = new THREE.Mesh(geometry, material);
+        this.#environment_core_mesh.material.needsUpdate = true;
 
 
         /*------- Snake ------*/
         // Head
         dimension = Config.snake_head_dimension;
-        color = 0x87c38f;
+        color = 0xE34234;
         geometry = new THREE.BoxGeometry(dimension,dimension,dimension);
-        material = new THREE.MeshPhongMaterial({color: color, emissive: color, emissiveIntensity: 0.3});
-        light = new THREE.PointLight(0x44aa88, 0.8, 2, 1);
-        this.#snake_head_mesh = new THREE.Mesh(geometry, material).add(light);
+        material = new THREE.MeshPhongMaterial({color: color});
+
+        this.#snake_head_mesh = new THREE.Mesh(geometry, material)
+
+        if (Config.graphic_level >= 1){
+            light = new THREE.PointLight(color, 0.8, 2, 1);
+            this.#snake_head_mesh.add(light);
+        }
 
         // Nodes
         dimension = Config.snake_nodes_dimension;
-        color = 0x415d43;
+        color = 0x913831;
         geometry = new THREE.BoxGeometry(dimension,dimension,dimension);
-        material = new THREE.MeshPhongMaterial({color: color, emissive: color, emissiveIntensity: 0.3});
-        light = new THREE.PointLight(color, 0.8, 2, 1);
+        material = new THREE.MeshPhongMaterial({color: color});
 
-        this.#snake_node_mesh = new THREE.Mesh(geometry, material).add(light);
+        this.#snake_node_mesh = new THREE.Mesh(geometry, material);
+
+        if (Config.graphic_level >= 2) {
+            light = new THREE.PointLight(color, 0.8, 2, 1);
+            this.#snake_node_mesh.add(light);
+        }
 
 
 
         /*------- Food ------*/
-        // color = 0xd55672;
-        // geometry = new THREE.SphereGeometry( 0.25, 50, 50 );
-        // material = new THREE.MeshPhongMaterial( {color: color, emissive: color, emissiveIntensity: 0.4} );
-        // material.shininess = 200;
-        // light = new THREE.PointLight(color, 1.5, 2, 1);
-        //
-        // this.#food_mesh = new THREE.Mesh(geometry, material).add(light);
-        console.log("food",this.#food_mesh);
         mesh = this.#food_mesh;
         mesh.scale.set(0.02,.02,.02);
-
-
-        console.log(this.#food_mesh);
+        mesh.position.y = -1;
 
 
 
         /*------- Obstacle ------*/
         color = 0x7f6a93;
+        texture = this.#obstacle_part_mesh;
         geometry = new THREE.BoxGeometry(1, 1 ,1);
-        material = new THREE.MeshPhongMaterial({color: color});
-        material.transparent = true;
-        material.opacity = 0.8;
+        material = new THREE.MeshBasicMaterial({map: texture});
 
         this.#obstacle_part_mesh = new THREE.Mesh(geometry, material);
 
@@ -285,7 +290,6 @@ export class EntityMeshManager {
 
         /*------- Lucky bonus ------*/
         color = 0xFFC500;
-        console.log("lucky",this.#lucky_bonus_mesh);
         mesh = this.#lucky_bonus_mesh;
         mesh.scale.set(.1,.1,.1);
 
@@ -293,7 +297,6 @@ export class EntityMeshManager {
 
         /*------- Score bonus ------*/
         color = 0xFFC500;
-        console.log("score",this.#score_bonus_mesh);
         mesh = this.#score_bonus_mesh;
         mesh.scale.set(.01,.01,.01);
 
@@ -316,7 +319,6 @@ export class EntityMeshManager {
         mesh = this.#invincibility_bonus_mesh;
         mesh.scale.set(.002,.002,.002);
 
-        console.log("invi",this.#invincibility_bonus_mesh);
     }
 
     /* -------- Build meshes --------*/
@@ -370,6 +372,8 @@ export class ModelLoader{
     #obj_loader;
     #mtl_loader;
     #font_loader;
+    #texture_loader;
+    #texture_cube_loader;
 
     models = [];
     geometries = [];
@@ -399,12 +403,6 @@ export class ModelLoader{
 
         };
 
-        // manager.onLoad = function ( ) {
-        //
-        //     console.log( 'Loading complete!');
-        //
-        // };
-
         manager.onLoad = callback;
 
         manager.onProgress = function ( url, itemsLoaded, itemsTotal ) {
@@ -423,14 +421,13 @@ export class ModelLoader{
         this.#gltf_loader = new GLTFLoader(manager);
         this.#obj_loader = new OBJLoader(manager);
         this.#mtl_loader = new MTLLoader(manager);
+        this.#font_loader = new THREE.FontLoader(manager);
+        this.#texture_loader = new THREE.TextureLoader(manager);
+        this.#texture_cube_loader = new THREE.CubeTextureLoader(manager);
         this.#resources_to_load = [];
         this._total_resources = 0;
 
-        this.#font_loader = new THREE.FontLoader(manager);
-
         this.manager = manager;
-
-
     }
 
 
@@ -487,7 +484,6 @@ export class ModelLoader{
         this.#mtl_loader.load( resource.path, private_mtl_onload_callback, onprogress_callback, onerror_callback );
 
         function private_mtl_onload_callback(materials){
-            console.log("mtl")
             const objLoader = new OBJLoader(loader.manager);
             objLoader.setMaterials(materials);
             objLoader.load(resource.obj, private_obj_onload_callback, onprogress_callback, onerror_callback);
@@ -497,6 +493,35 @@ export class ModelLoader{
                 loader.models[resource.name] = obj;
                 onload_callback();
             }
+        }
+    }
+
+    load_texture(resource, onload_callback, onprogress_callback, onerror_callback){
+
+        let loader = this;
+
+        // load texture
+        this.#texture_loader.load( resource.path, private_texture_onload_callback, onprogress_callback, onerror_callback );
+
+        function private_texture_onload_callback(obj){
+            loader.models[resource.name] = obj;
+            onload_callback();
+        }
+    }
+
+    load_texture_cube(resource, onload_callback, onprogress_callback, onerror_callback){
+
+        let loader = this;
+        let paths = [];
+        for (let i = 0; i < 6; i++) {
+            paths.push(resource.path);
+        }
+        // load texture
+        this.#texture_cube_loader.load( paths, private_texture_onload_callback, onprogress_callback, onerror_callback );
+
+        function private_texture_onload_callback(obj){
+            loader.models[resource.name] = obj;
+            onload_callback();
         }
     }
 
@@ -522,6 +547,10 @@ export class ModelLoader{
                     this.load_font(resource, onload_callback, onprogress_callback, onerror_callback);
                     break;
                 case 'texture':
+                    this.load_texture(resource, onload_callback, onprogress_callback, onerror_callback);
+                    break;
+                case 'texture_cube':
+                    this.load_texture_cube(resource, onload_callback, onprogress_callback, onerror_callback);
                     break;
                 default:
                     break
@@ -540,36 +569,6 @@ export class ModelLoader{
         return this._total_resources;
     }
 
-
-    #resource_onload_callback(gltf){
-        // console.log("Resource loaded callback.");
-
-    }
-
-    #resource_onprogress_callback(xhr){
-        // console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
-    }
-
-    #resource_onerror_callback(error){
-        // console.log( 'An error happened' );
-
-    }
-
-
-
-
 }
-
-// let loader = new ModelLoader();
-//
-// // loader.add_resources_to_load('/home/leonardo/WebstormProjects/final-project-ot/engine/models/apple/scene.gltf');
-// // loader.add_resources_to_load('/home/leonardo/WebstormProjects/final-project-ot/engine/models/stone/scene.gltf');
-//
-// loader.add_resources_to_load('models/apple/scene.gltf');
-// loader.add_resources_to_load('models/stone/scene.gltf');
-// loader.add_resources_to_load('models/big_border_stone_03/scene.gltf');
-// loader.add_resources_to_load('models/stone_black_1/scene.gltf');
-//
-// loader.load_resources();
 
 

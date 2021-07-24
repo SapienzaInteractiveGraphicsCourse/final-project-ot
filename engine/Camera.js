@@ -7,7 +7,7 @@ import {cross} from "../Common/MVnew.js";
 
 export class Camera {
 
-    constructor(x, y ,z) {
+    constructor() {
         // Camera
         this.speed = Config.camera_speed;
         this.radius = Config.camera_radius;
@@ -24,7 +24,7 @@ export class Camera {
         this.container = new THREE.Object3D();
         this.container.add(this.camera);
         this.camera.add(this.light);
-        this.container.position.set(x, y, z);
+        this.container.position.set(this.offset_right, this.offset_up, this.radius);
 
 
     }
@@ -44,6 +44,10 @@ export class Camera {
         const target_up = {x: up_vector[0], y: up_vector[1], z: up_vector[2]};
         new TWEEN.Tween(this.container.position).to(target_pos, this.speed).easing(TWEEN.Easing.Quadratic.Out).start();
         new TWEEN.Tween(this.camera.up).to(target_up,this.speed).easing(TWEEN.Easing.Quadratic.Out).start();
+    }
+
+    reset_position() {
+        this.container.position.set(this.offset_right, this.offset_up, this.radius);
     }
 
 

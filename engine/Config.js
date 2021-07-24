@@ -23,24 +23,6 @@ export class Config {
     static graphic_level = 3;
 
 
-    /*----- Camera settings ------*/
-    // Camera
-    static fov = 50;
-    static aspect = 2;
-    static near = 0.1;
-    static far = 2000;
-    static camera_speed = 500;
-    static camera_radius = 15;
-    static camera_offset_up = 6;
-    static camera_offset_right = 6;
-
-    // Camera Light
-    static camera_light_color = 0xffffff;
-    static camera_light_intensity = .8;
-    static camera_light_position = {x: 3.0, y: 3.0, z: 0.0};
-
-
-
     /*----- Enviroment settings ------*/
 
 
@@ -63,16 +45,13 @@ export class Config {
 
 
 
-
-
-
     /*------ Texture packs ------*/
     static TEXTURE_PACKS = [
         {
             id: 0,
             name: "Standard",
             textures: {
-                invisibility: {name: 'bonus_invisibility_model', type: 'gltf', path: 'models/spooky_ghost/scene.gltf'},
+                background: {name: 'background_texture', type: 'texture', path: 'models/bg.jpg'},
                 invincibility: {name: 'bonus_invincibility_model', type: 'obj', path: 'models/star/star.obj'},
                 lucky: {name: 'bonus_lucky_model', type: 'obj', path: 'models/lucky_leaf/lucky_leaf.obj'},
                 score: {name: 'bonus_score_model', type: 'font', path: '../resources/three.js-r129/examples/fonts/helvetiker_regular.typeface.json'},
@@ -82,8 +61,11 @@ export class Config {
             id: 1,
             name: "Pack 1",
             textures: {
+                core: {name: 'core_texture_1', type: 'texture', path: 'models/mario/grass/Grass_001_COLOR.jpg'},
+                snake_head: {name: 'snake_head_1', type: 'texture', path: 'models/mario/yoshi_tex.png'},
+                core_norm: {name: 'core_texture_norm_1', type: 'texture', path: 'models/mario/grass/Grass_001_NORM.jpg'},
                 food: {name: 'food_model_1', type: 'mtl', path: 'models/mario/power_up.mtl', obj: 'models/mario/power_up.obj'},
-                invisibility: {name: 'bonus_invisibility_model', type: 'gltf', path: 'models/spooky_ghost/scene.gltf'},
+                obstacle: {name: 'obstacle_texture_1', type: 'texture', path: 'models/mario/wall_tex.png'},
                 invincibility: {name: 'bonus_invincibility_model_1', type: 'mtl', path: 'models/mario/star.mtl', obj: 'models/mario/star.obj'},
                 lucky: {name: 'bonus_lucky_model_1', type: 'mtl', path: 'models/mario/flower.mtl', obj: 'models/mario/flower.obj'},
                 score: {name: 'bonus_score_model_1', type: 'mtl', path: 'models/mario/coin.mtl', obj: 'models/mario/coin.obj'},
@@ -92,28 +74,25 @@ export class Config {
     ];
     static current_texture_pack = Config.TEXTURE_PACKS[0];
 
+
+
+    /*----- Camera settings ------*/
+    // Camera
+    static fov = 50;
+    static aspect = 2;
+    static near = 0.1;
+    static far = 2000;
+    static camera_speed = 500;
+    static camera_radius = 15;
+    static camera_offset_up = 6;
+    static camera_offset_right = 6;
+
+    // Camera Light
+    static camera_light_color = 0xffffff;
+    static camera_light_intensity = Config.current_texture_pack.id === 0 ? 0.8 : 2.5;
+    static camera_light_position = {x: 3.0, y: 3.0, z: 0.0};
+
     /*------ Resource settings ------*/
-    // resource name
-    static food_gltf_model_name = 'food_model';
-    static food_gltf_model_path = 'models/apple/scene.gltf' ;
-
-    static obstacle_part_gltf_model_name;
-    static obstacle_part_gltf_model_path;
-
-    static invisibility_bonus_gltf_model_name = 'bonus_invisibility_model';
-    static invisibility_bonus_gltf_model_path = 'models/spooky_ghost/scene.gltf';
-
-    static invincibility_bonus_gltf_model_name = 'bonus_invincibility_model';
-    static invincibility_bonus_gltf_model_path = 'models/cartoon_bomb/scene.gltf';
-
-    static fast_bonus_gltf_model_name;
-    static fast_bonus_gltf_model_path;
-
-    static score_bonus_gltf_model_name = 'bonus_score_model';
-    static score_bonus_gltf_model_path = '../resources/three.js-r129/examples/fonts/helvetiker_regular.typeface.json';
-
-    static lucky_bonus_gltf_model_name;
-    static lucky_bonus_gltf_model_path;
 
     // score config
     static initial_score = 0;
@@ -144,13 +123,6 @@ export class Config {
     static world_color = 0x99CCFF;
     static world_opacity = 0.7;
 
-
-
-    // // environment settings
-    static world_width = 10;
-    static world_height = 10;
-    static world_depth = 10;
-    static world_face_depth = 1;
 
 
     /*----- Game settings------*/

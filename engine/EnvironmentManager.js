@@ -446,7 +446,7 @@ export class EnvironmentManager {
 
     random_bonus_type(){
         let type = null;
-        let bonus_type_number = 5;
+        let bonus_type_number = 3;
         let bonus_type = Math.floor((Math.random() * bonus_type_number) + 1);
         switch (bonus_type){
             case 1:
@@ -456,14 +456,9 @@ export class EnvironmentManager {
                 type = ScoreBonus;
                 break;
             case 3:
-                type = FastBonus;
-                break;
-            case 4:
                 type = InvincibilityBonus;
                 break;
-            case 5:
-                type = InvisibilityBonus;
-                break;
+
         }
 
         return type;

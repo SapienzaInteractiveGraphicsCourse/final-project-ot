@@ -9,7 +9,6 @@ import {Controller} from "./Controller.js";
 import {Camera} from "./Camera.js";
 import {Utilities} from "./Utilities.js";
 import {Config} from "./Config.js";
-import {SnakeNode} from "./Snake.js";
 import {EntityMeshManager, ModelLoader} from "./ModelLoader.js";
 import {ScoreManager} from "./ScoreManager.js";
 
@@ -317,6 +316,8 @@ class GameEngine{
         const controls = new OrbitControls( camera_obj.camera, renderer.domElement );
         controls.target.set(0, 0, 0);
 
+        scene.background = new THREE.Color(0,0,0.1);
+
         this.scene = scene;
         this.light = light;
         this.camera_obj = camera_obj;
@@ -451,6 +452,8 @@ class GameEngine{
             let obj = this.scene.children[i];
             this.scene.remove(obj);
         }
+
+        this.camera_obj.reset_position();
 
         this.scene.add(this.light);
         this.scene.add(this.camera_obj.container);
