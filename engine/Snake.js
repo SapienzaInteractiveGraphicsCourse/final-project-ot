@@ -409,9 +409,15 @@ export class Snake extends Entity{
             return;
         }
         this.schedule_lock = true;
+
+        const old_direction = this.head.direction;
+        let rotated = false;
         // If the new direction and the current one are different -> perform a rotation
-        if (this.head.direction !== null && (this.head.direction.axis !== direction.axis || this.head.direction.sign !== direction.sign))
-            this.rotate(this.head.direction, direction);
+        if (old_direction !== null && (old_direction.axis !== direction.axis || old_direction.sign !== direction.sign)){
+            this.rotate(old_direction, direction);
+            rotated = true;
+        }
+
 
         // Updating the head position
         this.head.update_position(coordinates);
@@ -423,8 +429,27 @@ export class Snake extends Entity{
         const target = {x: render_coordinates[0], y: render_coordinates[1], z: render_coordinates[2]};
         const tween = new TWEEN.Tween(this.head.container.position).to(target,this.speed);
 
+        let t, T, rotation_vector, angle;
+        if (rotated) {
+            let old_vector = new THREE.Vector3().fromArray(Utilities.direction_to_vector(old_direction));
+            let new_vector = new THREE.Vector3().fromArray(Utilities.direction_to_vector(direction));
+            rotation_vector = old_vector.clone().cross(new_vector);
+            angle = new_vector.angleTo(old_vector);
+
+
+            T = Math.round(this.speed / 100 * 6 + 1);
+            t = 0;
+            tween.onUpdate((twn) =>{
+                this.head.mesh.rotateOnWorldAxis(rotation_vector, angle / T);
+                t++;
+            });
+        }
+
         // Ask to the controller a new movement after the end
-        tween.onComplete((twn) => {Controller.get_instance().move_snake();});
+        tween.onComplete((twn) => {
+            if (rotated && t < T) this.head.mesh.rotateOnWorldAxis(rotation_vector, angle / T * (T - t));
+            Controller.get_instance().move_snake();
+        });
 
         AnimationHandler.addMovement(tween, direction);
         this.schedule_lock = false;
@@ -451,18 +476,34 @@ export class Snake extends Entity{
             const y = int_to_string_signed(delta_pos[1]);
             const z = int_to_string_signed(delta_pos[2]);
 
-            const rotation = new TWEEN.Tween(node_relative_pos).to({x: x, y: y, z: z}, this.speed).onStart((twn) => {
+            const position = new TWEEN.Tween(node_relative_pos).to({x: x, y: y, z: z}, this.speed).onStart((twn) => {
                 node.update_direction(new_direction);
             });
+
+
+            let old_vector = new THREE.Vector3().fromArray(Utilities.direction_to_vector(old_direction));
+            let new_vector = new THREE.Vector3().fromArray(Utilities.direction_to_vector(new_direction));
+            let rotation_vector = old_vector.clone().cross(new_vector);
+            let angle = new_vector.angleTo(old_vector);
+
+
+            let T = Math.round(this.speed / 100 * 6 + 1);
+            let t = 0;
+            position.onUpdate((twn) =>{
+                node.mesh.rotateOnWorldAxis(rotation_vector, angle / T);
+                t++;
+            });
+
             // Bug correction
-            rotation.onComplete((twn) => {
+            position.onComplete((twn) => {
                 if (node_relative_pos.x !== 0) node_relative_pos.x > 0 ? node_relative_pos.x = 1 : node_relative_pos.x = -1;
                 if (node_relative_pos.y !== 0) node_relative_pos.y > 0 ? node_relative_pos.y = 1 : node_relative_pos.y = -1;
                 if (node_relative_pos.z !== 0) node_relative_pos.z > 0 ? node_relative_pos.z = 1 : node_relative_pos.z = -1;
+                if (t < T) node.mesh.rotateOnWorldAxis(rotation_vector, angle / T * (T - t));
             });
 
             const events = new SynchronousAnimations();
-            events.addRotation(node.id,rotation);
+            events.addRotation(node.id,position);
             eventsList.push(events);
         }
         AnimationHandler.addRotation(eventsList);

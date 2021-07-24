@@ -9,12 +9,18 @@ export class Utilities {
     // given x, y and z coordinate return an axis of rotation
     static axis_from_world_coord(x, y, z){
         let axis;
-        if(x === 0 || x === Config.world_width - 1){
-            axis = Config.x_axis;
-        }else if(y === 0 || y === Config.world_height - 1){
-            axis = Config.y_axis;
-        }else if(z === 0 || z === Config.world_depth - 1){
-            axis = Config.z_axis;
+        if(x === 0){
+            axis = Utilities.vector_to_direction([1,0,0]);
+        } else if (x === Config.world_width - 1){
+            axis = Utilities.vector_to_direction([-1,0,0]);
+        } else if (y === 0){
+            axis = Utilities.vector_to_direction([0,1,0]);
+        } else if (y === Config.world_height - 1){
+            axis = Utilities.vector_to_direction([0,-1,0]);
+        } else if (z === 0){
+            axis = Utilities.vector_to_direction([0,0,1]);
+        } else if (z === Config.world_depth - 1){
+            axis = Utilities.vector_to_direction([0,0,-1]);
         }
         return axis;
     }

@@ -3,6 +3,7 @@ import * as THREE from '../resources/three.js-r129/build/three.module.js';
 import {GLTFLoader} from "../resources/three.js-r129/examples/jsm/loaders/GLTFLoader.js";
 import {Config} from "./Config.js";
 import {OBJLoader} from "../resources/three.js-r129/examples/jsm/loaders/OBJLoader.js";
+import {MTLLoader} from "../resources/three.js-r129/examples/jsm/loaders/MTLLoader.js";
 
 export class EntityMeshManager {
 
@@ -53,8 +54,10 @@ export class EntityMeshManager {
         this.set_texture_models();
         switch (this.texture_pack.id) {
             case 0:
-            case 1:
                 this.set_standard_pack();
+                break;
+            case 1:
+                this.set_pack_one();
                 break;
         }
     }
@@ -63,6 +66,9 @@ export class EntityMeshManager {
         const textures = this.texture_pack.textures;
         console.log("Loading textures...")
         if (textures === null) return;
+
+        if (textures["core"] !== undefined)
+            this.#environment_core_mesh = ModelLoader.get_instance().models[textures["core"].name];
 
         if (textures["snake_head"] !== undefined)
             this.#snake_head_mesh = ModelLoader.get_instance().models[textures["snake_head"].name];
@@ -94,7 +100,7 @@ export class EntityMeshManager {
 
     set_standard_pack(){
         let geometry, material, light, color, mesh, object, dimension;
-        /*------ Environment ------*/ //TODO
+        /*------ Environment ------*/
         const core_color = Config.world_color;
         const core_opacity = Config.world_opacity;
         material = new THREE.MeshPhongMaterial( {color: core_color, transparent: true, opacity: core_opacity} );
@@ -109,18 +115,26 @@ export class EntityMeshManager {
         color = 0x87c38f;
         geometry = new THREE.BoxGeometry(dimension,dimension,dimension);
         material = new THREE.MeshPhongMaterial({color: color, emissive: color, emissiveIntensity: 0.3});
-        light = new THREE.PointLight(0x44aa88, 0.8, 2, 1);
-        this.#snake_head_mesh = new THREE.Mesh(geometry, material).add(light);
+
+        this.#snake_head_mesh = new THREE.Mesh(geometry, material)
+
+        if (Config.graphic_level >= 1){
+            light = new THREE.PointLight(0x44aa88, 0.8, 2, 1);
+            this.#snake_head_mesh.add(light);
+        }
 
         // Nodes
         dimension = Config.snake_nodes_dimension;
         color = 0x415d43;
         geometry = new THREE.BoxGeometry(dimension,dimension,dimension);
         material = new THREE.MeshPhongMaterial({color: color, emissive: color, emissiveIntensity: 0.3});
-        light = new THREE.PointLight(color, 0.8, 2, 1);
 
-        this.#snake_node_mesh = new THREE.Mesh(geometry, material).add(light);
+        this.#snake_node_mesh = new THREE.Mesh(geometry, material);
 
+        if (Config.graphic_level >= 2) {
+            light = new THREE.PointLight(color, 0.8, 2, 1);
+            this.#snake_node_mesh.add(light);
+        }
 
 
         /*------- Food ------*/
@@ -208,6 +222,100 @@ export class EntityMeshManager {
     }
 
 
+    set_pack_one() {
+        let geometry, material, light, color, mesh, object, dimension;
+        /*------ Environment ------*/
+        const core_color = Config.world_color;
+        const core_opacity = Config.world_opacity;
+        material = new THREE.MeshPhongMaterial( {color: core_color, transparent: true, opacity: core_opacity} );
+        geometry = new THREE.BoxGeometry(1, 1, 1, 1, 1, 1);
+
+        this.#environment_core_mesh = new THREE.Mesh(geometry, material);
+
+
+        /*------- Snake ------*/
+        // Head
+        dimension = Config.snake_head_dimension;
+        color = 0x87c38f;
+        geometry = new THREE.BoxGeometry(dimension,dimension,dimension);
+        material = new THREE.MeshPhongMaterial({color: color, emissive: color, emissiveIntensity: 0.3});
+        light = new THREE.PointLight(0x44aa88, 0.8, 2, 1);
+        this.#snake_head_mesh = new THREE.Mesh(geometry, material).add(light);
+
+        // Nodes
+        dimension = Config.snake_nodes_dimension;
+        color = 0x415d43;
+        geometry = new THREE.BoxGeometry(dimension,dimension,dimension);
+        material = new THREE.MeshPhongMaterial({color: color, emissive: color, emissiveIntensity: 0.3});
+        light = new THREE.PointLight(color, 0.8, 2, 1);
+
+        this.#snake_node_mesh = new THREE.Mesh(geometry, material).add(light);
+
+
+
+        /*------- Food ------*/
+        // color = 0xd55672;
+        // geometry = new THREE.SphereGeometry( 0.25, 50, 50 );
+        // material = new THREE.MeshPhongMaterial( {color: color, emissive: color, emissiveIntensity: 0.4} );
+        // material.shininess = 200;
+        // light = new THREE.PointLight(color, 1.5, 2, 1);
+        //
+        // this.#food_mesh = new THREE.Mesh(geometry, material).add(light);
+        console.log("food",this.#food_mesh);
+        mesh = this.#food_mesh;
+        mesh.scale.set(0.02,.02,.02);
+
+
+        console.log(this.#food_mesh);
+
+
+
+        /*------- Obstacle ------*/
+        color = 0x7f6a93;
+        geometry = new THREE.BoxGeometry(1, 1 ,1);
+        material = new THREE.MeshPhongMaterial({color: color});
+        material.transparent = true;
+        material.opacity = 0.8;
+
+        this.#obstacle_part_mesh = new THREE.Mesh(geometry, material);
+
+
+
+        /*------- Lucky bonus ------*/
+        color = 0xFFC500;
+        console.log("lucky",this.#lucky_bonus_mesh);
+        mesh = this.#lucky_bonus_mesh;
+        mesh.scale.set(.1,.1,.1);
+
+
+
+        /*------- Score bonus ------*/
+        color = 0xFFC500;
+        console.log("score",this.#score_bonus_mesh);
+        mesh = this.#score_bonus_mesh;
+        mesh.scale.set(.01,.01,.01);
+
+        /*------- Fast bonus - Deprecated ------*/
+        geometry = new THREE.TorusGeometry( 0.3, 0.05, 10, 16);
+        material = new THREE.MeshBasicMaterial( { color: 0xFFFF92 } );
+
+        this.#fast_bonus_mesh = new THREE.Mesh(geometry, material);
+
+
+        /*------- Invisibility bonus - Deprecated ------*/
+        geometry = new THREE.TorusGeometry( 0.3, 0.05, 10, 16);
+        material = new THREE.MeshBasicMaterial( { color: 0xBAC2DC } );
+
+        this.#invisibility_bonus_mesh = new THREE.Mesh(geometry, material);
+
+
+        /*------- Invincibility bonus ------*/
+        // color = 0xFFC500;
+        mesh = this.#invincibility_bonus_mesh;
+        mesh.scale.set(.002,.002,.002);
+
+        console.log("invi",this.#invincibility_bonus_mesh);
+    }
 
     /* -------- Build meshes --------*/
     get_environment_core_mesh() {
@@ -254,9 +362,11 @@ export class ModelLoader{
 
     static #instance;
 
+    manager;
     #resources_to_load;
     #gltf_loader;
     #obj_loader;
+    #mtl_loader;
     #font_loader;
 
     models = [];
@@ -310,12 +420,13 @@ export class ModelLoader{
 
         this.#gltf_loader = new GLTFLoader(manager);
         this.#obj_loader = new OBJLoader(manager);
+        this.#mtl_loader = new MTLLoader(manager);
         this.#resources_to_load = [];
         this._total_resources = 0;
 
         this.#font_loader = new THREE.FontLoader(manager);
 
-
+        this.manager = manager;
 
 
     }
@@ -366,6 +477,27 @@ export class ModelLoader{
         }
     }
 
+    load_mtl(resource, onload_callback, onprogress_callback, onerror_callback){
+
+        let loader = this;
+
+        // load model
+        this.#mtl_loader.load( resource.path, private_mtl_onload_callback, onprogress_callback, onerror_callback );
+
+        function private_mtl_onload_callback(materials){
+            console.log("mtl")
+            const objLoader = new OBJLoader(loader.manager);
+            objLoader.setMaterials(materials);
+            objLoader.load(resource.obj, private_obj_onload_callback, onprogress_callback, onerror_callback);
+
+
+            function private_obj_onload_callback(obj){
+                loader.models[resource.name] = obj;
+                onload_callback();
+            }
+        }
+    }
+
 
     load_resources(onload_callback, onprogress_callback, onerror_callback){
 
@@ -377,6 +509,9 @@ export class ModelLoader{
             switch (resource.type) {
                 case 'gltf':
                     this.load_gltf(resource, onload_callback, onprogress_callback, onerror_callback);
+                    break;
+                case 'mtl':
+                    this.load_mtl(resource, onload_callback, onprogress_callback, onerror_callback);
                     break;
                 case 'obj':
                     this.load_obj(resource, onload_callback, onprogress_callback, onerror_callback);

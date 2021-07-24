@@ -4,6 +4,7 @@ import { ObstaclePart, Food, Entity, CubeCell, Obstacle} from "./Entity.js";
 import * as THREE from '../resources/three.js-r129/build/three.module.js';
 import {Config} from "./Config.js";
 import {Utilities} from "./Utilities.js";
+import {EntityMeshManager, ModelLoader} from "./ModelLoader.js";
 
 
 
@@ -177,16 +178,18 @@ export class Environment extends View{
 
             // Core Material
             // const core_material = new THREE.MeshBasicMaterial( {color: 0x99CCFF, opacity: 0.1} );
-            const core_color = Config.world_color;
-            const core_opacity = Config.world_opacity;
-            const core_material = new THREE.MeshPhongMaterial( {color: core_color, transparent: true, opacity: core_opacity} );
+            // const core_color = Config.world_color;
+            // const core_opacity = Config.world_opacity;
+            // const core_material = new THREE.MeshPhongMaterial( {color: core_color, transparent: true, opacity: core_opacity} );
+            //
+            //
+            // // Core Geometry
+            // const core_geometry = new THREE.BoxGeometry(core_w, core_h, core_d, core_w, core_h, core_d);
+            // // Core Mesh
+            // const core_mesh = new THREE.Mesh( core_geometry, core_material );
 
-
-            // Core Geometry
-            const core_geometry = new THREE.BoxGeometry(core_w, core_h, core_d, core_w, core_h, core_d);
-            // Core Mesh
-            const core_mesh = new THREE.Mesh( core_geometry, core_material );
-
+            const core_mesh = EntityMeshManager.get_instance().get_environment_core_mesh();
+            core_mesh.scale.set(core_w, core_h, core_d);
             cube_mesh.add(core_mesh);
 
         }

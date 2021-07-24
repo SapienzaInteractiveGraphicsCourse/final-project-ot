@@ -1,9 +1,13 @@
 export class Config {
 
     static DIRECTIONS = {AXES: {X:0, Y:1, Z:2}, SIGN: {POSITIVE: 1, NEGATIVE: -1}}
-    static x_axis = 'X';
-    static y_axis = 'Y';
-    static z_axis = 'Z';
+    static x_positive_axis = 'X';
+    static y_positive_axis = 'Y';
+    static z_positive_axis = 'Z';
+
+    static x_negative_axis = '-X';
+    static y_negative_axis = '-Y';
+    static z_negative_axis = '-Z';
 
     /*----- Game settings------*/
     static game_level = 30;
@@ -12,11 +16,12 @@ export class Config {
 
     // debugging mode
     static log = false;
-    static grid_helpler = false;
+    static grid_helpler = true;
 
 
     // view
     static cell_cube_dim = 1;
+    static graphic_level = 3;
 
 
 
@@ -48,12 +53,18 @@ export class Config {
     static world_depth = 10;
     static world_face_depth = 1;
 
+    // Objects
+    static objects_speed = 2000;
+
 
     /*------ Snake settings ------*/
-    static snake_speed = 400;
+    static snake_speed = 300;
     static snake_nodes_distance = Config.cell_cube_dim;
     static snake_head_dimension = 0.8 * Config.snake_nodes_distance;
     static snake_nodes_dimension = 0.6 * Config.snake_nodes_distance;
+
+
+
 
 
     /*------ Texture packs ------*/
@@ -72,10 +83,11 @@ export class Config {
             id: 1,
             name: "Pack 1",
             textures: {
-                //food: {name: 'food_model', type: 'gltf', path: 'models/apple/scene.gltf'},
-                //invisibility: {name: 'bonus_invisibility_model', type: 'gltf', path: 'models/spooky_ghost/scene.gltf'},
-                //invincibility: {name: 'bonus_invincibility_model', type: 'gltf', path: 'models/cartoon_bomb/scene.gltf'},
-                //score: {name: 'bonus_score_model', type: 'gltf', path: '../resources/three.js-r129/examples/fonts/helvetiker_regular.typeface.json'},
+                food: {name: 'food_model_1', type: 'mtl', path: 'models/mario/power_up.mtl', obj: 'models/mario/power_up.obj'},
+                invisibility: {name: 'bonus_invisibility_model', type: 'gltf', path: 'models/spooky_ghost/scene.gltf'},
+                invincibility: {name: 'bonus_invincibility_model_1', type: 'mtl', path: 'models/mario/star.mtl', obj: 'models/mario/star.obj'},
+                lucky: {name: 'bonus_lucky_model_1', type: 'mtl', path: 'models/mario/flower.mtl', obj: 'models/mario/flower.obj'},
+                score: {name: 'bonus_score_model_1', type: 'mtl', path: 'models/mario/coin.mtl', obj: 'models/mario/coin.obj'},
             },
         },
     ];

@@ -79,7 +79,6 @@ export class Entity extends View {
 
             // default implementation
             const obj_material = new THREE.MeshBasicMaterial( {color: 0xffaf00} );
-            // const obj_material = new THREE.MeshBasicMaterial( {color: 0xaaaf00} );
             const food_geometry = new THREE.SphereGeometry( 0.5, 32, 32 );
             const sphere = new THREE.Mesh( food_geometry, obj_material );
 
@@ -98,6 +97,15 @@ export class Entity extends View {
 
 
         }
+    }
+
+    set_orientation(){
+        let center_axis = Utilities.axis_from_world_coord(this.x, this.y, this.z);
+        center_axis = Utilities.direction_to_vector(center_axis);
+        center_axis = new THREE.Vector3().fromArray(center_axis);
+
+        let quaternion = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0,-1,0), center_axis);
+        this.mesh.setRotationFromQuaternion(quaternion);
     }
 
 
@@ -142,6 +150,7 @@ export class ObstaclePart extends Entity{
             box.rotation.set(this.rot.x, this.rot.y, this.rot.z);
 
             this.mesh = box;
+            this.set_orientation();
 
 
         } else{
@@ -193,14 +202,15 @@ export class Food extends Entity{
     draw(){
 
         if(this.drawable){
-            // const obj_material = new THREE.MeshBasicMaterial( {color: 0xCE1212} );
-            // const food_geometry = new THREE.SphereGeometry( 0.25, 8, 8 );
-            // const sphere = new THREE.Mesh( food_geometry, obj_material );
             const sphere = EntityMeshManager.get_instance().get_food_mesh();
-            sphere.position.set(this.pos.x, this.pos.y, this.pos.z);
-            sphere.rotation.set(this.rot.x, this.rot.y, this.pos.z);
+            this.mesh = new THREE.Object3D().add(sphere);
+            this.mesh.position.set(this.pos.x, this.pos.y, this.pos.z);
+            this.mesh.rotation.set(this.rot.x, this.rot.y, this.pos.z);
 
-            this.mesh = sphere;
+            Utilities.addAxisGridDebug(sphere, "Food");
+
+            this.set_orientation();
+
 
         }else this.mesh = null;
     }
@@ -208,59 +218,12 @@ export class Food extends Entity{
     animate(){
         if(this.drawable){
 
-            // const target_up = {
-            //     // x: pos.x + Config.cell_cube_dim/10,
-            //     // y: pos.y + Config.cell_cube_dim/10,
-            //     z: this.pos.z + Config.cell_cube_dim/10
-            // }
-            //
-            // const target_down = {
-            //     // x: pos.x - Config.cell_cube_dim/10,
-            //     // y: pos.y - Config.cell_cube_dim/10,
-            //     z: this.pos.z - Config.cell_cube_dim/10
-            // }
-            //
-            // const tweenUp = new TWEEN.Tween(this.mesh.position).to( target_up, 1000);
-            // const tweenDown = new TWEEN.Tween(this.mesh.position).to( target_down, 1000);
-            // tweenUp.chain(tweenDown);
-            // tweenDown.chain(tweenUp);
-            // tweenUp.start();
-
-
-            const target_coords = {
-                x: Utilities.degrees_to_radians(90),
-                y: Utilities.degrees_to_radians(90),
-                z: Utilities.degrees_to_radians(90)
-            };
-
-            const target_up = {
-                x: this.pos.x + Config.cell_cube_dim/10,
-                // y: this.pos.y + Config.cell_cube_dim/10,
-                // z: this.pos.z + Config.cell_cube_dim/10
-            }
-
-            const target_down = {
-                x: this.pos.x - Config.cell_cube_dim/10,
-                // y: this.pos.y - Config.cell_cube_dim/10,
-                // z: this.pos.z - Config.cell_cube_dim/10
-            }
-
-            // const tweenRot = new TWEEN.Tween(this.mesh.rotation).to(target_coords, 1000).repeat(Infinity);
-            const tweenUp = new TWEEN.Tween(this.mesh.position).to( target_up, 1000);
-            const tweenDown = new TWEEN.Tween(this.mesh.position).to( target_down, 1000);
-
-            // const loop1 = new TWEEN.Tween().end();
-            // loop1.chain(tweenRot, tweenUp);
-            //
-            // const loop2 = new TWEEN.Tween().end();
-            // loop2.chain(tweenRot, tweenDown);
+            const tweenUp = new TWEEN.Tween(this.mesh.children[0].position).to({x: 0, y: "+" + Config.cell_cube_dim/2, z: 0}, Config.objects_speed / 2);
+            const tweenDown = new TWEEN.Tween(this.mesh.children[0].position).to( {x: 0, y:  "-" + Config.cell_cube_dim/2, z: 0}, Config.objects_speed / 2);
 
             tweenUp.chain(tweenDown);
             tweenDown.chain(tweenUp);
-
             tweenUp.start();
-            // tweenRot.start();
-
         }
     }
 
@@ -274,8 +237,6 @@ export class Bonus extends Entity{
         super(x, y, z, drawable, movable, erasable); // call the super class constructor and pass in the name parameter
 
         this.mesh = null;
-        // this.draw();
-        // this.animate();
     }
 
 
@@ -294,37 +255,11 @@ export class Bonus extends Entity{
     }
 
     animate(){
-
         if (this.drawable){
-
-            let target_coords;
-            let rotation_axis = Utilities.axis_from_world_coord(this.x, this.y, this.z);
-            switch (rotation_axis){
-                case Config.x_axis:
-                    target_coords  = { x: Utilities.degrees_to_radians(360), y: 0, z: 0 };
-                    break;
-                case Config.y_axis:
-                    target_coords  = { x: 0, y: Utilities.degrees_to_radians(360), z: 0 };
-                    break;
-                case Config.z_axis:
-                    target_coords  = { x: 0, y: 0, z: Utilities.degrees_to_radians(360) };
-                    break;
-            }
-
-            // console.log("target_coords ", target_coords);
-
-            // const target_coords = {
-            //     x: Utilities.degrees_to_radians(360),
-            //     y: Utilities.degrees_to_radians(360),
-            //     z: Utilities.degrees_to_radians(360)
-            // };
-
-            // console.log("rotation ", target_coords);
-            const tween_start = new TWEEN.Tween(this.mesh.rotation).to(target_coords, 2500).repeat(Infinity);
-            tween_start.start();
-
+            console.log(this.mesh);
+            const rotation_animation = new TWEEN.Tween(this.mesh.children[0].rotation).to({x: 0, y: "+" + Math.PI, z: 0}, Config.objects_speed);
+            rotation_animation.repeat(Infinity).start();
         }
-
     }
 
 
@@ -343,21 +278,15 @@ export class LuckyBonus extends Bonus{
 
     draw(){
         if(this.drawable){
-
-            // const geometry = new THREE.TorusGeometry( 0.3, 0.05, 10, 16);
-            // const material = new THREE.MeshBasicMaterial( { color: 0x48A229 } );
-            // const torus = new THREE.Mesh( geometry, material );
             const torus = EntityMeshManager.get_instance().get_lucky_bonus_mesh();
-            torus.position.set(this.pos.x, this.pos.y, this.pos.z);
-            torus.rotation.set(this.rot.x, this.rot.y, this.pos.z);
+            this.mesh = new THREE.Object3D().add(torus);
+            this.mesh.position.set(this.pos.x, this.pos.y, this.pos.z);
+            this.mesh.rotation.set(this.rot.x, this.rot.y, this.pos.z);
 
-            this.mesh = torus;
-
+            this.set_orientation();
         }else this.mesh = null;
     }
-    animate() {
-        super.animate();
-    }
+
 }
 
 // the snake gains more
@@ -372,15 +301,12 @@ export class ScoreBonus extends Bonus{
 
     draw(){
         if(this.drawable){
-
-            // const geometry = new THREE.TorusGeometry( 0.3, 0.05, 10, 16);
-            // const material = new THREE.MeshBasicMaterial( { color: 0xFFC500 } );
-            // const torus = new THREE.Mesh( geometry, material );
             const torus = EntityMeshManager.get_instance().get_score_bonus_mesh();
-            torus.position.set(this.pos.x, this.pos.y, this.pos.z);
-            torus.rotation.set(this.rot.x, this.rot.y, this.pos.z);
+            this.mesh = new THREE.Object3D().add(torus);
+            this.mesh.position.set(this.pos.x, this.pos.y, this.pos.z);
+            this.mesh.rotation.set(this.rot.x, this.rot.y, this.pos.z);
 
-            this.mesh = torus;
+            this.set_orientation();
 
         }else this.mesh = null;
     }
@@ -399,17 +325,18 @@ export class FastBonus extends Bonus{
 
     draw(){
         if(this.drawable){
-
-            // const geometry = new THREE.TorusGeometry( 0.3, 0.05, 10, 16);
-            // const material = new THREE.MeshBasicMaterial( { color: 0xFFFF92 } );
-            // const torus = new THREE.Mesh( geometry, material );
             const torus = EntityMeshManager.get_instance().get_fast_bonus_mesh();
             torus.position.set(this.pos.x, this.pos.y, this.pos.z);
             torus.rotation.set(this.rot.x, this.rot.y, this.pos.z);
 
             this.mesh = torus;
+            this.set_orientation();
 
         }else this.mesh = null;
+    }
+
+    animate() {
+
     }
 }
 
@@ -426,17 +353,14 @@ export class InvincibilityBonus extends Bonus{
 
     draw(){
         if(this.drawable){
-
-            // const geometry = new THREE.TorusGeometry( 0.3, 0.05, 10, 16);
-            // const material = new THREE.MeshBasicMaterial( { color: 0x3A5FD6 } );
-            // const torus = new THREE.Mesh( geometry, material );
-
             const torus = EntityMeshManager.get_instance().get_invincibility_bonus_mesh();
-            torus.position.set(this.pos.x, this.pos.y, this.pos.z);
-            torus.rotation.set(this.rot.x, this.rot.y, this.pos.z);
+            this.mesh = new THREE.Object3D().add(torus);
+            this.mesh.position.set(this.pos.x, this.pos.y, this.pos.z);
+            this.mesh.rotation.set(this.rot.x, this.rot.y, this.pos.z);
 
-            this.mesh = torus;
+            Utilities.addAxisGridDebug(torus, "Invincibility Bonus");
 
+            this.set_orientation();
         }else this.mesh = null;
     }
 }
@@ -454,19 +378,19 @@ export class InvisibilityBonus extends Bonus{
 
     draw(){
         if(this.drawable){
-
-            // const geometry = new THREE.TorusGeometry( 0.3, 0.05, 10, 16);
-            // const material = new THREE.MeshBasicMaterial( { color: 0xBAC2DC } );
-            // const torus = new THREE.Mesh( geometry, material );
-
             const torus = EntityMeshManager.get_instance().get_invisibility_bonus_mesh();
             torus.position.set(this.pos.x, this.pos.y, this.pos.z);
             torus.rotation.set(this.rot.x, this.rot.y, this.pos.z);
 
             Utilities.addAxisGridDebug(torus, "Invisibility Bonus");
             this.mesh = torus;
+            this.set_orientation();
 
         }else this.mesh = null;
+    }
+
+    animate() {
+
     }
 }
 
