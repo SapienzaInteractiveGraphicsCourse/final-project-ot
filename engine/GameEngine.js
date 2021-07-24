@@ -427,8 +427,6 @@ class GameEngine{
         // stop match
         console.log("Stopping game.");
 
-        // console.log("")
-
 
         this.match_manager.end_level(score);
 
@@ -443,7 +441,8 @@ class GameEngine{
 
     }
 
-
+    update_engine(){
+    }
 
     // collision handler
 
@@ -487,10 +486,18 @@ class GameEngine{
             // todo remove old
             // very dirty solution
             // this.scene.children.pop();
-            this.scene.remove(this.score_manager.mesh);
+
+            this.camera_obj.camera.remove(this.score_manager.total_score_mesh);
+            this.scene.remove(this.score_manager.local_score_mesh);
+
             this.score_manager.update_score(content);
-            this.scene.add(this.score_manager.mesh);
+
+            this.scene.add(this.score_manager.local_score_mesh);
+            this.camera_obj.camera.add(this.score_manager.total_score_mesh);
+
             this.score_manager.animate();
+
+
 
 
             return false;

@@ -332,7 +332,7 @@ export class Controller{
             this.schedule_movement(instance_position, instance_target_position, instance_direction);
         }
 
-
+        this.engine.update_engine();
         snake.move();
     }
 
