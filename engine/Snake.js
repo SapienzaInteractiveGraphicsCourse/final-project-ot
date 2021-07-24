@@ -182,6 +182,11 @@ class AnimationHandler {
         if (AnimationHandler.eventQueue.length === 0) return null;
         return AnimationHandler.eventQueue[0].direction;
     }
+
+    static reset() {
+        AnimationHandler.eventQueue = [];
+        AnimationHandler.currentEvents = null;
+    }
 }
 
 
@@ -206,6 +211,7 @@ export class SnakeNode{
         this.mesh = mesh;
         this.container.add(this.mesh);
         this.spawned = false;
+        AnimationHandler.reset();
     }
 
     get_position() {
