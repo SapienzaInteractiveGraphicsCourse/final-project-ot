@@ -45,6 +45,7 @@ class SynchronousAnimations {
 
     /* Start all the events: translation, rotations, animations */
     start() {
+        if (this.#movement === null) return;
         this.#movement.start();
 
         let spawn_id = -1;
