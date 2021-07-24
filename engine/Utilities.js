@@ -11,15 +11,15 @@ export class Utilities {
         let axis;
         if(x === 0){
             axis = Utilities.vector_to_direction([1,0,0]);
-        } else if (x === Config.world_width - 1){
+        } else if (x === Config.current_match_configuration.configuration.levels[Config.current_level].configuration.world_width - 1){
             axis = Utilities.vector_to_direction([-1,0,0]);
         } else if (y === 0){
             axis = Utilities.vector_to_direction([0,1,0]);
-        } else if (y === Config.world_height - 1){
+        } else if (y === Config.current_match_configuration.configuration.levels[Config.current_level].configuration.world_height - 1){
             axis = Utilities.vector_to_direction([0,-1,0]);
         } else if (z === 0){
             axis = Utilities.vector_to_direction([0,0,1]);
-        } else if (z === Config.world_depth - 1){
+        } else if (z === Config.current_match_configuration.configuration.levels[Config.current_level].configuration.world_depth - 1){
             axis = Utilities.vector_to_direction([0,0,-1]);
         }
         return axis;
@@ -32,9 +32,9 @@ export class Utilities {
             y = coordinates_or_x[1];
             x = coordinates_or_x[0];
         }
-        var w = Config.world_width;
-        var h = Config.world_height;
-        var d = Config.world_depth;
+        var w = Config.current_match_configuration.configuration.levels[Config.current_level].configuration.world_width;
+        var h = Config.current_match_configuration.configuration.levels[Config.current_level].configuration.world_height;
+        var d = Config.current_match_configuration.configuration.levels[Config.current_level].configuration.world_depth;
         return [x - w/2 + 0.5, y - h/2 + 0.5, z - d/2 + 0.5];
     }
 
@@ -45,9 +45,9 @@ export class Utilities {
             y = coordinates_or_x[1];
             x = coordinates_or_x[0];
         }
-        var w = Config.world_width;
-        var h = Config.world_height;
-        var d = Config.world_depth;
+        var w = Config.current_match_configuration.configuration.levels[Config.current_level].configuration.world_width;
+        var h = Config.current_match_configuration.configuration.levels[Config.current_level].configuration.world_height;
+        var d = Config.current_match_configuration.configuration.levels[Config.current_level].configuration.world_depth;
 
         return [Math.round(x + w/2 - 0.5),Math.round( y + h/2 - 0.5), Math.round( z + d/2 - 0.5)];
     }

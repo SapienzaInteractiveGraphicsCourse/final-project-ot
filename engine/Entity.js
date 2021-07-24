@@ -24,7 +24,7 @@ export class Entity extends View {
     pos;
     rot;
 
-    constructor(x, y, z, drawable, movable, erasable){
+    constructor(x, y, z, drawable, movable, erasable, eatable){
         super();
 
         // common 
@@ -40,11 +40,13 @@ export class Entity extends View {
         this.erasable = erasable;
         this.movable = movable;
 
+        this.eatable = eatable;
+
         // view
         this.pos = {
-            x: this.x - Config.world_width/2 + Config.cell_cube_dim/2,
-            y: this.y - Config.world_height/2 + Config.cell_cube_dim/2,
-            z: this.z - Config.world_depth/2 + Config.cell_cube_dim/2
+            x: this.x - Config.current_match_configuration.configuration.levels[Config.current_level].configuration.world_width/2 + Config.cell_cube_dim/2,
+            y: this.y - Config.current_match_configuration.configuration.levels[Config.current_level].configuration.world_height/2 + Config.cell_cube_dim/2,
+            z: this.z - Config.current_match_configuration.configuration.levels[Config.current_level].configuration.world_depth/2 + Config.cell_cube_dim/2
         }
 
         this.rot = {
@@ -59,9 +61,9 @@ export class Entity extends View {
     // update entity position
     #update_entity_view_position(){
         this.pos = {
-            x: this.x - Config.world_width/2 + Config.cell_cube_dim/2,
-            y: this.y - Config.world_height/2 + Config.cell_cube_dim/2,
-            z: this.z - Config.world_depth/2 + Config.cell_cube_dim/2
+            x: this.x - Config.current_match_configuration.configuration.levels[Config.current_level].configuration.world_width/2 + Config.cell_cube_dim/2,
+            y: this.y - Config.current_match_configuration.configuration.levels[Config.current_level].configuration.world_height/2 + Config.cell_cube_dim/2,
+            z: this.z - Config.current_match_configuration.configuration.levels[Config.current_level].configuration.world_depth/2 + Config.cell_cube_dim/2
         }
     }
 
@@ -114,7 +116,7 @@ export class Entity extends View {
 export class CubeCell extends Entity{
 
     constructor(x, y, z, drawable, movable, erasable, entity){
-        super(x, y, z, drawable, movable, erasable); // call the super class constructor and pass in the name parameter
+        super(x, y, z, drawable, movable, erasable, false); // call the super class constructor and pass in the name parameter
      
         this.content = entity;
     }
@@ -134,7 +136,7 @@ export class Obstacle {
 export class ObstaclePart extends Entity{
     
     constructor(x, y, z, drawable, movable, erasable){
-        super(x, y, z, drawable, movable, erasable); // call the super class constructor and pass in the name parameter
+        super(x, y, z, drawable, movable, erasable, false); // call the super class constructor and pass in the name parameter
 
         this.mesh = null;
         this.draw();
@@ -165,11 +167,20 @@ export class ObstaclePart extends Entity{
 
 }
 
+export class CoreObstaclePart extends Entity{
+
+    constructor(x, y, z, drawable, movable, erasable){
+        super(x, y, z, drawable, movable, erasable, false); // call the super class constructor and pass in the name parameter
+
+    }
+
+}
+
 // Snake node data structure object
 export class SnakeNodeEntity extends Entity{
 
     constructor(x, y, z, drawable, movable, erasable){
-        super(x, y, z, drawable, movable, erasable); // call the super class constructor and pass in the name parameter
+        super(x, y, z, drawable, movable, erasable, false); // call the super class constructor and pass in the name parameter
         this.mesh = null;
         this.draw();
     }
@@ -192,7 +203,7 @@ export class SnakeNodeEntity extends Entity{
 export class Food extends Entity{
 
     constructor(x, y, z, drawable, movable, erasable){
-        super(x, y, z, drawable, movable, erasable); // call the super class constructor and pass in the name parameter
+        super(x, y, z, drawable, movable, erasable, true); // call the super class constructor and pass in the name parameter
         this.mesh = null;
         this.draw();
         this.animate();
@@ -207,7 +218,7 @@ export class Food extends Entity{
             this.mesh.position.set(this.pos.x, this.pos.y, this.pos.z);
             this.mesh.rotation.set(this.rot.x, this.rot.y, this.pos.z);
 
-            Utilities.addAxisGridDebug(sphere, "Food");
+            if(Config.grid_helpler) Utilities.addAxisGridDebug(sphere, "Food");
 
             this.set_orientation();
 
@@ -234,7 +245,7 @@ export class Food extends Entity{
 export class Bonus extends Entity{
 
     constructor(x, y, z, drawable, movable, erasable){
-        super(x, y, z, drawable, movable, erasable); // call the super class constructor and pass in the name parameter
+        super(x, y, z, drawable, movable, erasable, true); // call the super class constructor and pass in the name parameter
 
         this.mesh = null;
     }
@@ -256,7 +267,7 @@ export class Bonus extends Entity{
 
     animate(){
         if (this.drawable){
-            console.log(this.mesh);
+            // console.log(this.mesh);
             const rotation_animation = new TWEEN.Tween(this.mesh.children[0].rotation).to({x: 0, y: "+" + Math.PI, z: 0}, Config.objects_speed);
             rotation_animation.repeat(Infinity).start();
         }
@@ -358,7 +369,7 @@ export class InvincibilityBonus extends Bonus{
             this.mesh.position.set(this.pos.x, this.pos.y, this.pos.z);
             this.mesh.rotation.set(this.rot.x, this.rot.y, this.pos.z);
 
-            Utilities.addAxisGridDebug(torus, "Invincibility Bonus");
+            if(Config.grid_helpler) Utilities.addAxisGridDebug(torus, "Invincibility Bonus");
 
             this.set_orientation();
         }else this.mesh = null;
@@ -382,7 +393,7 @@ export class InvisibilityBonus extends Bonus{
             torus.position.set(this.pos.x, this.pos.y, this.pos.z);
             torus.rotation.set(this.rot.x, this.rot.y, this.pos.z);
 
-            Utilities.addAxisGridDebug(torus, "Invisibility Bonus");
+            if(Config.grid_helpler) Utilities.addAxisGridDebug(torus, "Invisibility Bonus");
             this.mesh = torus;
             this.set_orientation();
 

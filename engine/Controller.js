@@ -272,40 +272,41 @@ export class Controller{
         let cell_content = manager.get_entity(x, y, z);
         if(cell_content == null) return end_game;
 
-        this.engine.collision(cell_content);
+        end_game = this.engine.collision(cell_content);
 
-        switch (cell_content.constructor.name) {
-            case 'ObstaclePart':
-                if(Config.log) console.log("ObstaclePart hit");
-                this.engine.obstacle_hit(cell_content);
 
-                end_game = true;
-                break;
-            case 'SnakeNodeEntity':
-                if(Config.log) console.log("SnakeNode hit");
-                this.engine.snake_hit(cell_content);
-
-                end_game = true;
-                break;
-
-            case 'Food':
-                if(Config.log) console.log("Food hit");
-                this.engine.food_hit(cell_content);
-                end_game = false;
-                break;
-
-            case 'LuckyBonus':
-            case 'ScoreBonus':
-            case 'FastBonus':
-            case 'InvincibilityBonus':
-            case 'InvisibilityBonus':
-            case 'Bonus':
-                if(Config.log) console.log("Bonus hit");
-                this.engine.bonus_hit(cell_content);
-                end_game = false;
-                break;
-
-        }
+        // switch (cell_content.constructor.name) {
+        //     case 'ObstaclePart':
+        //         if(Config.log) console.log("ObstaclePart hit");
+        //         this.engine.obstacle_hit(cell_content);
+        //
+        //         end_game = true;
+        //         break;
+        //     case 'SnakeNodeEntity':
+        //         if(Config.log) console.log("SnakeNode hit");
+        //         this.engine.snake_hit(cell_content);
+        //
+        //         end_game = true;
+        //         break;
+        //
+        //     case 'Food':
+        //         if(Config.log) console.log("Food hit");
+        //         this.engine.food_hit(cell_content);
+        //         end_game = false;
+        //         break;
+        //
+        //     case 'LuckyBonus':
+        //     case 'ScoreBonus':
+        //     case 'FastBonus':
+        //     case 'InvincibilityBonus':
+        //     case 'InvisibilityBonus':
+        //     case 'Bonus':
+        //         if(Config.log) console.log("Bonus hit");
+        //         this.engine.bonus_hit(cell_content);
+        //         end_game = false;
+        //         break;
+        //
+        // }
 
         return end_game;
 

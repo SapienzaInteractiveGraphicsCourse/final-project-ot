@@ -12,17 +12,15 @@ export class Config {
     /*----- Game settings------*/
     static game_level = 30;
 
-    static username = "Guest";
 
     // debugging mode
     static log = false;
-    static grid_helpler = true;
+    static grid_helpler = false;
 
 
     // view
     static cell_cube_dim = 1;
     static graphic_level = 3;
-
 
 
     /*----- Camera settings ------*/
@@ -62,6 +60,7 @@ export class Config {
     static snake_nodes_distance = Config.cell_cube_dim;
     static snake_head_dimension = 0.8 * Config.snake_nodes_distance;
     static snake_nodes_dimension = 0.6 * Config.snake_nodes_distance;
+
 
 
 
@@ -145,6 +144,186 @@ export class Config {
     static world_color = 0x99CCFF;
     static world_opacity = 0.7;
 
+
+
+    // // environment settings
+    static world_width = 10;
+    static world_height = 10;
+    static world_depth = 10;
+    static world_face_depth = 1;
+
+
+    /*----- Game settings------*/
+    // static game_level = 30;
+
+    static username = "Guest";
+    static current_level = 0;
+
+
+    // game mode
+    // static GAME_MODES = [
+    //     {
+    //         id : 0,
+    //         name: "Custom",
+    //         label: "custom"
+    //     },
+    //     {
+    //         id : 1,
+    //         name: "Regular",
+    //         label: "regular"
+    //     }
+    // ];
+
+
+    // match configuration
+    static GAME_MODES = [
+        {
+            id: 0,
+            name: 'Custom',
+            levels: false,
+            total_levels: 1,
+            configuration: {
+                levels: [
+                    {
+                        level: 1,
+                        name: "Level 1",
+                        configuration: {
+
+                            // env
+                            world_width: 7,
+                            world_height: 7,
+                            world_depth: 7,
+                            world_face_depth: 1,
+
+                            // level
+                            game_level: 10,
+
+                            // entity
+                            spawn_obs: true,
+                            spawn_bonus: true,
+
+                            movable_obs: true,
+                            movable_food: true,
+                            movable_bonus: true,
+
+                            erasable_obs: true,
+                            erasable_food: true,
+                            erasable_bonus: true,
+
+                            target_score: 5,
+                            texture_pack_id: 0
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            id: 1,
+            name: "Regular",
+            levels: true,
+            total_levels: 3,
+            configuration: {
+                levels: [
+                    {
+                        level: 1,
+                        name: "Level 1",
+                        configuration: {
+
+                            // env
+                            world_width: 10,
+                            world_height: 10,
+                            world_depth: 10,
+                            world_face_depth: 1,
+
+                            // level
+                            game_level: 10,
+
+                            // entity
+                            spawn_obs: true,
+                            spawn_bonus: true,
+
+                            movable_obs: true,
+                            movable_food: true,
+                            movable_bonus: true,
+
+                            erasable_obs: true,
+                            erasable_food: true,
+                            erasable_bonus: true,
+
+                            target_score: 2,
+                            texture_pack_id: 0
+                        }
+                    },
+                    {
+                        level: 2,
+                        name: "Level 2",
+                        configuration: {
+
+                            // env
+                            world_width: 8,
+                            world_height: 8,
+                            world_depth: 8,
+                            world_face_depth: 1,
+
+                            // level
+                            game_level: 10,
+
+                            // entity
+                            spawn_obs: true,
+                            spawn_bonus: true,
+
+                            movable_obs: true,
+                            movable_food: true,
+                            movable_bonus: true,
+
+                            erasable_obs: true,
+                            erasable_food: true,
+                            erasable_bonus: true,
+
+                            target_score: 3,
+                            texture_pack_id: 0
+                        }
+
+                    },
+                    {
+                        level: 3,
+                        name: "Level 3",
+                        configuration: {
+
+                            // env
+                            world_width: 5,
+                            world_height: 5,
+                            world_depth: 5,
+                            world_face_depth: 1,
+
+                            // level
+                            game_level: 10,
+
+                            // entity
+                            spawn_obs: true,
+                            spawn_bonus: true,
+
+                            movable_obs: true,
+                            movable_food: true,
+                            movable_bonus: true,
+
+                            erasable_obs: true,
+                            erasable_food: true,
+                            erasable_bonus: true,
+
+                            target_score: 2,
+                            texture_pack_id: 0
+                        }
+
+                    },
+                ]
+            }
+        }
+    ];
+
+
+    // static current_game_mode = Config.GAME_MODES[0]; // custom
+    static current_match_configuration = Config.GAME_MODES[0]; // custom match config
 
 
 
