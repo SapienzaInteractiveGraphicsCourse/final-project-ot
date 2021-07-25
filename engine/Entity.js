@@ -431,8 +431,8 @@ export class Particle{
         
 
         // const geometry = new THREE.TorusGeometry( 0.1, 0.025, 10, 16);
-        var geometry;
-    
+        let geometry;
+
         if( type === THREE.DodecahedronGeometry )
             geometry = new THREE.DodecahedronGeometry(radius);
         else if (type === THREE.TetrahedronGeometry)

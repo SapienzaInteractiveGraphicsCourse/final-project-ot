@@ -199,48 +199,43 @@ class MatchManager {
         }
         else if(game_mode === Config.GAME_MODES[1].id) // regular
         {
-            // alert("save configuration " + game_mode + " current level " + this.current_level);
+            // if game mode is changed reset current level
+            if(Config.current_match_configuration.id !== Config.GAME_MODES[1].id ) this.current_level = 0;
             Config.current_level = this.current_level; // update level if needed
             Config.current_match_configuration = Config.GAME_MODES[1]; // set game mode
-
-            // all the configuration are readed from config files
-
+            Config.current_texture_pack = Config.TEXTURE_PACKS[Config.current_match_configuration.configuration.levels[Config.current_level].configuration.texture_pack_id]; // set texture pack
 
         }
+        else if(game_mode === Config.GAME_MODES[2].id) // regular
+        {
+            // if game mode is changed reset current level
+            if(Config.current_match_configuration.id !== Config.GAME_MODES[1].id ) this.current_level = 0;
+            Config.current_level = this.current_level; // update level if needed
+            Config.current_match_configuration = Config.GAME_MODES[2]; // set game mode
+            Config.current_texture_pack = Config.TEXTURE_PACKS[Config.current_match_configuration.configuration.levels[Config.current_level].configuration.texture_pack_id]; // set texture pack
 
-        // this.username = Config.username;
-        // this.current_level = Config.current_level;
-        // this.game_mode = Config.current_match_configuration;
-        //
-        // this.world_width = Config.current_match_configuration.configuration.levels[Config.current_level].configuration.world_width;
-        // this.world_height = Config.current_match_configuration.configuration.levels[Config.current_level].configuration.world_height;
-        // this.world_depth = Config.current_match_configuration.configuration.levels[Config.current_level].configuration.world_depth;
-        // this.world_face_depth = Config.current_match_configuration.configuration.levels[Config.current_level].configuration.world_face_depth;
-        //
-        // this.game_level = Config.current_match_configuration.configuration.levels[Config.current_level].configuration.game_level;
-        // this.spawn_bonus = Config.current_match_configuration.configuration.levels[Config.current_level].configuration.spawn_bonus;
-        // this.spawn_obs = Config.current_match_configuration.configuration.levels[Config.current_level].configuration.spawn_obs;
-        //
-        // this.movable_bonus = Config.current_match_configuration.configuration.levels[Config.current_level].configuration.movable_bonus;
-        // this.movable_food = Config.current_match_configuration.configuration.levels[Config.current_level].configuration.movable_food;
-        // this.movable_obs = Config.current_match_configuration.configuration.levels[Config.current_level].configuration.movable_obs;
-        //
-        // this.erasable_bonus = Config.current_match_configuration.configuration.levels[Config.current_level].configuration.erasable_bonus;
-        // this.erasable_food = Config.current_match_configuration.configuration.levels[Config.current_level].configuration.erasable_food;
-        // this.erasable_obs = Config.current_match_configuration.configuration.levels[Config.current_level].configuration.erasable_obs;
+        }
+        else if(game_mode === Config.GAME_MODES[3].id) // regular
+        {
+            // if game mode is changed reset current level
+            if(Config.current_match_configuration.id !== Config.GAME_MODES[1].id ) this.current_level = 0;
+            Config.current_level = this.current_level; // update level if needed
+            Config.current_match_configuration = Config.GAME_MODES[3]; // set game mode
+            Config.current_texture_pack = Config.TEXTURE_PACKS[Config.current_match_configuration.configuration.levels[Config.current_level].configuration.texture_pack_id]; // set texture pack
 
+        }
+        //    todo add here new added world configuration
 
 
 
     }
 
     start_level(){
-
-        alert(
-            " Start level \n" +
-            " Config: " + this.game_mode_id + " " + this.game_mode_name + " " + this.game_mode_levels + "\n" +
-            " Level: " + this.game_mode_level_name
-        )
+        // alert(
+        //     " Start level \n" +
+        //     " Config: " + this.game_mode_id + " " + this.game_mode_name + " " + this.game_mode_levels + "\n" +
+        //     " Level: " + this.game_mode_level_name
+        // )
     }
 
     end_level(reached_score){
@@ -251,7 +246,7 @@ class MatchManager {
         result_div.innerHTML = '';
 
         let message = "";
-        message = "Game over !";
+        message = "Game over " + this.username + " !";
         result_div.appendChild(document.createTextNode(message));
         result_div.appendChild(document.createElement("br"));
         message = "Total score: " + reached_score;
@@ -261,32 +256,38 @@ class MatchManager {
         if (this.game_mode_levels === true) {
             // regular game
             let target_score = this.target_score;
-            if (reached_score >= target_score) {
-                message = "Level " + this.game_mode_level_name + " win !";
+            let level_name = this.game_mode_level_name;
+            let total_level = this.game_mode_total_levels;
+            let current_level = this.current_level;
+            let world_name = this.game_mode_name;
+            if (reached_score >= target_score) { // Win level
+                message = "Level " + level_name + " win !";
                 result_div.appendChild(document.createTextNode(message));
                 result_div.appendChild(document.createElement("br"));
 
                 // alert("Level Win, total score " + reached_score);
-                if (this.game_mode_total_levels - 1 === this.current_level ){
-                    message = "World " + this.game_mode_name + " completed !";
+                if (total_level - 1 === current_level ){  // Win world
+                    message = "World " + world_name + " completed !";
                     result_div.appendChild(document.createTextNode(message));
                     result_div.appendChild(document.createElement("br"));
 
-                    // alert("World completed, thanks you!");
-                    this.current_level = 0;
+                    current_level = 0;
                 }
-                else {
-                    this.current_level++;
+                else { // world to complete
+                    current_level++;
                 }
-            } else {
+            } else {  // lose level
                 // alert("Level Lose, total score " + reached_score);
-                message = "Level " + this.game_mode_level_name + "lose !";
+                message = "Level " + level_name + " lose !";
+                result_div.appendChild(document.createTextNode(message));
+                result_div.appendChild(document.createElement("br"));
+                message = target_score + " points are required to pass this level ";
                 result_div.appendChild(document.createTextNode(message));
                 result_div.appendChild(document.createElement("br"));
 
             }
 
-
+            this.current_level = current_level;
 
         }
         else{
@@ -695,6 +696,12 @@ function game_mode_option_change_function(obj) {
     {
         enable_form_input(true);
     } else if(game_mode === Config.GAME_MODES[1].id) // regular
+    {
+        enable_form_input(false);
+    } else if(game_mode === Config.GAME_MODES[2].id) // regular
+    {
+        enable_form_input(false);
+    } else if(game_mode === Config.GAME_MODES[3].id) // regular
     {
         enable_form_input(false);
     }

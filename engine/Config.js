@@ -99,8 +99,8 @@ export class Config {
     static initial_score = 0;
     static multiplicator = 1;
     static food_score = 5;
-    static bonus_score = 0.5;
-    static obstacle_score = 0;
+    static bonus_score = 1;
+    static obstacle_score = 10;
     static snakenode_score = 0;
 
 
@@ -132,20 +132,6 @@ export class Config {
     static username = "Guest";
     static current_level = 0;
 
-
-    // game mode
-    // static GAME_MODES = [
-    //     {
-    //         id : 0,
-    //         name: "Custom",
-    //         label: "custom"
-    //     },
-    //     {
-    //         id : 1,
-    //         name: "Regular",
-    //         label: "regular"
-    //     }
-    // ];
 
 
     // match configuration
@@ -183,7 +169,7 @@ export class Config {
                             erasable_food: true,
                             erasable_bonus: true,
 
-                            target_score: 5,
+                            target_score: 1000,
                             texture_pack_id: 0
                         }
                     }
@@ -199,7 +185,7 @@ export class Config {
                 levels: [
                     {
                         level: 1,
-                        name: "Level 1",
+                        name: "First",
                         configuration: {
 
                             // env
@@ -209,11 +195,11 @@ export class Config {
                             world_face_depth: 1,
 
                             // level
-                            game_level: 10,
+                            game_level: 1,
 
                             // entity
-                            spawn_obs: true,
-                            spawn_bonus: true,
+                            spawn_obs: false,
+                            spawn_bonus: false,
 
                             movable_obs: true,
                             movable_food: true,
@@ -223,13 +209,13 @@ export class Config {
                             erasable_food: true,
                             erasable_bonus: true,
 
-                            target_score: 2,
+                            target_score: 20,
                             texture_pack_id: 0
                         }
                     },
                     {
                         level: 2,
-                        name: "Level 2",
+                        name: "Second",
                         configuration: {
 
                             // env
@@ -239,11 +225,11 @@ export class Config {
                             world_face_depth: 1,
 
                             // level
-                            game_level: 10,
+                            game_level: 2,
 
                             // entity
                             spawn_obs: true,
-                            spawn_bonus: true,
+                            spawn_bonus: false,
 
                             movable_obs: true,
                             movable_food: true,
@@ -253,14 +239,14 @@ export class Config {
                             erasable_food: true,
                             erasable_bonus: true,
 
-                            target_score: 3,
+                            target_score: 20,
                             texture_pack_id: 0
                         }
 
                     },
                     {
                         level: 3,
-                        name: "Level 3",
+                        name: "Third",
                         configuration: {
 
                             // env
@@ -284,8 +270,305 @@ export class Config {
                             erasable_food: true,
                             erasable_bonus: true,
 
-                            target_score: 2,
+                            target_score: 20,
                             texture_pack_id: 0
+                        }
+
+                    },
+                ]
+            }
+        },
+        {
+            id: 2,
+            name: "Super Mario Regular",
+            levels: true,
+            total_levels: 3,
+            configuration: {
+                levels: [
+                    {
+                        level: 1,
+                        name: "One",
+                        configuration: {
+
+                            // env
+                            world_width: 10,
+                            world_height: 10,
+                            world_depth: 10,
+                            world_face_depth: 1,
+
+                            // level
+                            game_level: 1,
+
+                            // entity
+                            spawn_obs: false,
+                            spawn_bonus: false,
+
+                            movable_obs: true,
+                            movable_food: true,
+                            movable_bonus: true,
+
+                            erasable_obs: true,
+                            erasable_food: true,
+                            erasable_bonus: true,
+
+                            target_score: 10,
+                            texture_pack_id: 1
+                        }
+                    },
+                    {
+                        level: 2,
+                        name: "Two",
+                        configuration: {
+
+                            // env
+                            world_width: 8,
+                            world_height: 8,
+                            world_depth: 8,
+                            world_face_depth: 1,
+
+                            // level
+                            game_level: 2,
+
+                            // entity
+                            spawn_obs: true,
+                            spawn_bonus: false,
+
+                            movable_obs: true,
+                            movable_food: true,
+                            movable_bonus: true,
+
+                            erasable_obs: true,
+                            erasable_food: true,
+                            erasable_bonus: true,
+
+                            target_score: 10,
+                            texture_pack_id: 1
+                        }
+
+                    },
+                    {
+                        level: 3,
+                        name: "Three",
+                        configuration: {
+
+                            // env
+                            world_width: 5,
+                            world_height: 5,
+                            world_depth: 5,
+                            world_face_depth: 1,
+
+                            // level
+                            game_level: 10,
+
+                            // entity
+                            spawn_obs: true,
+                            spawn_bonus: true,
+
+                            movable_obs: true,
+                            movable_food: true,
+                            movable_bonus: true,
+
+                            erasable_obs: true,
+                            erasable_food: true,
+                            erasable_bonus: true,
+
+                            target_score: 10,
+                            texture_pack_id: 1
+                        }
+
+                    },
+                ]
+            }
+        },
+        {
+            id: 3,
+            name: "Mixed Incremental",
+            levels: true,
+            total_levels: 5,
+            configuration: {
+                levels: [
+                    {
+                        level: 1,
+                        name: "Basic 5 x 5",
+                        configuration: {
+
+                            // env
+                            world_width: 5,
+                            world_height: 5,
+                            world_depth: 5,
+                            world_face_depth: 1,
+
+                            // level
+                            game_level: 2,
+
+                            // entity
+                            spawn_obs: false,
+                            spawn_bonus: false,
+
+                            movable_obs: true,
+                            movable_food: true,
+                            movable_bonus: true,
+
+                            erasable_obs: true,
+                            erasable_food: true,
+                            erasable_bonus: true,
+
+                            target_score: 20,
+                            texture_pack_id: 0
+                        }
+                    },
+                    {
+                        level: 2,
+                        name: "Basic - Medium 7 x 7",
+                        configuration: {
+
+                            // env
+                            world_width: 7,
+                            world_height: 7,
+                            world_depth: 7,
+                            world_face_depth: 1,
+
+                            // level
+                            game_level: 2,
+
+                            // entity
+                            spawn_obs: true,
+                            spawn_bonus: false,
+
+                            movable_obs: false,
+                            movable_food: false,
+                            movable_bonus: true,
+
+                            erasable_obs: true,
+                            erasable_food: true,
+                            erasable_bonus: true,
+
+                            target_score: 25,
+                            texture_pack_id: 1
+                        }
+
+                    },
+                    {
+                        level: 3,
+                        name: "Medium 9 x 9",
+                        configuration: {
+
+                            // env
+                            world_width: 9,
+                            world_height: 9,
+                            world_depth: 9,
+                            world_face_depth: 1,
+
+                            // level
+                            game_level: 10,
+
+                            // entity
+                            spawn_obs: true,
+                            spawn_bonus: true,
+
+                            movable_obs: true,
+                            movable_food: true,
+                            movable_bonus: true,
+
+                            erasable_obs: true,
+                            erasable_food: true,
+                            erasable_bonus: true,
+
+                            target_score: 30,
+                            texture_pack_id: 0
+                        }
+
+                    },
+                    {
+                        level: 4,
+                        name: "Medium - Hard 7 x 7",
+                        configuration: {
+
+                            // env
+                            world_width: 7,
+                            world_height: 7,
+                            world_depth: 7,
+                            world_face_depth: 1,
+
+                            // level
+                            game_level: 10,
+
+                            // entity
+                            spawn_obs: true,
+                            spawn_bonus: true,
+
+                            movable_obs: true,
+                            movable_food: true,
+                            movable_bonus: true,
+
+                            erasable_obs: true,
+                            erasable_food: true,
+                            erasable_bonus: true,
+
+                            target_score: 35,
+                            texture_pack_id: 1
+                        }
+
+                    },
+                    {
+                        level: 5,
+                        name: "Hard 5 x 5",
+                        configuration: {
+
+                            // env
+                            world_width: 5,
+                            world_height: 5,
+                            world_depth: 5,
+                            world_face_depth: 1,
+
+                            // level
+                            game_level: 15,
+
+                            // entity
+                            spawn_obs: true,
+                            spawn_bonus: true,
+
+                            movable_obs: true,
+                            movable_food: true,
+                            movable_bonus: true,
+
+                            erasable_obs: true,
+                            erasable_food: true,
+                            erasable_bonus: true,
+
+                            target_score: 40,
+                            texture_pack_id: 0
+                        }
+
+                    },
+                    {
+                        level: 6,
+                        name: "Advanced",
+                        configuration: {
+
+                            // env
+                            world_width: 3,
+                            world_height: 3,
+                            world_depth: 3,
+                            world_face_depth: 1,
+
+                            // level
+                            game_level: 10,
+
+                            // entity
+                            spawn_obs: true,
+                            spawn_bonus: true,
+
+                            movable_obs: true,
+                            movable_food: true,
+                            movable_bonus: true,
+
+                            erasable_obs: true,
+                            erasable_food: true,
+                            erasable_bonus: true,
+
+                            target_score: 50,
+                            texture_pack_id: 1
                         }
 
                     },

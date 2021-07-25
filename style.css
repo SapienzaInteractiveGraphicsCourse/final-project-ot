@@ -35,3 +35,22 @@ form.row > div{
     display: none;
     font-size: 30px;
 }
+
+
+.custom-range::-webkit-slider-thumb {
+    background: #ffc107;
+}
+
+.custom-range::-moz-range-thumb {
+    background: #ffc107;
+}
+
+.custom-range::-ms-thumb {
+    background: #ffc107;
+}
+
+.form-check-input:checked {
+    background-color: #ffc107;
+    border-color: #ffc107;
+}
+
