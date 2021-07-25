@@ -90,7 +90,7 @@ export class Config {
 
     // Camera Light
     static camera_light_color = 0xffffff;
-    static camera_light_intensity = Config.current_texture_pack.id === 0 ? 0.8 : 2.5;
+    static camera_light_intensity = Config.current_texture_pack.id === 0 ? 0.8 : 1.5;
     static camera_light_position = {x: 3.0, y: 3.0, z: 0.0};
 
     /*------ Resource settings ------*/

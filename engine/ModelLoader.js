@@ -255,7 +255,7 @@ export class EntityMeshManager {
         this.#snake_head_mesh = new THREE.Mesh(geometry, material)
 
         if (Config.graphic_level >= 1){
-            light = new THREE.PointLight(color, 0.8, 2, 1);
+            light = new THREE.PointLight(color, 3.0, 2, 1);
             this.#snake_head_mesh.add(light);
         }
 
@@ -268,7 +268,7 @@ export class EntityMeshManager {
         this.#snake_node_mesh = new THREE.Mesh(geometry, material);
 
         if (Config.graphic_level >= 2) {
-            light = new THREE.PointLight(color, 0.8, 2, 1);
+            light = new THREE.PointLight(color, 3.0, 2, 1);
             this.#snake_node_mesh.add(light);
         }
 
