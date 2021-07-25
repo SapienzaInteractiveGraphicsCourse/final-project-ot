@@ -289,7 +289,8 @@ export class Snake extends Entity{
             const head_mesh = EntityMeshManager.get_instance().get_snake_head_mesh();
 
             // The position and orientation will be updated at the first movement
-            this.head = new SnakeNode(0,this.x,this.y,this.z,null, head_mesh);
+            const direction = Utilities.vector_to_direction([1,0,0]);
+            this.head = new SnakeNode(0,this.x,this.y,this.z,direction, head_mesh);
             this.head.spawned = true;
             this.nodes[0] = this.head;
             this.mesh = this.head.container;
