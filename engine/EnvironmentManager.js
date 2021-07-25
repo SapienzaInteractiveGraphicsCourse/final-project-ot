@@ -63,9 +63,9 @@ export class EnvironmentManager {
 
         const object = this.environment.environment[x][y][z].content;
         if( object == null ) return false;
-        if(object instanceof CoreObstaclePart) return false; // core obstacle cannot be modified
-        if(object instanceof Snake) return false; // core obstacle cannot be modified
-        if(object instanceof SnakeNodeEntity) return false; // core obstacle cannot be modified
+        // if(object instanceof CoreObstaclePart) return false; // core obstacle cannot be modified
+        // if(object instanceof Snake) return false; // core obstacle cannot be modified
+        // if(object instanceof SnakeNodeEntity) return false; // core obstacle cannot be modified
 
         if(drawable !== undefined) this.environment.environment[x][y][z].content.drawable = drawable;
         if(movable !== undefined) this.environment.environment[x][y][z].content.movable = movable;
@@ -512,22 +512,6 @@ export class EnvironmentManager {
         
     }
 
-    // init_game(game_level){
-    //     //TODO spawn snake before
-    //     // generate random obstacle
-    //     this.spawn_snake();
-    //
-    //     const obstacles_num = Math.floor(Math.random() * game_level);
-    //     this.spawn_obstacles(obstacles_num, true, true, true);
-    //     this.spawn_foods(5, true, false, true);
-    //     // const bonus_num = Math.round(Math.random());
-    //     const bonus_num = 1;
-    //     this.spawn_random_type_bonus(bonus_num, true, false, true);
-    //
-    //
-    //     if(this.snake == null) console.log("SNAKE IS NULL", this.snake);
-    // }
-
     create_match(game_level, spawn_obs, spawn_bonus, move_obs, move_food, move_bonus, destroy_obs, destroy_food, destroy_bonus){
 
         this.spawn_snake();
@@ -558,6 +542,9 @@ export class EnvironmentManager {
     }
 
     destroy_game(){
+
+        this.modify_objects(Snake, undefined, undefined, true, undefined);
+        this.modify_objects(SnakeNodeEntity, undefined, undefined, true, undefined);
 
         let unavailable_coords_list = this.coord_generator.unavailable_coordinates;
         let unavailable_coords_keys = Object.keys(unavailable_coords_list);
@@ -705,11 +692,10 @@ export class EnvironmentManager {
         return spawned_object;
     }
 
-    modify_all_objects(type, drawable, movable, erasable, eatable){
+    modify_objects(type, drawable, movable, erasable, eatable){
         let modified_object = 0;
         const unavailable_coordinates = this.coord_generator._unavailable_coordinates;
         const unavailable_coordinates_keys = Object.keys(unavailable_coordinates);
-
 
         for(let i = 0; i < unavailable_coordinates_keys.length; i++){
             let key = unavailable_coordinates_keys[i];
@@ -719,7 +705,7 @@ export class EnvironmentManager {
 
 
             if(object == null) continue;
-            else if (object.constructor.name !== "ObstaclePart") continue;
+            else if (object.constructor.name !== type.name) continue;
             if(this.modify_object_structure(x, y, z, drawable, movable, erasable, eatable)) modified_object++;
         }
 

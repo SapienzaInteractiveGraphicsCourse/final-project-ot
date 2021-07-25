@@ -30,9 +30,8 @@ canvas{
 form.row > div{
     padding: 20px;
 }
-.menu-container{
-    /*width: 80%;*/
-    /*height: 80%;*/
 
+#result-div{
+    display: none;
+    font-size: 30px;
 }
-

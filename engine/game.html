@@ -12,33 +12,27 @@
 
 
 <body>
-<div class="row" style="height: 100%; margin: 0px;">
+<div class="row align-items-center" style="height: 100%; margin: 0px;">
 
 <!--    Loader -->
-    <div id="loader-div" class="container loader-container" style="padding: 0px;">
+    <div id="loader-div" class="container loader-container" style="background-color: #000019; padding: 0px;">
         <div class="row align-items-center loader-container" style="margin: 0px;">
             <div class="offset-4 col-4">
-<!--                <div class="progress">-->
                     <div class="progress">
                         <div id="loader-progress-bar" class="progress-bar progress-bar-striped bg-warning" role="progressbar" style="width: 0%" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
                     </div>
-<!--                    <div class="progress-bar" role="progressbar" style="width: 15%" aria-valuenow="15" aria-valuemin="0" aria-valuemax="100"></div>-->
-<!--                    <div class="progress-bar bg-success" role="progressbar" style="width: 30%" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100"></div>-->
-<!--                    <div class="progress-bar bg-info" role="progressbar" style="width: 20%" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100"></div>-->
-<!--                </div>-->
             </div>
         </div>
     </div>
 
 <!--    Canvas -->
-    <canvas id="canvas-div" style="padding: 0px;">
+    <canvas id="canvas-div" style="position: fixed; z-index: 1; padding: 0px;">
         Sorry, <strong>CANVAS</strong> is not supported by your browser. Get a more recent one to play my game!
     </canvas>
 
-<!--    Menu -->
-    <div id="settings-div" class="col-6 container menu-container">
-
-        <form class="row" style="background-color: #55aaff; ">
+    <!--    Menu -->
+    <div id="settings-div" class="col-6 container menu-container" style="z-index: 2;">
+        <form class="row" style="background-color: #55aaff; opacity: 0.8; border-radius: 5px;">
 
             <div class="col-12">
                 <div class="offset-md-4 col-md-4">
@@ -56,8 +50,6 @@
                         <div class="col-6">
                             Game mode
                             <select id="game-mode-select" class="form-select" aria-label="Default select example">
-<!--                                <option selected value="custom-select">Custom</option>-->
-<!--                                <option value="regular-select">Regular</option>-->
                             </select>
 
                         </div>
@@ -65,9 +57,6 @@
                         <div class="col-6">
                             Texture pack
                             <select  id="texture-mode-select" class="form-select" aria-label="Default select example">
-<!--                                <option value="1" selected>One</option>-->
-<!--                                <option value="2">Two</option>-->
-<!--                                <option value="3">Three</option>-->
                             </select>
 
                         </div>
@@ -134,8 +123,23 @@
             </div>
 
             <div class="col-12">
-                    <button type="button" class="offset-2 col-4 btn btn-primary" id="btn-save"> Save </button>
-                    <button type="button" class="col-4 btn btn-primary" id="btn-start" disabled> Start </button>
+                <button type="button" class="offset-2 col-4 btn btn-primary" id="btn-save"> Save </button>
+                <button type="button" class="col-4 btn btn-primary" id="btn-start" disabled> Start </button>
+            </div>
+
+        </form>
+    </div>
+
+
+    <!--    Results -->
+    <div id="result-div" class="col-4 container menu-container" style="z-index: 2;">
+        <form class="row" style="background-color: #aaaaaa; opacity: 0.8; border-radius: 5px;">
+
+            <div class="col-12" id="result-text">
+            </div>
+
+            <div class="col-12">
+                <button type="button" class="offset-4 col-4 btn btn-primary" id="btn-continue"> Continue </button>
             </div>
 
         </form>

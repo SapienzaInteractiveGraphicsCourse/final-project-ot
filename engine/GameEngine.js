@@ -152,8 +152,6 @@ class MatchManager {
         if(game_mode === Config.GAME_MODES[0].id) // custom
         {
 
-            // alert(" save configuration " + game_mode + " current level " + this.current_level);
-
             // player can modify settings
 
             let texture_mode = document.getElementById('texture-mode-select').value;
@@ -247,34 +245,57 @@ class MatchManager {
 
     end_level(reached_score){
 
-        alert(
-            " End level \n" +
-            " Config: " + this.game_mode_id + " " + this.game_mode_name + " " + this.game_mode_levels + "\n" +
-            " Total score " + reached_score + "\n" +
-            " Level " + this.current_level
-        )
+        show_result_div(true);
+
+        let result_div = document.getElementById('result-text');
+        result_div.innerHTML = '';
+
+        let message = "";
+        message = "Game over !";
+        result_div.appendChild(document.createTextNode(message));
+        result_div.appendChild(document.createElement("br"));
+        message = "Total score: " + reached_score;
+        result_div.appendChild(document.createTextNode(message));
+        result_div.appendChild(document.createElement("br"));
 
         if (this.game_mode_levels === true) {
             // regular game
-            let current_level = this.current_level;
             let target_score = this.target_score;
             if (reached_score >= target_score) {
-                alert("Level Win, total score " + reached_score);
+                message = "Level " + this.game_mode_level_name + " win !";
+                result_div.appendChild(document.createTextNode(message));
+                result_div.appendChild(document.createElement("br"));
+
+                // alert("Level Win, total score " + reached_score);
                 if (this.game_mode_total_levels - 1 === this.current_level ){
-                    alert("World completed, thanks you!");
+                    message = "World " + this.game_mode_name + " completed !";
+                    result_div.appendChild(document.createTextNode(message));
+                    result_div.appendChild(document.createElement("br"));
+
+                    // alert("World completed, thanks you!");
                     this.current_level = 0;
                 }
                 else {
                     this.current_level++;
                 }
             } else {
-                alert("Level Lose, total score " + reached_score);
+                // alert("Level Lose, total score " + reached_score);
+                message = "Level " + this.game_mode_level_name + "lose !";
+                result_div.appendChild(document.createTextNode(message));
+                result_div.appendChild(document.createElement("br"));
+
             }
+
+
+
         }
         else{
             // custom game
-            alert("custom game, total score" + reached_score);
+
         }
+
+
+
 
     }
 
@@ -303,7 +324,6 @@ class GameEngine{
 
 
     }
-
 
     load_render() {
 
@@ -400,7 +420,7 @@ class GameEngine{
 
             show_loader_div(false);
             show_setting_div(true);
-            show_canvas_div(false);
+            show_canvas_div(true);
 
             // init mesh manager that may be contains some object loaded by model loader.
             EntityMeshManager.init();
@@ -462,7 +482,10 @@ class GameEngine{
 
         this.scene.add(this.light);
         this.scene.add(this.camera_obj.container);
-        this.scene.add(this.environment_manager.environment.mesh);
+
+        let env_mesh = this.environment_manager.environment.mesh;
+        environment.animate();
+        this.scene.add(env_mesh);
 
 
         // init or reset controller
@@ -488,16 +511,14 @@ class GameEngine{
         console.log("Game started.");
     }
 
-    stop_engine(score){
+    stop_engine(){
         // stop match
         console.log("Stopping game.");
 
-        this.match_manager.end_level(score);
-
-        // this.environment_manager.destroy_game();
+        this.environment_manager.destroy_game();
 
         show_setting_div(true);
-        show_canvas_div(false);
+        show_canvas_div(true);
         show_loader_div(false);
         enable_start_btn(false);
 
@@ -543,8 +564,6 @@ class GameEngine{
     }
 
     // collision handler
-
-    // given the
     collision(content){
 
 
@@ -562,7 +581,7 @@ class GameEngine{
                 case 'ObstaclePart':
                     break;
                 case 'SnakeNodeEntity':
-                    alert("SnakeNodeEntity Not implemented exception");
+                    if(Config.log) console.log("SnakeNodeEntity Not implemented exception");
                     break;
                 case 'Food':
                     // when the snake eat food
@@ -601,7 +620,7 @@ class GameEngine{
                     break;
                 case 'InvincibilityBonus':
                         // makes obstacle part erasable and eatable
-                        this.environment_manager.modify_all_objects(ObstaclePart, undefined, undefined, true, true);
+                        this.environment_manager.modify_objects(ObstaclePart, undefined, undefined, true, true);
 
                     Config.actived_bonus = Config.BONUS['InvincibilityBonus'];
                     break;
@@ -638,14 +657,14 @@ class GameEngine{
             return false;
         }
         else{
-            alert(content.constructor.name + " Hitted");
+            // alert(content.constructor.name + " Hitted");
 
 
             if( this.score_manager.bonus_text_mesh !== null ) this.camera_obj.camera.remove(this.score_manager.bonus_text_mesh);
             this.camera_obj.camera.remove(this.score_manager.total_score_mesh);
             this.scene.remove(this.score_manager.local_score_mesh);
 
-            this.stop_engine(this.score_manager.score);
+            this.match_manager.end_level(this.score_manager.score);
 
             return true; // end game
 
@@ -664,6 +683,7 @@ function configure_event_handlers(){
 
     document.getElementById('btn-start').addEventListener("click", btn_start_click_function);
     document.getElementById('btn-save').addEventListener("click", btn_save_click_function);
+    document.getElementById('btn-continue').addEventListener("click", btn_continue_click_function);
 
     document.getElementById('game-mode-select').addEventListener("click", game_mode_option_change_function);
 
@@ -704,6 +724,12 @@ function btn_save_click_function(){
 
 }
 
+function btn_continue_click_function(){
+
+    show_result_div(false);
+    engine.stop_engine();
+}
+
 // html utility functions
 function show_setting_div(show){
     if(show) document.getElementById("settings-div").style.display = "unset";
@@ -719,6 +745,11 @@ function show_loader_div(show){
 function show_canvas_div(show){
     if(show) document.getElementById("canvas-div").style.display = "unset";
     else document.getElementById("canvas-div").style.display = "none";
+}
+
+function show_result_div(show){
+    if(show) document.getElementById("result-div").style.display = "unset";
+    else document.getElementById("result-div").style.display = "none";
 }
 
 function enable_start_btn(enable){

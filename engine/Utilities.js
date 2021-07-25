@@ -4,7 +4,7 @@ import {Config} from "./Config.js";
 import {vec3} from "../Common/MVnew.js";
 
 export class Utilities {
-    static gui = new GUI({name: "Debug", width: 400});
+    static gui = null;
 
     // given x, y and z coordinate return an axis of rotation
     static axis_from_world_coord(x, y, z){
@@ -69,7 +69,12 @@ export class Utilities {
         }
     }
 
+    static initGui(){
+        if (Config.grid_helpler && this.gui == null) this.gui = new GUI({name: "Debug", width: 400});
+    }
+
     static addAxisGridDebug(node, label, size = 1, units = 10) {
+        this.initGui();
         const handler = new AxisGridHandler(node,size,units);
         Utilities.gui.add(handler, 'axisVisible').name(label + ' Axis');
         Utilities.gui.add(handler, 'gridVisible').name(label + ' Grid');

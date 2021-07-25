@@ -15,7 +15,7 @@ export class Config {
 
     // debugging mode
     static log = false;
-    static grid_helpler = false;
+    static grid_helpler = true;
 
 
     // view

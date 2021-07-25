@@ -5,6 +5,7 @@ import * as THREE from '../resources/three.js-r129/build/three.module.js';
 import {Config} from "./Config.js";
 import {Utilities} from "./Utilities.js";
 import {EntityMeshManager, ModelLoader} from "./ModelLoader.js";
+import {TWEEN} from "../resources/three.js-r129/examples/jsm/libs/tween.module.min.js";
 
 
 
@@ -49,110 +50,6 @@ export class Environment extends View{
     draw(){
 
 
-        const geometry = new THREE.BufferGeometry();
-        const vertices = [];
-        let v1, v2, v3, v4, v5, v6, v7, v8;
-        let v;
-
-        // for(let l = 0; l < this.face_depth; l++){
-        //
-        //     v1 = new THREE.Vector3((this.width - 2 * l) / 2, (this.height - 2*l ) /2,(this.depth - 2 * l ) / 2);
-        //     v2 = new THREE.Vector3((this.width - 2 * l) / 2, (this.height - 2*l ) /2,-(this.depth - 2 * l ) / 2);
-        //     v3 = new THREE.Vector3((this.width - 2 * l) / 2, - (this.height - 2*l ) /2,(this.depth - 2 * l ) / 2);
-        //     v4 = new THREE.Vector3((this.width - 2 * l) / 2, - (this.height - 2*l ) /2,-(this.depth - 2 * l ) / 2);
-        //
-        //     v5 = new THREE.Vector3(- (this.width - 2 * l) / 2, (this.height - 2*l ) /2,(this.depth - 2 * l ) / 2);
-        //     v6 = new THREE.Vector3(- (this.width - 2 * l) / 2, (this.height - 2*l ) /2,-(this.depth - 2 * l ) / 2);
-        //     v7 = new THREE.Vector3(- (this.width - 2 * l) / 2, - (this.height - 2*l ) /2,(this.depth - 2 * l ) / 2);
-        //     v8 = new THREE.Vector3(- (this.width - 2 * l) / 2, - (this.height - 2*l ) /2,-(this.depth - 2 * l ) / 2);
-        //
-        //     // right face
-        //     vertices.push( v1.x, v1.y, v1.z );
-        //     vertices.push( v2.x, v2.y, v2.z );
-        //     vertices.push( v2.x, v2.y, v2.z );
-        //     vertices.push( v4.x, v4.y, v4.z );
-        //     vertices.push( v4.x, v4.y, v4.z );
-        //     vertices.push( v3.x, v3.y, v3.z );
-        //     vertices.push( v3.x, v3.y, v3.z );
-        //     vertices.push( v1.x, v1.y, v1.z );
-        //
-        //     // front face
-        //     vertices.push( v5.x, v5.y, v5.z );
-        //     vertices.push( v1.x, v1.y, v1.z );
-        //     vertices.push( v1.x, v1.y, v1.z );
-        //     vertices.push( v3.x, v3.y, v3.z );
-        //     vertices.push( v3.x, v3.y, v3.z );
-        //     vertices.push( v7.x, v7.y, v7.z );
-        //     vertices.push( v7.x, v7.y, v7.z );
-        //     vertices.push( v5.x, v5.y, v5.z );
-        //
-        //     // left face
-        //     vertices.push( v6.x, v6.y, v6.z );
-        //     vertices.push( v5.x, v5.y, v5.z );
-        //     vertices.push( v5.x, v5.y, v5.z );
-        //     vertices.push( v7.x, v7.y, v7.z );
-        //     vertices.push( v7.x, v7.y, v7.z );
-        //     vertices.push( v8.x, v8.y, v8.z );
-        //     vertices.push( v8.x, v8.y, v8.z );
-        //     vertices.push( v6.x, v6.y, v6.z );
-        //
-        //     // back face
-        //     vertices.push( v2.x, v2.y, v2.z );
-        //     vertices.push( v6.x, v6.y, v6.z );
-        //     vertices.push( v6.x, v6.y, v6.z );
-        //     vertices.push( v8.x, v8.y, v8.z );
-        //     vertices.push( v8.x, v8.y, v8.z );
-        //     vertices.push( v4.x, v4.y, v4.z );
-        //     vertices.push( v4.x, v4.y, v4.z );
-        //     vertices.push( v2.x, v2.y, v2.z );
-        //
-        // }
-
-        // for(let i = 0; i < this.width; i++) {
-        //     for (let j = 0; j < this.height; j++) {
-        //         for (let k = 0; k < this.depth; k++) {
-        //             let ren_c = Utilities.world_to_render(i, j, k);
-        //             console.log(ren_c);
-        //
-        //             v = new THREE.Vector3(ren_c[0], ren_c[1], ren_c[2]);
-        //             vertices.push( v.x, v.y, v.z );
-        //             break;
-        //
-        //         }
-        //     }
-        // }
-        //
-        // geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( vertices, 3 ) );
-        //
-        // const material = new THREE.LineBasicMaterial( { color: 0xffffff, opacity: 1.0 } );
-        // const line = new THREE.LineSegments( geometry, material );
-
-
-
-        //
-
-        // this.mesh = line;
-        // const core_w = this.width - (2 * this.face_depth);
-        // const core_h = this.height - (2 * this.face_depth);
-        // const core_d = this.depth - (2 * this.face_depth);
-        // if(core_w > 0 && core_h > 0 && core_d > 0){
-        //
-        //     // Core Material
-        //     // const core_material = new THREE.MeshBasicMaterial( {color: 0x99CCFF, opacity: 0.1} );
-        //     const core_material = new THREE.MeshStandardMaterial( {color: 0x99CCFF, transparent: true, opacity: 0.7} );
-        //
-        //     // Core Geometry
-        //     const core_geometry = new THREE.BoxGeometry(core_w, core_h, core_d, core_w, core_h, core_d);
-        //     // Core Mesh
-        //     const core_mesh = new THREE.Mesh( core_geometry, core_material );
-        //
-        //     line.add(core_mesh);
-        //
-        // }
-        //
-        // return;
-
-
         const cube_w = this.width * Config.cell_cube_dim;
         const cube_h = this.height * Config.cell_cube_dim;
         const cube_d = this.depth * Config.cell_cube_dim;
@@ -176,17 +73,6 @@ export class Environment extends View{
         const core_d = cube_d - (2 * cube_face_depth);
         if(core_w > 0 && core_h > 0 && core_d > 0){
 
-            // Core Material
-            // const core_material = new THREE.MeshBasicMaterial( {color: 0x99CCFF, opacity: 0.1} );
-            // const core_color = Config.world_color;
-            // const core_opacity = Config.world_opacity;
-            // const core_material = new THREE.MeshPhongMaterial( {color: core_color, transparent: true, opacity: core_opacity} );
-            //
-            //
-            // // Core Geometry
-            // const core_geometry = new THREE.BoxGeometry(core_w, core_h, core_d, core_w, core_h, core_d);
-            // // Core Mesh
-            // const core_mesh = new THREE.Mesh( core_geometry, core_material );
 
             const core_mesh = EntityMeshManager.get_instance().get_environment_core_mesh();
             core_mesh.scale.set(core_w, core_h, core_d);
@@ -196,7 +82,28 @@ export class Environment extends View{
 
         if(Config.grid_helpler) Utilities.addAxisGridDebug(cube_mesh, 'Environment');
 
+        cube_mesh.scale.set(
+            1 / (Config.cell_cube_dim * 10),
+            1 / (Config.cell_cube_dim * 10),
+            1 / (Config.cell_cube_dim * 10)
+        );
+
         this.mesh = cube_mesh;
+
+    }
+
+    animate(){
+        let scale = this.mesh.scale;
+        let target_scale = {x: scale.x * (Config.cell_cube_dim * 10), y: scale.y * (Config.cell_cube_dim * 10), z: scale.z * (Config.cell_cube_dim * 10)}
+        const tween_scale = new TWEEN.Tween(scale).to(target_scale, 1000);
+
+        let rotation = this.mesh.rotation;
+        let target_rotation = {x: Utilities.degrees_to_radians(360), y: Utilities.degrees_to_radians(360), z: Utilities.degrees_to_radians(360)}
+        const tween_rotate = new TWEEN.Tween(rotation).to(target_rotation, 1000);
+
+
+        tween_rotate.start();
+        tween_scale.start();
 
     }
 
