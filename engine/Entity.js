@@ -165,6 +165,8 @@ export class ObstaclePart extends Entity{
     }
 
 
+
+
 }
 
 export class CoreObstaclePart extends Entity{

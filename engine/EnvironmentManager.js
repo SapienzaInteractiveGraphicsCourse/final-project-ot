@@ -21,6 +21,7 @@ import { CoordinateManager } from "./CoordinateManager.js";
 import {Snake} from "./Snake.js";
 import {Config} from "./Config.js";
 import {Utilities} from "./Utilities.js";
+import {EntityMeshManager} from "./ModelLoader.js";
 
 
 // Level generator
@@ -46,6 +47,7 @@ export class EnvironmentManager {
         this.object_to_draw = [];
         this.object_to_move = [];
         this.object_to_destroy = [];
+        this.object_to_modify = [];
 
         this.init_environment();
         // this.init_game();
@@ -58,22 +60,29 @@ export class EnvironmentManager {
     // The following methods update the data structures
 
     // modifies an existing object in the environment at coordinates (x, y, z)
-    modify_object_structure(x, y, z, drawable, movable, erasable){
+    modify_object_structure(x, y, z, drawable, movable, erasable, eatable){
         if(!this.check_consistency(x, y, z)) return false;
 
         const object = this.environment.environment[x][y][z].content;
         if( object == null ) return false;
         if(object instanceof CoreObstaclePart) return false; // core obstacle cannot be modified
+        if(object instanceof Snake) return false; // core obstacle cannot be modified
+        if(object instanceof SnakeNodeEntity) return false; // core obstacle cannot be modified
 
         if(drawable !== undefined) this.environment.environment[x][y][z].content.drawable = drawable;
         if(movable !== undefined) this.environment.environment[x][y][z].content.movable = movable;
         if(erasable !== undefined) this.environment.environment[x][y][z].content.erasable = erasable;
+        if(eatable !== undefined) this.environment.environment[x][y][z].content.eatable = eatable;
 
+        this.object_to_modify.push(object); // add object to queue
+
+        return true;
 
     }
 
+
     // creates an object of type (type) in the environment at coordinates (x, y, z)
-    create_object_structure(x, y, z, type, drawable, movable, erasable){
+    create_object_structure(x, y, z, type, drawable, movable, erasable, eatable){
         if(!this.check_consistency(x, y, z)) return null;
         if(this.environment.environment[x][y][z].content != null) return null;
         
@@ -81,7 +90,7 @@ export class EnvironmentManager {
         this.environment.environment[x][y][z].content = object;
 
         if(object instanceof ObstaclePart) this.obstacle_num++;
-        if(object instanceof CoreObstaclePart) this.core_obstacle_num++;
+        else if(object instanceof CoreObstaclePart) this.core_obstacle_num++;
         else if(object instanceof Food) this.food_num++;
         else if(object instanceof Bonus) this.bonus_num++;
         else if(object instanceof Snake) this.snake_nodes_num++;
@@ -101,9 +110,7 @@ export class EnvironmentManager {
         if(!this.check_consistency(x, y, z)) return false;
         const object = this.environment.environment[x][y][z].content;
         if( object == null ) return false;
-        // if( object.mesh == null ) return false; // TODO REMOVE ( could be unnecessary)
         if( !object.erasable && !object.eatable) return false;
-
 
 
         if(object instanceof ObstaclePart) this.obstacle_num--;
@@ -208,6 +215,20 @@ export class EnvironmentManager {
 
     // the following methods update the graphic interface
 
+
+    modify_object_view(){
+
+        if(Config.log) console.log("Modify ", this.object_to_modify.length, " object.");
+        for(let i = 0; i < this.object_to_modify.length; i++){
+
+            const object = this.object_to_modify[i];
+            if( !object.drawable ) continue;
+            // todo update mesh of eatable object (destructible ones)
+        }
+
+        this.object_to_modify = [];
+
+    }
     // draw an object in the object_to_draw queue
     create_object_view(){
 
@@ -483,7 +504,7 @@ export class EnvironmentManager {
             for(let j = space; j < height - space; j++){
                 for(let k = space; k < depth - space; k++){
                     
-                    this.create_object_structure(i, j, k, CoreObstaclePart, false, false, false);
+                    this.create_object_structure(i, j, k, CoreObstaclePart, false, false, false, false);
                    
                 }
             }   
@@ -629,19 +650,19 @@ export class EnvironmentManager {
 
     // Spawn {number} ObstaclePart object in the environment
     spawn_obstacles(number, drawable, movable, erasable, random){
-        this.spawn_objects(number, ObstaclePart, drawable, movable, erasable, random);
+        this.spawn_objects(number, ObstaclePart, drawable, movable, erasable, false, random);
     }
 
 
     // Spawn {number} Food object  in the environment
     spawn_foods(number, drawable, movable, erasable, random){
-        this.spawn_objects(number, Food, drawable, movable, erasable, random);
+        this.spawn_objects(number, Food, drawable, movable, erasable, true, random);
     }
 
 
     // Spawn {number} Bonus object in the environment
     spawn_bonus(number, type, drawable, movable, erasable, random){
-        this.spawn_objects(number, type, drawable, movable, erasable, random);
+        this.spawn_objects(number, type, drawable, movable, erasable, true, random);
     }
 
     // Spawn Snake
@@ -652,13 +673,13 @@ export class EnvironmentManager {
         const z = this.environment.depth - 1;
 
         // console.log([x,y,z])
-        this.snake = this.create_object_structure(x, y, z, Snake, true, true, false);
+        this.snake = this.create_object_structure(x, y, z, Snake, true, true, false, false);
         this.snake_nodes.push(this.snake);
         this.create_object_view();
     }
 
     create_snake_node_structure(node, position){
-        const node_structure = this.create_object_structure(position[0], position[1], position[2], SnakeNodeEntity, false, true, true);
+        const node_structure = this.create_object_structure(position[0], position[1], position[2], SnakeNodeEntity, false, true, true, false);
         if (node_structure === null || node === null)
             console.log("ERROR create node structure", node_structure, node);
         if (node !== null && node.mesh !== null && node_structure!== null) {
@@ -670,7 +691,7 @@ export class EnvironmentManager {
     }
 
     // Spawn {number} object of type {type} in the environment
-    spawn_objects(number, type, drawable, movable, erasable, random){
+    spawn_objects(number, type, drawable, movable, erasable, eatable, random){
         if(random) number = Math.floor(Math.random() * number);
 
         let spawned_object = [];
@@ -678,7 +699,7 @@ export class EnvironmentManager {
         for(let i = 0; i < number; i++){
             let coord = this.coord_generator.get_random_available();
             if(coord == null) continue;
-            let obj = this.create_object_structure(coord[0], coord[1], coord[2], type, drawable, movable, erasable);
+            let obj = this.create_object_structure(coord[0], coord[1], coord[2], type, drawable, movable, erasable, eatable);
             spawned_object.push(obj);
         }
 
@@ -686,6 +707,31 @@ export class EnvironmentManager {
             
         return spawned_object;
     }
+
+    modify_all_objects(type, drawable, movable, erasable, eatable){
+        alert("calling")
+        let modified_object = 0;
+        const unavailable_coordinates = this.coord_generator._unavailable_coordinates;
+        const unavailable_coordinates_keys = Object.keys(unavailable_coordinates);
+
+
+        for(let i = 0; i < unavailable_coordinates_keys.length; i++){
+            let key = unavailable_coordinates_keys[i];
+            let coord = unavailable_coordinates[key];
+            let x = coord[0], y = coord[1], z = coord[2];
+            let object = this.environment.environment[x][y][z].content;
+
+
+            if(object == null) continue;
+            else if (object.constructor.name !== "ObstaclePart") continue;
+            if(this.modify_object_structure(x, y, z, drawable, movable, erasable, eatable)) modified_object++;
+        }
+
+        this.modify_object_view();
+
+        console.log("Modified object ", modified_object);
+    }
+
 
 
     get_entity(x, y, z){

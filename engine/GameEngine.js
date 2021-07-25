@@ -506,7 +506,7 @@ class GameEngine{
 
     }
 
-    update_engine(){
+    random_environment_interaction(){
 
         const spawn_obs = this.match_manager.spawn_obs;
         const spawn_bonus = this.match_manager.spawn_bonus;
@@ -519,12 +519,19 @@ class GameEngine{
         const erasableFood = this.match_manager.erasable_food;
         const erasableBonus = this.match_manager.erasable_bonus;
 
-        // if(spawn_obs) this.environment_manager.spawn_obstacles(1, true, movableObs, erasableObs, false);
-        // if(spawn_bonus) this.environment_manager.spawn_random_type_bonus(1, Bonus, true, movableBonus, erasableBonus, false);
-
-        // const num = Math.round(this.environment_manager.obstacle_num / 8);
-        // this.environment_manager.move_objects(num, false)
-        // this.environment_manager.destroy_objects(num, false);
+        if( Math.random() > 0.7 ){
+            const percentage = Math.random();
+            if(percentage > 0 && percentage < 25){
+                if(spawn_obs) this.environment_manager.spawn_obstacles(5, true, movableObs, erasableObs, true);
+            } else if(percentage > 25 && percentage < 50) {
+                if(spawn_bonus) this.environment_manager.spawn_random_type_bonus(5, true, movableBonus, erasableBonus, true);
+            } else if(percentage > 50 && percentage < 75) {
+                // todo makes move_objects typed and call iff movable is setted... (movableObs, movableFood, movableBonus)
+                this.environment_manager.move_objects(5, true)
+            } else if(percentage > 75 && percentage < 100) {
+                this.environment_manager.destroy_objects(5, true);
+            }
+        }
 
 
     }
@@ -542,13 +549,14 @@ class GameEngine{
             this.environment_manager.destroy_object_structure(content.x, content.y, content.z);
             this.environment_manager.destroy_object_view();
 
+            this.random_environment_interaction();
+
             let num;
             switch (content.constructor.name) {
                 case 'ObstaclePart':
-                    alert("Not implemented exception");
                     break;
                 case 'SnakeNodeEntity':
-                    alert("Not implemented exception");
+                    alert("SnakeNodeEntity Not implemented exception");
                     break;
                 case 'Food':
                     // when the snake eat food
@@ -574,18 +582,22 @@ class GameEngine{
                     }
                     break;
                 case 'ScoreBonus':
-
                     num = Math.floor((Math.random() * 5 ) + 2);
                     this.score_manager.multiplicator = num;
 
                     break;
                 case 'FastBonus':
+
                     break;
                 case 'InvincibilityBonus':
+                        // makes obstacle part erasable and eatable
+                        this.environment_manager.modify_all_objects(ObstaclePart, undefined, undefined, true, true);
                     break;
                 case 'InvisibilityBonus':
+
                     break;
                 case 'Bonus':
+
                     break;
             }
 
@@ -595,6 +607,7 @@ class GameEngine{
             // very dirty solution
             // this.scene.children.pop();
 
+            if( this.score_manager.bonus_text_mesh !== null ) this.camera_obj.camera.remove(this.score_manager.bonus_text_mesh);
             this.camera_obj.camera.remove(this.score_manager.total_score_mesh);
             this.scene.remove(this.score_manager.local_score_mesh);
 
@@ -602,10 +615,10 @@ class GameEngine{
 
             this.scene.add(this.score_manager.local_score_mesh);
             this.camera_obj.camera.add(this.score_manager.total_score_mesh);
+            this.camera_obj.camera.add(this.score_manager.bonus_text_mesh);
 
-            this.score_manager.animate();
-
-
+            this.score_manager.animate_local_score();
+            this.score_manager.animate_bonus_text();
 
 
             return false;
@@ -613,6 +626,8 @@ class GameEngine{
         else{
             alert(content.constructor.name + " Hitted");
 
+
+            if( this.score_manager.bonus_text_mesh !== null ) this.camera_obj.camera.remove(this.score_manager.bonus_text_mesh);
             this.camera_obj.camera.remove(this.score_manager.total_score_mesh);
             this.scene.remove(this.score_manager.local_score_mesh);
 

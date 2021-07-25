@@ -29,6 +29,8 @@ export class ScoreManager{
 
         this.local_score_mesh = null;
         this.total_score_mesh = null;
+
+        this.bonus_text_mesh = null;
     }
 
     update_score_configuration(){
@@ -55,6 +57,7 @@ export class ScoreManager{
             case 'InvisibilityBonus':
             case 'Bonus':
                 score = this.bonus_score;
+                this.update_bonus_text(hitted_object.constructor.name);
                 break;
 
             case 'ObstaclePart':
@@ -79,6 +82,28 @@ export class ScoreManager{
 
     }
 
+    update_bonus_text(bonus_text) {
+
+        // if (object_score === 0) return;
+
+        /*------- Score bonus ------*/
+        let geometry = new THREE.TextGeometry(bonus_text, {
+            font: ModelLoader.get_instance().models[Config.TEXTURE_PACKS[0].textures.score.name],
+            // size: Config.cell_cube_dim / 3,
+            size : Config.cell_cube_dim / 4,
+            height: 0.01
+        });
+
+        const color = 0xFFC500;
+        const material = new THREE.MeshPhongMaterial({color: 0xFFFFFF, transparent: true, opacity: 1.0});
+
+        const bonus_mesh = new THREE.Mesh(geometry, material);
+        bonus_mesh.position.set(-2.0, 1.5, -10);
+
+        this.bonus_text_mesh = bonus_mesh;
+
+
+    }
 
     update_total_score_mesh(total_score) {
 
@@ -105,7 +130,6 @@ export class ScoreManager{
 
 
     }
-
 
     update_local_score_mesh(position, object_score){
 
@@ -145,7 +169,7 @@ export class ScoreManager{
 
     }
 
-    animate(){
+    animate_local_score(){
 
         let content = this.local_score_mesh.children[0];
 
@@ -165,6 +189,24 @@ export class ScoreManager{
         tween_erase.start();
         tween_move.start();
         tween_scale.start();
+    }
+
+    animate_bonus_text(){
+
+
+        let content = this.bonus_text_mesh;
+        if(content === null) return;
+
+        let position = content.position;
+        let target_position = { x: 0, y: position.y + 1, z: 0 }
+
+        const tween_move = new TWEEN.Tween(position).to(target_position, 1000);
+        const tween_erase = new TWEEN.Tween( content.material ).to({ opacity: 0 }, 1000).start();
+
+        tween_erase.start();
+        tween_move.start();
+
+
     }
 
 }
