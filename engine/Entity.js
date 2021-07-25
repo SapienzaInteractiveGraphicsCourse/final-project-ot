@@ -134,9 +134,9 @@ export class Obstacle {
 
 // ObstaclePart object
 export class ObstaclePart extends Entity{
-    
-    constructor(x, y, z, drawable, movable, erasable){
-        super(x, y, z, drawable, movable, erasable, false); // call the super class constructor and pass in the name parameter
+
+    constructor(x, y, z, drawable, movable, erasable, eatable){
+        super(x, y, z, drawable, movable, erasable, eatable); // call the super class constructor and pass in the name parameter
 
         this.mesh = null;
         this.draw();

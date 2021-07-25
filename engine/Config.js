@@ -299,6 +299,17 @@ export class Config {
     static current_match_configuration = Config.GAME_MODES[0]; // custom match config
 
 
+    static BONUS = {
+        'None' : 0,
+        'ScoreBonus' : 1,
+        'LuckyBonus' : 2,
+        'FastBonus' : 3,
+        'InvisibilityBonus' : 4,
+        'InvincibilityBonus' : 5,
+    }
 
+
+
+    static actived_bonus = Config.BONUS['None'];
 }
 

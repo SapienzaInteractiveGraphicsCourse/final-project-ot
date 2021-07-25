@@ -492,7 +492,6 @@ class GameEngine{
         // stop match
         console.log("Stopping game.");
 
-
         this.match_manager.end_level(score);
 
         // this.environment_manager.destroy_game();
@@ -519,13 +518,20 @@ class GameEngine{
         const erasableFood = this.match_manager.erasable_food;
         const erasableBonus = this.match_manager.erasable_bonus;
 
+
+        console.log("random_environment_interaction");
+
+        // 30 %
         if( Math.random() > 0.7 ){
             const percentage = Math.random();
-            if(percentage > 0 && percentage < 25){
-                if(spawn_obs) this.environment_manager.spawn_obstacles(5, true, movableObs, erasableObs, true);
-            } else if(percentage > 25 && percentage < 50) {
+            if(percentage > 0 && percentage < 25){ // 0 % < x < 25 %
+                if(spawn_obs) {
+                    if(Config.actived_bonus === Config.BONUS['InvincibilityBonus']) this.environment_manager.spawn_obstacles(5, true, movableObs, erasableObs, true, true);
+                    else this.environment_manager.spawn_obstacles(5, true, movableObs, erasableObs, false, true);
+                }
+            } else if(percentage > 25 && percentage < 50) { // 25 % < x < 50 %
                 if(spawn_bonus) this.environment_manager.spawn_random_type_bonus(5, true, movableBonus, erasableBonus, true);
-            } else if(percentage > 50 && percentage < 75) {
+            } else if(percentage > 50 && percentage < 75) { // 50 % < x < 75 %
                 // todo makes move_objects typed and call iff movable is setted... (movableObs, movableFood, movableBonus)
                 this.environment_manager.move_objects(5, true)
             } else if(percentage > 75 && percentage < 100) {
@@ -580,24 +586,32 @@ class GameEngine{
                         num = Math.floor((Math.random() * 5 ) + 2);
                         this.score_manager.multiplicator = num;
                     }
+
+                    Config.actived_bonus = Config.BONUS['LuckyBonus'];
                     break;
                 case 'ScoreBonus':
                     num = Math.floor((Math.random() * 5 ) + 2);
                     this.score_manager.multiplicator = num;
 
+                    Config.actived_bonus = Config.BONUS['ScoreBonus'];
                     break;
                 case 'FastBonus':
 
+                    Config.actived_bonus = Config.BONUS['FastBonus'];
                     break;
                 case 'InvincibilityBonus':
                         // makes obstacle part erasable and eatable
                         this.environment_manager.modify_all_objects(ObstaclePart, undefined, undefined, true, true);
+
+                    Config.actived_bonus = Config.BONUS['InvincibilityBonus'];
                     break;
                 case 'InvisibilityBonus':
 
+                    Config.actived_bonus = Config.BONUS['InvisibilityBonus'];
                     break;
                 case 'Bonus':
 
+                    // Config.actived_bonus = Config.BONUS['LuckyBonus'];
                     break;
             }
 

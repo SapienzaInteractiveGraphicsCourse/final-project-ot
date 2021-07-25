@@ -55,8 +55,6 @@ export class EnvironmentManager {
     }
 
 
-
-
     // The following methods update the data structures
 
     // modifies an existing object in the environment at coordinates (x, y, z)
@@ -86,7 +84,7 @@ export class EnvironmentManager {
         if(!this.check_consistency(x, y, z)) return null;
         if(this.environment.environment[x][y][z].content != null) return null;
         
-        let object = new type(x, y, z, drawable, movable, erasable);
+        let object = new type(x, y, z, drawable, movable, erasable, eatable);
         this.environment.environment[x][y][z].content = object;
 
         if(object instanceof ObstaclePart) this.obstacle_num++;
@@ -223,7 +221,7 @@ export class EnvironmentManager {
 
             const object = this.object_to_modify[i];
             if( !object.drawable ) continue;
-            // todo update mesh of eatable object (destructible ones)
+            //    do nothing
         }
 
         this.object_to_modify = [];
@@ -554,7 +552,6 @@ export class EnvironmentManager {
         this.spawn_foods(food_num, true, move_bonus, destroy_food);
 
 
-
         if(this.snake == null) console.log("SNAKE IS NULL", this.snake);
 
 
@@ -649,8 +646,8 @@ export class EnvironmentManager {
     
 
     // Spawn {number} ObstaclePart object in the environment
-    spawn_obstacles(number, drawable, movable, erasable, random){
-        this.spawn_objects(number, ObstaclePart, drawable, movable, erasable, false, random);
+    spawn_obstacles(number, drawable, movable, erasable, eatable, random){
+        this.spawn_objects(number, ObstaclePart, drawable, movable, erasable, eatable, random);
     }
 
 
@@ -709,7 +706,6 @@ export class EnvironmentManager {
     }
 
     modify_all_objects(type, drawable, movable, erasable, eatable){
-        alert("calling")
         let modified_object = 0;
         const unavailable_coordinates = this.coord_generator._unavailable_coordinates;
         const unavailable_coordinates_keys = Object.keys(unavailable_coordinates);
