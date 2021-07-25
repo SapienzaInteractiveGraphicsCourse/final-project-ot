@@ -403,7 +403,7 @@ export class Snake extends Entity{
             AnimationHandler.startNextEvent();
         }
         else {
-            console.log("ERROR: Null Snake movement");
+            console.log("Warning: Null Snake movement");
         }
     }
 
@@ -518,20 +518,14 @@ export class Snake extends Entity{
         AnimationHandler.addRotation(eventsList);
     }
 
-    //TODO Destroy
-
 
     update_nodes_position() {
-        //TODO remove
-        //console.log("head pos-dir", this.head.get_position(),this.head.get_direction());
-
         for (let i = 1; i < this.nodes.length; i++){
             const node = this.nodes[i];
             let pos = new THREE.Vector3();
             node.mesh.getWorldPosition(pos);
             pos = Utilities.render_to_world(pos.x, pos.y, pos.z);
             node.update_position(pos);
-            //console.log("node pos-dir",i,node.spawned, node.get_position(),node.get_direction());
         }
     }
 
