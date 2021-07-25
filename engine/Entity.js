@@ -7,7 +7,6 @@ import {EntityMeshManager} from "./ModelLoader.js";
 
 
 
-// [TODO] 
 // - viewable
 // - drawable
 // - movable

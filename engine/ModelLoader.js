@@ -1,4 +1,3 @@
-//TODO REMOVE
 import * as THREE from '../resources/three.js-r129/build/three.module.js';
 import {GLTFLoader} from "../resources/three.js-r129/examples/jsm/loaders/GLTFLoader.js";
 import {Config} from "./Config.js";

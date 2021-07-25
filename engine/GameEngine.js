@@ -201,6 +201,7 @@ class MatchManager {
         {
             // if game mode is changed reset current level
             if(Config.current_match_configuration.id !== Config.GAME_MODES[1].id ) this.current_level = 0;
+
             Config.current_level = this.current_level; // update level if needed
             Config.current_match_configuration = Config.GAME_MODES[1]; // set game mode
             Config.current_texture_pack = Config.TEXTURE_PACKS[Config.current_match_configuration.configuration.levels[Config.current_level].configuration.texture_pack_id]; // set texture pack
@@ -209,7 +210,7 @@ class MatchManager {
         else if(game_mode === Config.GAME_MODES[2].id) // regular
         {
             // if game mode is changed reset current level
-            if(Config.current_match_configuration.id !== Config.GAME_MODES[1].id ) this.current_level = 0;
+            if(Config.current_match_configuration.id !== Config.GAME_MODES[2].id ) this.current_level = 0;
             Config.current_level = this.current_level; // update level if needed
             Config.current_match_configuration = Config.GAME_MODES[2]; // set game mode
             Config.current_texture_pack = Config.TEXTURE_PACKS[Config.current_match_configuration.configuration.levels[Config.current_level].configuration.texture_pack_id]; // set texture pack
@@ -218,7 +219,7 @@ class MatchManager {
         else if(game_mode === Config.GAME_MODES[3].id) // regular
         {
             // if game mode is changed reset current level
-            if(Config.current_match_configuration.id !== Config.GAME_MODES[1].id ) this.current_level = 0;
+            if(Config.current_match_configuration.id !== Config.GAME_MODES[3].id ) this.current_level = 0;
             Config.current_level = this.current_level; // update level if needed
             Config.current_match_configuration = Config.GAME_MODES[3]; // set game mode
             Config.current_texture_pack = Config.TEXTURE_PACKS[Config.current_match_configuration.configuration.levels[Config.current_level].configuration.texture_pack_id]; // set texture pack
@@ -541,8 +542,6 @@ class GameEngine{
         const erasableBonus = this.match_manager.erasable_bonus;
 
 
-        console.log("random_environment_interaction");
-
         // 30 %
         if( Math.random() > 0.7 ){
             const percentage = Math.random();
@@ -635,21 +634,16 @@ class GameEngine{
                     break;
             }
 
-
-
-            // todo remove old
-            // very dirty solution
-            // this.scene.children.pop();
-
+            // removes mesh from scene and add the new ones once the score is updated
             if( this.score_manager.bonus_text_mesh !== null ) this.camera_obj.camera.remove(this.score_manager.bonus_text_mesh);
-            this.camera_obj.camera.remove(this.score_manager.total_score_mesh);
-            this.scene.remove(this.score_manager.local_score_mesh);
+            if( this.score_manager.total_score_mesh !== null ) this.camera_obj.camera.remove(this.score_manager.total_score_mesh);
+            if( this.score_manager.local_score_mesh !== null ) this.scene.remove(this.score_manager.local_score_mesh);
 
             this.score_manager.update_score(content);
 
-            this.scene.add(this.score_manager.local_score_mesh);
-            this.camera_obj.camera.add(this.score_manager.total_score_mesh);
-            this.camera_obj.camera.add(this.score_manager.bonus_text_mesh);
+            if( this.score_manager.local_score_mesh !== null ) this.scene.add(this.score_manager.local_score_mesh);
+            if( this.score_manager.total_score_mesh !== null )this.camera_obj.camera.add(this.score_manager.total_score_mesh);
+            if( this.score_manager.bonus_text_mesh !== null )this.camera_obj.camera.add(this.score_manager.bonus_text_mesh);
 
             this.score_manager.animate_local_score();
             this.score_manager.animate_bonus_text();
@@ -658,12 +652,10 @@ class GameEngine{
             return false;
         }
         else{
-            // alert(content.constructor.name + " Hitted");
-
 
             if( this.score_manager.bonus_text_mesh !== null ) this.camera_obj.camera.remove(this.score_manager.bonus_text_mesh);
-            this.camera_obj.camera.remove(this.score_manager.total_score_mesh);
-            this.scene.remove(this.score_manager.local_score_mesh);
+            if( this.score_manager.total_score_mesh !== null ) this.camera_obj.camera.remove(this.score_manager.total_score_mesh);
+            if( this.score_manager.local_score_mesh !== null ) this.scene.remove(this.score_manager.local_score_mesh);
 
             this.match_manager.end_level(this.score_manager.score);
 
@@ -817,17 +809,6 @@ configure_event_handlers();
 custom_texture_pack_select_menu();
 
 custom_game_mode_select_menu();
-
-// test configuration
-// [todo replace with the following function]
-// load_resources();
-
-//document.getElementById("loader-div").style.display = "none";
-//document.getElementById("settings-div").style.display = "none";
-//document.getElementById("canvas-div").style.display = 'unset';
-//init();
-
-// [end todo replace]
 
 
 let engine = new GameEngine();

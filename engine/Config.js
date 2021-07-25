@@ -384,7 +384,7 @@ export class Config {
             id: 3,
             name: "Mixed Incremental",
             levels: true,
-            total_levels: 5,
+            total_levels: 6,
             configuration: {
                 levels: [
                     {
