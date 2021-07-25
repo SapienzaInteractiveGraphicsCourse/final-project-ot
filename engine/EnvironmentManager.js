@@ -711,7 +711,7 @@ export class EnvironmentManager {
 
         this.modify_object_view();
 
-        console.log("Modified object ", modified_object);
+        if(Config.log) console.log("Modified object ", modified_object);
     }
 
 

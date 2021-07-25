@@ -179,10 +179,10 @@ export class Controller{
             }
 
         } else {
-            this.#rotate_view(snake_position, snake_target_position);
+            const rotated = this.#rotate_view(snake_position, snake_target_position);
             const gameover = this.#collision_handler(snake_target_position);
             if (gameover) this.started = false;
-            else this.schedule_movement(snake_position, snake_target_position, snake_target_direction);
+            if (!rotated && !gameover) this.schedule_movement(snake_position, snake_target_position, snake_target_direction);
         }
     }
 
@@ -215,7 +215,11 @@ export class Controller{
                 snake_target_direction
             );
 
+            return true;
+
         }
+
+        return false;
 
     }
 
